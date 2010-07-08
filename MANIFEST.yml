@@ -1,0 +1,20 @@
+package: github
+version: 0.0.1
+
+sources:
+  include:
+    - site-lisp/github/**/*.l
+  exclude:
+    - site-lisp/github/**/tests/*.l
+
+document:
+  - README.rdoc
+
+files:
+  include:
+    - site-lisp/**/*.l
+    - site-lisp/**/*.lc
+    - site-lisp/github/lib/*.dll
+    - site-lisp/github/src/**/*.*
+    - site-lisp/github/examples/**/*.*
+    - site-lisp/github/tests/*.*
