@@ -1,6 +1,6 @@
-; -*- mode: lisp; package: user -*-
+; -*- mode: lisp; package: github -*-
 
-;;; github/package.l
+;;; github/git-config.l
 ;;
 ;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
 ;;
@@ -26,21 +26,34 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (require "xml-http-request")
-  (require "json")
+  (mc-require "github/package")
+  (mc-require "github/utils")
+  )
 
-  (unless (find-package :github)
-    (defpackage :github
-      (:nicknames :gh)
-      (:use
-       :lisp
-       :editor
+(in-package :github)
 
-       :xml-http-request
-       :json
-       ))))
+(defun github-credential ()
+  (let ((config-list (git-config-list)))
+    (values
+     (git-config 'github.user config-list)
+     (git-config 'github.token config-list))))
+
+(defun git-config-list ()
+  (mapcan #'(lambda (config)
+              (let ((kv (split-string config #\= 2)))
+                (cons (intern (car kv))
+                      (cdr kv))))
+          (process-output->string-list "git config --global --list")))
+
+(defun git-config (key config-list)
+  (when (stringp key)
+    (setf key (intern key)))
+  (getf config-list key))
+
+(defun git-version ()
+  (car (process-output->string-list "git --version")))
 
 
-(provide "github/package")
+(provide "github/git-config")
 
 ;;; End

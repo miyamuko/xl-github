@@ -1,6 +1,6 @@
-; -*- mode: lisp; package: user -*-
+; -*- mode: lisp; package: github -*-
 
-;;; github/package.l
+;;; github/macros.l
 ;;
 ;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
 ;;
@@ -26,21 +26,43 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (require "xml-http-request")
-  (require "json")
+  (mc-require "github/package")
+  )
 
-  (unless (find-package :github)
-    (defpackage :github
-      (:nicknames :gh)
-      (:use
-       :lisp
-       :editor
+(in-package :github)
 
-       :xml-http-request
-       :json
-       ))))
+(defmacro with-gensyms (syms &body body)
+  `(let ,(mapcar #'(lambda (sym)
+                     `(,sym (gensym)))
+                 syms)
+     ,@body))
+#+xyzzy
+(setf (get 'with-gensyms 'ed:lisp-indent-hook) 'let)
+
+(defmacro with-selected-buffer (buffer &body body)
+  (with-gensyms (org)
+    `(if (eq ,buffer (selected-buffer))
+         (progn ,@body)
+       (let ((,org (selected-buffer)))
+         (unwind-protect
+             (with-set-buffer
+               (set-buffer ,buffer)
+               (progn ,@body))
+           (set-buffer ,org))))))
+#+xyzzy
+(setf (get 'with-selected-buffer 'ed::lisp-indent-hook) 'with-selected-window)
+
+(defmacro form-value-bind ((var) value-form &body forms)
+  `(let (,var)
+     (macrolet ((form (key value predicate)
+                  `(when ,predicate
+                     (push (cons ,key ,value) ,',var))))
+       ,value-form)
+     ,@forms))
+#+xyzzy
+(setf (get 'form-value-bind 'ed:lisp-indent-hook) 2)
 
 
-(provide "github/package")
+(provide "github/macros")
 
 ;;; End

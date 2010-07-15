@@ -1,6 +1,6 @@
 ; -*- mode: lisp; package: github -*-
 
-;;; github/github.l
+;;; github/version.l
 ;;
 ;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
 ;;
@@ -26,16 +26,37 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (require "github/package")
+  (mc-require "github/package")
   )
 
 (in-package :github)
 
-(export '(github
+(export '(github-version
+          ))
+
+(defconstant +github-version+ "0.0.1")
+(defconstant +github-uri+ "http://miyamuko.s56.xrea.com/xyzzy/xl-github/intro.htm")
+
+(defun github-version ()
+  +github-version+)
+
+(defun github-uri ()
+  +github-uri+)
+
+(defun github-product ()
+  (format nil "~A/~A" "xl-github" +github-version+))
+
+(defun github-platform ()
+  (format nil "~A ~A" (software-type) (software-version)))
+
+(defun github-user-agent ()
+  (format nil "~A (~A; ~A)"
+          (github-product)
+          (github-platform)
+          +github-uri+
           ))
 
 
-(provide "github/github")
-
+(provide "github/version")
 
 ;;; End

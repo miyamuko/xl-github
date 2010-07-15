@@ -1,6 +1,6 @@
-; -*- mode: lisp; package: github -*-
+; -*- mode: lisp; package: user -*-
 
-;;; github/version.l
+;;; github/api.l
 ;;
 ;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
 ;;
@@ -25,21 +25,18 @@
 
 ;;; Code:
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (require "github/package")
-  )
+(in-package :user)
 
-(in-package :github)
-
-(export '(github-version
-          ))
-
-(defconstant +github-version+ "0.0.1")
-
-(defun github-version ()
-  +github-version+)
+(mc-require "github/api/commits")
+(mc-require "github/api/gist")
+(mc-require "github/api/issues")
+(mc-require "github/api/network")
+(mc-require "github/api/object")
+(mc-require "github/api/repo")
+(mc-require "github/api/users")
 
 
-(provide "github/version")
+(provide "github/api")
+
 
 ;;; End

@@ -1,4 +1,70 @@
+2010-07-24  MIYAMUKO Katsuyuki
+
+	* とりあえず push
+
+	* (repo.l): 一応一通り動くようになった
+	  - 戻り値はいまのところ JSON をそのまま返しているので修正が必要
+
+2010-07-23  MIYAMUKO Katsuyuki
+
+	* スクリプトの雛形修正
+
+	* (form-value-bind): post データを生成するマクロ
+
+	* (repo.l): Repository API の半分まで実装してテスト
+	  - github-repos-search
+	  - github-repos-show
+	  - github-repos-set
+	  - github-repos-list
+	    - ログイン中はプライベートなリポジトリも取得できるけど
+	      プライベートなリポジトリを作るには有料プランにする必要がある
+	  - github-repos-unwatch
+	  - github-repos-watch
+	  - github-repos-fork
+
+2010-07-22  MIYAMUKO Katsuyuki
+
+	* (define-github-api): マクロで生成した関数にはタグジャンプできないので却下
+
+	* Develop.Github の markdown ファイル
+	  http://develop.github.com/
+	  http://github.com/develop/develop.github.com
+
+	* (scripts/genapi.rb): markdown から xyzzy lisp を生成するスクリプト
+
+2010-07-18  MIYAMUKO Katsuyuki
+
+	* low level な API は大体定義
+
+	* GitHub API 自体はマクロで定義することにする
+	  - (define-github-api github-repos-search "repos/search/:query")
+	  - (defun github-repos-search (query &key since nomsg)
+	      (github-get-json "repos/search/:q" `((:q . ,query)) :since since :nomsg nomsg))
+
+2010-07-16  MIYAMUKO Katsuyuki
+
+	* GitHub は Basic 認証が通らない?
+
+	* (github-credential): git config を実行して github.login, github.token
+	を取得する
+
+	* (bind-params): シンプルな uri-template を書いた
+
+2010-07-15  MIYAMUKO Katsuyuki
+
+	* (process-output->string): (call-process "git") だと git.cmd を探してくれない
+	  ed::shell-command-line を使って cmd.exe 経由で実行するようにした
+
+2010-07-12  MIYAMUKO Katsuyuki
+
+	* (process-output->string, process-output->string-list): コマンドを
+	実行して結果を文字列または 1 行ごとのリストで受け取る関数。
+	stdout, stderr, exit-status を多値で返す。
+	使用は Gauche の同名の関数を参考にした。
+
 2010-07-08  MIYAMUKO Katsuyuki
 
-	* github �쐬�J�n
-
+	* xl-github 作成開始
+	  - リリースするまでは next ブランチは作らない
+	  - github-mode, gist-mode と分けるため xl-github にした
+	  - API は分速 60 回までで制限されるらしい

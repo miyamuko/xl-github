@@ -1,6 +1,6 @@
-; -*- mode: lisp; package: user -*-
+; -*- mode: lisp; package: github -*-
 
-;;; github/package.l
+;;; github/api/types.l
 ;;
 ;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
 ;;
@@ -26,21 +26,18 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (require "xml-http-request")
-  (require "json")
+  (mc-require "github/package")
+  )
 
-  (unless (find-package :github)
-    (defpackage :github
-      (:nicknames :gh)
-      (:use
-       :lisp
-       :editor
+(in-package :github)
 
-       :xml-http-request
-       :json
-       ))))
+(defun to-bool (v)
+  (if v "true" "false"))
+
+(defun to-one-or-zero (v)
+  (if v "1" "0"))
 
 
-(provide "github/package")
+(provide "github/api/types")
 
 ;;; End
