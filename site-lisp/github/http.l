@@ -68,24 +68,22 @@
 (defparameter *http-get-driver* 'do-get-xhr)
 (defparameter *http-post-driver* 'do-post-xhr)
 
-(defun do-get-json (uri &key query since nomsg)
-  (json-decode
-   (funcall *http-get-driver* uri :query query :since since :nomsg nomsg)))
+(defun do-get (uri &key query nomsg)
+  (funcall *http-get-driver* uri :query query :nomsg nomsg))
 
-(defun do-post-json (uri data &key nomsg)
-  (json-decode
-   (funcall *http-post-driver* uri data :nomsg nomsg)))
-
+(defun do-post (uri data &key nomsg)
+  (funcall *http-post-driver* uri data :nomsg nomsg))
 
 (defun http-headers ()
   `(:User-Agent ,(github-user-agent)))
 
-(defun do-get-xhr (uri &key query since nomsg)
+(defun do-get-xhr (uri &key query nomsg)
   (xhr-get uri
            :key 'get-response-text/check-status
            :encoding *encoding-utf8n*
            :query query
-           :nomsg nomsg :since (or since :epoch)
+           :nomsg nomsg
+           :since :epoch
            :headers (http-headers)))
 
 (defun do-post-xhr (uri data &key nomsg)

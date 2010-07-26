@@ -31,6 +31,13 @@
 
 (in-package :github)
 
+(export '(github-tree-show
+          github-blob-show
+          github-blob-all
+          github-blob-full
+          github-tree-full
+          github-blob-show-raw
+          ))
 
 ;; ## Git Object API ##
 
@@ -95,9 +102,10 @@
 
 ; Can get the data about a blob by tree SHA and path
 
-(defun github-blob-show (user repo tree-sha path &key nomsg)
+(defun github-blob-show (user repo tree-sha path &key meta nomsg)
   (github-get "blob/show/:user/:repo/:tree_sha/:path"
               :uri-params (list user repo tree-sha path)
+              :query-params (if meta `((:meta . "1")) nil)
               :nomsg nomsg))
 
 ; For example, to get the README.txt metadata from a specific tree in Facebox:
@@ -223,10 +231,10 @@
 
 ; You can get the contents of a blob with the blob's SHA via:
 
-(defun github-blob-show (user repo sha &key nomsg)
+(defun github-blob-show-raw (user repo sha &key nomsg)
   (github-get "blob/show/:user/:repo/:sha"
               :uri-params (list user repo sha)
-              :nomsg nomsg))
+              :raw t :nomsg nomsg))
 
 ; It is important to note that it doesn't matter which type you specify (yaml, xml, json), the output will simply be the raw output.
 
