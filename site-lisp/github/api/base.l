@@ -53,7 +53,7 @@
   (multiple-value-bind (login token)
       (github-credential)
     (unless (and login token)
-      (plain-error "github.user ‚Æ github.token ‚ğ git config ‚Åİ’è‚µ‚Ä‚­‚¾‚³‚¢"))
+      (plain-error "github.user ã¨ github.token ã‚’ git config ã§è¨­å®šã—ã¦ãã ã•ã„"))
     (setf *github-login* login
           *github-token* token)))
 
