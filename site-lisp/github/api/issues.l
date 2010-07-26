@@ -31,14 +31,34 @@
 
 (in-package :github)
 
+(export '(github-issues-search
+          github-issues-list
+          github-issues-list-label
+          github-issues-show
+          github-issues-comments
+          github-issues-open
+          github-issues-close
+          github-issues-reopen
+          github-issues-edit
+          github-issues-labels
+          github-issues-label-add
+          github-issues-label-remove
+          github-issues-comment
+          ))
 
 ;; ## Issues API ##
 
 ; The API for GitHub Issues.
 
+(defun validate-state (state)
+  (unless (member (format nil "~A" state) '("open" "closed") :test #'string=)
+    (plain-error "Invalid state: `~S' (valid values are :open or :closed)" state)))
+
+
 ;;; ### Search Issues ###
 
 (defun github-issues-search (user repo state search-term &key nomsg)
+  (validate-state state)
   (github-get "issues/search/:user/:repo/:state/:search_term"
               :uri-params (list user repo state search-term)
               :nomsg nomsg))
@@ -71,6 +91,7 @@
 ; To see a list of issues for a project,
 
 (defun github-issues-list (user repo state &key nomsg)
+  (validate-state state)
   (github-get "issues/list/:user/:repo/:state"
               :uri-params (list user repo state)
               :nomsg nomsg))
@@ -188,10 +209,14 @@
 
 ; To open a new issue on a project, make a authorized POST to
 
-(defun github-issues-open (user repo &key nomsg)
-  (github-get "issues/open/:user/:repo"
-              :uri-params (list user repo)
-              :nomsg nomsg))
+(defun github-issues-open (user repo title body &key nomsg)
+  (form-value-bind (data)
+      (progn
+        (form "title" title t)
+        (form "body" body t))
+    (github-post "issues/open/:user/:repo"
+                 :uri-params (list user repo)
+                 :data data :nomsg nomsg)))
 
 ; Where you can provide POST variables:
 
@@ -219,11 +244,13 @@
 (defun github-issues-close (user repo number &key nomsg)
   (github-get "issues/close/:user/:repo/:number"
               :uri-params (list user repo number)
+              :send-login-token t
               :nomsg nomsg))
 
 (defun github-issues-reopen (user repo number &key nomsg)
   (github-get "issues/reopen/:user/:repo/:number"
               :uri-params (list user repo number)
+              :send-login-token t
               :nomsg nomsg))
 
 ; You need to be logged in via token as well.  Here is how I would close the ticket I opened earlier:
@@ -246,10 +273,14 @@
 
 ; To edit an existing issue, you can POST to
 
-(defun github-issues-edit (user repo number &key nomsg)
-  (github-get "issues/edit/:user/:repo/:number"
-              :uri-params (list user repo number)
-              :nomsg nomsg))
+(defun github-issues-edit (user repo number title body &key nomsg)
+  (form-value-bind (data)
+      (progn
+        (form "title" title t)
+        (form "body" body t))
+    (github-post "issues/edit/:user/:repo/:number"
+                 :uri-params (list user repo number)
+                 :data data :nomsg nomsg)))
 
 ; Where you can provide POST variables:
 
@@ -282,6 +313,7 @@
 (defun github-issues-label-add (user repo label number &key nomsg)
   (github-get "issues/label/add/:user/:repo/:label/:number"
               :uri-params (list user repo label number)
+              :send-login-token t
               :nomsg nomsg))
 
 ; This will return a list of the labels currently on that issue, your new one included. If the label is not yet in the system, it will be created.
@@ -300,6 +332,7 @@
 (defun github-issues-label-remove (user repo label number &key nomsg)
   (github-get "issues/label/remove/:user/:repo/:label/:number"
               :uri-params (list user repo label number)
+              :send-login-token t
               :nomsg nomsg))
 
 ; Again, it will return a list of the labels currently on the issue.
@@ -312,10 +345,12 @@
 
 ; You can comment on issues at
 
-(defun github-issues-comment (user repo id &key nomsg)
-  (github-get "issues/comment/:user/:repo/:id"
-              :uri-params (list user repo id)
-              :nomsg nomsg))
+(defun github-issues-comment (user repo number comment &key nomsg)
+  (form-value-bind (data)
+      (form "comment" comment t)
+    (github-post "issues/comment/:user/:repo/:number"
+                 :uri-params (list user repo number)
+                 :data data :nomsg nomsg)))
 
 ; Simply send it a 'comment' POST variable with the comment you'd like to make.  It will attribute the comment to the user that is authenticated.  Here is an example:
 

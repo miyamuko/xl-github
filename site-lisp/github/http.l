@@ -45,7 +45,7 @@
       (plain-error "wrong number of parameter (~D ~S for ~D ~S)"
                    (length params) params (length names) names)))
   (dolist (param params)
-    (let ((v (url-encode (string param) encoding literal-chars)))
+    (let ((v (url-encode (format nil "~A" (or param "")) encoding literal-chars)))
       (setf uri-template (substitute-string uri-template *uri-param-pattern* v :count 1))))
   uri-template)
 
