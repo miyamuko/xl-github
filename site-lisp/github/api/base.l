@@ -69,7 +69,7 @@
   (let* ((uri-params (cons :json uri-params))
          (uri (build-uri path-template uri-params)))
     (setf data (append (github-credential-alist) data))
-    (do-post-json uri (remove-if-not #'cdr data) :nomsg nomsg)))
+    (do-post-json uri data :nomsg nomsg)))
 
 (defun build-uri (path-template uri-params)
   (bind-params (format nil "~A://~A/~A"

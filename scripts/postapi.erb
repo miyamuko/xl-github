@@ -3,7 +3,7 @@
   "<%= description %>"
 <% end %>
 <% if args.empty? %>
-  (github-psot "<%= path_template %>" :nomsg nomsg))
+  (github-post "<%= path_template %>" :nomsg nomsg))
 <% else %>
   (github-post "<%= path_template %>"
                :uri-params (list <%= arg_list.strip %>)

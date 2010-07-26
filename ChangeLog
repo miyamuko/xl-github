@@ -1,3 +1,7 @@
+2010-07-26  MIYAMUKO Katsuyuki
+
+	* (user.l): 一通り動くようになった。戻り値は要修正。
+
 2010-07-24  MIYAMUKO Katsuyuki
 
 	* とりあえず push

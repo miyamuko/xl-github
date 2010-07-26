@@ -31,6 +31,21 @@
 
 (in-package :github)
 
+(export '(github-user-search
+          github-user-show
+          github-user-set
+          github-user-show-following
+          github-user-show-followers
+          github-user-follow
+          github-user-unfollow
+          github-repos-watched
+          github-user-keys
+          github-user-key-add
+          github-user-key-remove
+          github-user-emails
+          github-user-email-add
+          github-user-email-remove
+          ))
 
 ;; ## Users API ##
 
@@ -40,9 +55,11 @@
 
 ; The route for user searching is:
 
-(defun github-user-search (search &key nomsg)
-  (github-get "user/search/:search"
-              :uri-params (list search)
+(defun github-user-search (query &key email nomsg)
+  (github-get (if email
+                  "user/email/:query"
+                "user/search/:query")
+              :uri-params (list query)
               :nomsg nomsg))
 
 ; For instance, you would search for users with 'chacon' in their name like this:
@@ -59,8 +76,9 @@
 ; You can then get extended information on users by their username.  The url format is:
 
 (defun github-user-show (username &key nomsg)
-  (github-get "user/show/:username"
-              :uri-params (list username)
+  (github-get (if username "user/show/:username" "user/show")
+              :uri-params (if username (list username) nil)
+              :send-login-token t
               :nomsg nomsg))
 
 ; so the following command
@@ -97,8 +115,8 @@
 
 ; If you authenticate, you can also get your own information by leaving your username out.
 
-(defun github-user-show (&key nomsg)
-  (github-get "user/show" :nomsg nomsg))
+; (defun github-user-show (&key nomsg)
+;   (github-get "user/show" :nomsg nomsg))
 
 ; You can use the following command to get your information:
 
@@ -111,10 +129,23 @@
 ; If you are authenticated, you can update your users information by
 ; POSTing to it in a few different ways.
 
-(defun github-user-show (username &key nomsg)
-  (github-post "user/show/:username"
-               :uri-params (list username)
-               :nomsg nomsg))
+(defun github-user-set (username &key
+                                 (name nil name-supplied-p)
+                                 (email nil email-supplied-p)
+                                 (blog nil blog-supplied-p)
+                                 (company nil company-supplied-p)
+                                 (location nil location-supplied-p)
+                                 nomsg)
+  (form-value-bind (data)
+      (progn
+        (form "values[name]" name name-supplied-p)
+        (form "values[email]" email email-supplied-p)
+        (form "values[blog]" blog blog-supplied-p)
+        (form "values[company]" company company-supplied-p)
+        (form "values[location]" location location-supplied-p))
+    (github-post "user/show/:username"
+                 :uri-params (list username)
+                 :data data :nomsg nomsg)))
 
 ; 	      :values[key] = value
 
@@ -215,27 +246,39 @@
 ;;;; #### Public Key Management ####
 
 (defun github-user-keys (&key nomsg)
-  (github-get "user/keys" :nomsg nomsg))
+  (github-get "user/keys"
+              :send-login-token t
+              :nomsg nomsg))
 
-(defun github-user-key-add (&key nomsg)
-  (github-psot "user/key/add" :nomsg nomsg))
+(defun github-user-key-add (title key &key nomsg)
+  (form-value-bind (data)
+      (progn
+        (form "title" title t)
+        (form "key" key t))
+    (github-post "user/key/add" :data data :nomsg nomsg)))
 ; 	      :title
 ; 	      :key
 
-(defun github-user-key-remove (&key nomsg)
-  (github-psot "user/key/remove" :nomsg nomsg))
+(defun github-user-key-remove (key-id &key nomsg)
+  (form-value-bind (data)
+      (form "id" key-id t)
+    (github-post "user/key/remove" :data data :nomsg nomsg)))
 ; 	      :id
 
 ;;;; #### Email Address Management ####
 
 (defun github-user-emails (&key nomsg)
-  (github-get "user/emails" :nomsg nomsg))
+  (github-get "user/emails" :send-login-token t :nomsg nomsg))
 
-(defun github-user-email-add (&key nomsg)
-  (github-psot "user/email/add" :nomsg nomsg))
+(defun github-user-email-add (email &key nomsg)
+  (form-value-bind (data)
+      (form "email" email t)
+    (github-post "user/email/add" :data data :nomsg nomsg)))
 
-(defun github-user-email-remove (&key nomsg)
-  (github-psot "user/email/remove" :nomsg nomsg))
+(defun github-user-email-remove (email &key nomsg)
+  (form-value-bind (data)
+      (form "email" email t)
+    (github-post "user/email/remove" :data data :nomsg nomsg)))
 
 
 (provide "github/api/users")
