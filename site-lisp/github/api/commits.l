@@ -31,14 +31,21 @@
 
 (in-package :github)
 
+(export '(github-commits-list
+          github-commits-show
+          ))
 
 ;; ## Commits API ##
 
 ;;; ### Listing Commits on a Branch ###
 
-(defun github-commits-list (user-id repository branch &key nomsg)
-  (github-get "commits/list/:user_id/:repository/:branch"
-              :uri-params (list user-id repository branch)
+(defun github-commits-list (user repo branch &key path nomsg)
+  (github-get (if path
+                  "commits/list/:user/:repo/:branch/:path"
+                "commits/list/:user/:repo/:branch")
+              :uri-params (if path
+                              (list user repo branch path)
+                            (list user repo branch))
               :nomsg nomsg))
 
 ; An example of getting a listing of commits for a branch, we will get the latest commits on the 'master' branch of the Grit project.
@@ -77,10 +84,10 @@
 
 ;;; ### Listing Commits for a File ###
 
-(defun github-commits-list (user-id repository branch path &key nomsg)
-  (github-get "commits/list/:user_id/:repository/:branch/*path"
-              :uri-params (list user-id repository branch path)
-              :nomsg nomsg))
+; (defun github-commits-list (user repo branch path &key nomsg)
+;   (github-get "commits/list/:user/:repo/:branch/*path"
+;               :uri-params (list user repo branch path)
+;               :nomsg nomsg))
 
 ; An example of using this to get all the commits that modified the gemspec file for the Grit project would be:
 
@@ -118,9 +125,9 @@
 
 ;;; ### Showing a Specific Commit ###
 
-(defun github-commits-show (user-id repository sha &key nomsg)
-  (github-get "commits/show/:user_id/:repository/:sha"
-              :uri-params (list user-id repository sha)
+(defun github-commits-show (user repo sha &key nomsg)
+  (github-get "commits/show/:user/:repo/:sha"
+              :uri-params (list user repo sha)
               :nomsg nomsg))
 
 ; An example of using this to get a the changes introduced on a specific commit in the Grit project would be

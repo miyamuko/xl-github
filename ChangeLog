@@ -1,6 +1,6 @@
 2010-07-26  MIYAMUKO Katsuyuki
 
-	* (user.l, object.l): 一通り動くようになった。戻り値は要修正。
+	* (user.l, object.l, commit.l): 一通り動くようになった。戻り値は要修正。
 
 2010-07-24  MIYAMUKO Katsuyuki
 
