@@ -31,12 +31,21 @@
 
 (in-package :github)
 
+(export '(github-network-meta
+          github-network-data
+          ))
 
 ;; ## Secret Network API ##
 
 ; This API is sort of an outlier.  It is only available in JSON and does not follow the rest of the routing rules.  It is the API used by our Network Graph and provides a lot of useful information that may be useful.
 
 ;;; ### Network Meta ###
+
+(defun github-network-meta (user repo &key nomsg)
+  (let ((*github-api-endpoint* *github-domain*))
+    (github-get ":user/:repo/network_meta"
+                :uri-params (list user repo)
+                :nomsg nomsg)))
 
 ; 	$ curl http://github.com/schacon/simplegit/network_meta | jsonpretty
 ; 	{
@@ -73,6 +82,15 @@
 ; 	}
 
 ;;; ### Network Data ###
+
+(defun github-network-data (user repo nethash &key start end nomsg)
+  (let ((*github-api-endpoint* *github-domain*))
+    (github-get ":user/:repo/network_data_chunk"
+                :uri-params (list user repo)
+                :query-params `((:nethash . ,nethash)
+                                (:start . ,start)
+                                (:end . ,end))
+                :nomsg nomsg)))
 
 ; To get network data, you'll need to provide the 'nethash' parameter that you get from the network\_meta call so the data is always consistent.  To get network data, call the network\_data\_chunk URI with the given nethash to get the first 100 commits by branch.
 

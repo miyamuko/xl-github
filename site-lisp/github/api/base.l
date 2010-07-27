@@ -34,6 +34,7 @@
 
 (in-package :github)
 
+(defvar *github-domain* "github.com")
 (defvar *github-api-endpoint* "github.com/api/v2/json")
 
 (defvar *github-use-tls/ssl* nil)
