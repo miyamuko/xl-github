@@ -34,7 +34,7 @@
 
 (in-package :github)
 
-(defvar *github-api-endpoint* "github.com/api/v2/:format")
+(defvar *github-api-endpoint* "github.com/api/v2/json")
 
 (defvar *github-use-tls/ssl* nil)
 
@@ -58,8 +58,7 @@
           *github-token* token)))
 
 (defun github-get (path-template &key uri-params query-params send-login-token raw nomsg)
-  (let* ((uri-params (cons :json uri-params))
-         (uri (build-uri path-template uri-params)))
+  (let ((uri (build-uri path-template uri-params)))
     (when send-login-token
       (setf query-params (append (github-credential-alist) query-params)))
     (let ((text (do-get uri
@@ -70,8 +69,7 @@
         (json-decode text)))))
 
 (defun github-post (path-template &key uri-params data nomsg)
-  (let* ((uri-params (cons :json uri-params))
-         (uri (build-uri path-template uri-params)))
+  (let ((uri (build-uri path-template uri-params)))
     (setf data (append (github-credential-alist) data))
     (json-decode (do-post uri data :nomsg nomsg))))
 

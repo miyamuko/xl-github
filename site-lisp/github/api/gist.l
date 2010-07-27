@@ -31,8 +31,16 @@
 
 (in-package :github)
 
+(export '(gist-meta
+          gist-show
+          gist-list
+          ))
 
 ;; ## Gist API ##
+
+(defvar *gist-api-endpoint* "gist.github.com/api/v1/json")
+(defvar *gist-raw-endpoint* "gist.github.com/raw")
+(defvar *gist-txt-endpoint* "gist.github.com")
 
 ; API for the [Gist](http://gist.github.com) code paste
 ; service. Gist's API is a bit different from GitHub proper's - the
@@ -41,6 +49,10 @@
 ;;; ### Get a Gist's Metadata ###
 
 ;     GET http://gist.github.com/api/v1/:format/:gist_id
+
+(defun gist-meta (id &key nomsg)
+  (let ((*github-api-endpoint* *gist-api-endpoint*))
+    (github-get ":id" :uri-params (list id) :nomsg nomsg)))
 
 ; Example:
 
@@ -57,6 +69,23 @@
 
 ;     GET http://gist.github.com/raw/:gist_id/:filename
 
+(defun gist-show (id &key file nomsg)
+  (if file
+      (gist-show-file id file :nomsg nomsg)
+    (gist-show-all id :nomsg nomsg)))
+
+(defun gist-show-file (id filename &key nomsg)
+  (let ((*github-api-endpoint* *gist-raw-endpoint*))
+    (github-get ":id/:filename"
+                :uri-params (list id filename)
+                :raw t :nomsg nomsg)))
+
+(defun gist-show-all (id &key nomsg)
+  (let ((*github-api-endpoint* *gist-txt-endpoint*))
+    (github-get ":id.txt"
+                :uri-params (list id)
+                :raw t :nomsg nomsg)))
+
 ; Example:
 
 ;     $ curl http://gist.github.com/raw/374130/ports.sh
@@ -66,6 +95,12 @@
 ;;; ### Another User's Public Gists ###
 
 ;     GET http://gist.github.com/api/v1/:format/gists/:login
+
+(defun gist-list (user &key nomsg)
+  (let ((*github-api-endpoint* *gist-api-endpoint*))
+    (github-get "gists/:user" :uri-params (list user)
+                :send-login-token t
+                :nomsg nomsg)))
 
 ; Example:
 
