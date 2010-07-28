@@ -27,6 +27,7 @@
 
 (in-package :user)
 
+;; GitHub API v2 bindings
 (mc-require "github/api/commits")
 (mc-require "github/api/gist")
 (mc-require "github/api/issues")
@@ -34,6 +35,9 @@
 (mc-require "github/api/object")
 (mc-require "github/api/repo")
 (mc-require "github/api/users")
+
+;; Web scraping API
+(mc-require "github/api/gist-unofficial")
 
 
 (provide "github/api")

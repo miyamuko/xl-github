@@ -62,17 +62,21 @@
   (let ((uri (build-uri path-template uri-params)))
     (when send-login-token
       (setf query-params (append (github-credential-alist) query-params)))
-    (let ((text (do-get uri
-                        :query (remove-if-not #'cdr query-params)
-                        :nomsg nomsg)))
-      (if raw
-          text
-        (json-decode text)))))
+    (process-response (do-get uri
+                              :query (remove-if-not #'cdr query-params)
+                              :nomsg nomsg)
+                      raw)))
 
-(defun github-post (path-template &key uri-params data nomsg)
+(defun github-post (path-template &key uri-params data raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
     (setf data (append (github-credential-alist) data))
-    (json-decode (do-post uri data :nomsg nomsg))))
+    (process-response (do-post uri data :nomsg nomsg)
+                      raw)))
+
+(defun process-response (res raw)
+  (if raw
+      res
+    (json-decode res)))
 
 (defun build-uri (path-template uri-params)
   (bind-params (format nil "~A://~A/~A"

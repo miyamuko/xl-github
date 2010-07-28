@@ -40,7 +40,7 @@
 
 (defvar *gist-api-endpoint* "gist.github.com/api/v1/json")
 (defvar *gist-raw-endpoint* "gist.github.com/raw")
-(defvar *gist-txt-endpoint* "gist.github.com")
+(defvar *gist-domain* "gist.github.com")
 
 ; API for the [Gist](http://gist.github.com) code paste
 ; service. Gist's API is a bit different from GitHub proper's - the
@@ -80,8 +80,9 @@
                 :uri-params (list id filename)
                 :raw t :nomsg nomsg)))
 
+;; This is NOT official Gist API
 (defun gist-show-all (id &key nomsg)
-  (let ((*github-api-endpoint* *gist-txt-endpoint*))
+  (let ((*github-api-endpoint* *gist-domain*))
     (github-get ":id.txt"
                 :uri-params (list id)
                 :raw t :nomsg nomsg)))

@@ -1,3 +1,17 @@
+2010-07-28  MIYAMUKO Katsuyuki
+
+	* (gist-unofficial.l): Gist API が足りないのでブラウザ向けのインターフェイス
+	を利用して API を実装
+	- 実装した API
+	  - gist-new
+	  - gist-edit
+	  - gist-delete
+	  - gist-comment-add
+	  - gist-update-description
+	  - gist-star
+	  - gist-unstar
+	- 複数ファイルにはまだ対応していない
+
 2010-07-27  MIYAMUKO Katsuyuki
 
 	* (network.l): 一応一通り動くようになった
