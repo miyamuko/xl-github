@@ -84,6 +84,7 @@
            :query query
            :nomsg nomsg
            :since :epoch
+           :progid :winhttp
            :headers (http-headers)))
 
 (defun do-post-xhr (uri data &key nomsg)
@@ -91,6 +92,7 @@
            :key 'get-response-text/check-status
            :encoding *encoding-utf8n*
            :nomsg nomsg
+           :progid :winhttp
            :headers (http-headers)))
 
 (defun get-response-text/check-status (xhr)

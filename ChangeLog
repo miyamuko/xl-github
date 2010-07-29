@@ -1,5 +1,9 @@
 2010-07-29  MIYAMUKO Katsuyuki
 
+	* (github-get, github.post): WinHTTP を利用するようにした。
+	Gist のブラウザ向けインターフェイスは query の login/token の指定より
+	Cookie にあるセッション ID のほうを優先するので Msxml2.XMLHTTP は利用できない。
+
 	* (package.l): xml-http-request 1.3.0 以上が必要なので
 	バージョンチェックを追加
 
