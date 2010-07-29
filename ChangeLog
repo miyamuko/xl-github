@@ -1,3 +1,8 @@
+2010-07-29  MIYAMUKO Katsuyuki
+
+	* (package.l): xml-http-request 1.3.0 以上が必要なので
+	バージョンチェックを追加
+
 2010-07-28  MIYAMUKO Katsuyuki
 
 	* (gist-unofficial.l): Gist API が足りないのでブラウザ向けのインターフェイス
