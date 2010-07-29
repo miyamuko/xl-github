@@ -32,7 +32,9 @@
 
 (in-package :github)
 
-(export '(gist-new
+(export '(gist-id-list-all
+          gist-id-list
+          gist-new
           gist-edit
           gist-delete
           gist-comment-add
@@ -40,6 +42,42 @@
           gist-star
           gist-unstar
           ))
+
+
+;;; ### Mine Public & Private Gist ###
+
+(defun gist-id-list-all (&key nomsg)
+  (let ((page 1) r)
+    (loop
+      (multiple-value-bind (id-list next-page)
+          (gist-id-list :page page :nomsg nomsg)
+        (push id-list r)
+        (unless next-page
+          (return))
+        (setf page next-page)))
+    (apply 'append (nreverse r))))
+
+(defun gist-id-list (&key page nomsg)
+  (let ((*github-api-endpoint* *gist-domain*))
+    (parse-gist-list
+     (github-get "mine"
+                 :query-params `((:page ,(or page 1)))
+                 :send-login-token t
+                 :raw t :nomsg nomsg))))
+
+(defparameter *gist-list-id-regexp* "<span><a href=\"/\\([0-9a-f]+\\)\">gist: [0-9a-f]+</a></span>")
+(defparameter *gist-list-next-page-regexp* "<a href=\"/mine\\?.*?page=\\([0-9]+\\).*?\" hotkey=\"l\">")
+(defun parse-gist-list (html)
+  (let ((start 0) id-list next-page)
+    (while (string-matchp *gist-list-id-regexp* html start)
+      (push (match-string 1) id-list)
+      (setf start (match-end 0)))
+    (when (string-matchp *gist-list-next-page-regexp* html)
+      (setf next-page (parse-integer (match-string 1))))
+    (values (nreverse id-list) next-page)))
+
+
+;;; ### Gist Edit ###
 
 (defun gist-new (filename contents &key private nomsg)
   (multiple-value-bind (name ext)

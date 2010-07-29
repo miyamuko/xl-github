@@ -1,5 +1,10 @@
 2010-07-29  MIYAMUKO Katsuyuki
 
+	* (gist-id-list-all, gist-id-list): 自分の Gist の ID の一覧を取得
+	する関数を追加。
+	Gist の API では Public な Gist しか取得できないので、Web ページを
+	スクレイピングして Public と Private な Gist の ID を取得する。
+
 	* (github-get, github.post): WinHTTP を利用するようにした。
 	Gist のブラウザ向けインターフェイスは query の login/token の指定より
 	Cookie にあるセッション ID のほうを優先するので Msxml2.XMLHTTP は利用できない。
