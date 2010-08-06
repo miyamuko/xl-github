@@ -72,9 +72,6 @@
       (when (and buf (bufferp buf) (not (deleted-buffer-p buf)))
         (delete-buffer buf)))))
 
-(defun $ (alist key)
-  (cdr (assoc key alist :test #'string=)))
-
 
 (provide "github/utils")
 
