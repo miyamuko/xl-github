@@ -1,6 +1,6 @@
 ; -*- mode: lisp; package: github -*-
 
-;;; github/utils.l
+;;; github/utils/process.l
 ;;
 ;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
 ;;
@@ -73,6 +73,6 @@
         (delete-buffer buf)))))
 
 
-(provide "github/utils")
+(provide "github/utils/process")
 
 ;;; End

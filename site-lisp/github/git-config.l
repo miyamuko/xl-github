@@ -27,7 +27,7 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (mc-require "github/package")
-  (mc-require "github/utils")
+  (mc-require "github/utils/process")
   )
 
 (in-package :github)
