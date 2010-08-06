@@ -25,6 +25,8 @@
 
 ;;; Code:
 
+(in-package :user)
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (require "xml-http-request")
   (require "json")
