@@ -1,3 +1,9 @@
+2010-08-07  MIYAMUKO Katsuyuki
+
+	* (github-user-search-by-email, github-users-search): email 指定の
+	検索は単一のユーザを返し、query 指定の検索は複数のユーザを返すので
+	関数を分けた
+
 2010-07-29  MIYAMUKO Katsuyuki
 
 	* (gist-id-list-all, gist-id-list): 自分の Gist の ID の一覧を取得

@@ -31,7 +31,8 @@
 
 (in-package :github)
 
-(export '(github-user-search
+(export '(github-users-search
+          github-user-search-by-email
           github-user-show
           github-user-set
           github-user-show-following
@@ -55,10 +56,13 @@
 
 ; The route for user searching is:
 
-(defun github-user-search (query &key email nomsg)
-  (github-get (if email
-                  "user/email/:query"
-                "user/search/:query")
+(defun github-users-search (query &key nomsg)
+  (github-get "user/search/:query"
+              :uri-params (list query)
+              :nomsg nomsg))
+
+(defun github-user-search-by-email (query &key nomsg)
+  (github-get "user/email/:query"
               :uri-params (list query)
               :nomsg nomsg))
 
