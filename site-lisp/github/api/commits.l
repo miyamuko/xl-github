@@ -35,7 +35,31 @@
           github-commits-show
           ))
 
-;; ## Commits API ##
+;;; ## 構造体の定義 ##
+
+(defstruct github-modified
+  diff filename)
+(export-struct 'github-modified)
+
+(defstruct github-contributer
+  name login email)
+(export-struct 'github-contributer)
+
+(defstruct github-commit
+  id url message tree
+  parents
+  committed-date authored-date
+  (author nil :type github-contributer)
+  (committer nil :type github-contributer)
+  (modified nil :type github-modified))
+(export-struct 'github-commit)
+
+;; base.l の json->struct 内で利用
+(setf (get 'github-commit-parents 'github-json-subkey) "id")
+(setf (get 'github-commit-modified 'github-json-list) t)
+
+
+;;; ## Commits API ##
 
 ;;; ### Listing Commits on a Branch ###
 
@@ -46,6 +70,7 @@
               :uri-params (if path
                               (list user repo branch path)
                             (list user repo branch))
+              :return-type '(:root "commits" :list t :object t :type github-commit)
               :nomsg nomsg))
 
 ; An example of getting a listing of commits for a branch, we will get the latest commits on the 'master' branch of the Grit project.
@@ -128,6 +153,7 @@
 (defun github-commits-show (user repo sha &key nomsg)
   (github-get "commits/show/:user/:repo/:sha"
               :uri-params (list user repo sha)
+              :return-type '(:root "commit" :list nil :object t :type github-commit)
               :nomsg nomsg))
 
 ; An example of using this to get a the changes introduced on a specific commit in the Grit project would be

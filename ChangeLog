@@ -1,5 +1,7 @@
 2010-08-07  MIYAMUKO Katsuyuki
 
+	* commits.l: ↓と同じ
+
 	* object.l: ↓と同じ
 
 	* user.l: JSON オブジェクトではなく構造体を返すようにした

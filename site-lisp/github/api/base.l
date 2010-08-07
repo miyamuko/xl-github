@@ -137,11 +137,19 @@
     (dolist (key (json-object-keys json))
       (let* ((slot-name (keyword (substitute-string key "_" "-")))
              (slot-type (struct-slot-type def slot-name))
-             (obj (json-value json key :test #'string=)))
+             (accessor (struct-slot-accessor name slot-name))
+             (subkey (get accessor 'github-json-subkey))
+             (list (get accessor 'github-json-list))
+             (obj (json-value json key :test #'string=))
+             (converter (if (struct-name-p slot-type)
+                            #'(lambda (e) (json->struct slot-type e))
+                          'identity)))
         (setf (struct-slot-value struct slot-name)
-              (if (struct-name-p slot-type)
-                  (json->struct slot-type obj)
-                obj))))
+              (apply-converter #'(lambda (e)
+                                   (when subkey
+                                     (setf e (json-value e subkey)))
+                                   (funcall converter e))
+                               obj list))))
     struct))
 
 
