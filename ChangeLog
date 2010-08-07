@@ -1,5 +1,7 @@
 2010-08-07  MIYAMUKO Katsuyuki
 
+	* user.l: JSON オブジェクトではなく構造体を返すようにした
+
 	* (github-user-search-by-email, github-users-search): email 指定の
 	検索は単一のユーザを返し、query 指定の検索は複数のユーザを返すので
 	関数を分けた

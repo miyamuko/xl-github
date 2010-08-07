@@ -29,12 +29,15 @@
   (mc-require "github/package")
   (mc-require "github/http")
   (mc-require "github/git-config")
+  (mc-require "github/utils/struct")
   )
 
 (in-package :github)
 
 (defvar *github-domain* "github.com")
 (defvar *github-api-endpoint* "github.com/api/v2/json")
+
+(defvar *github-return-type* :struct)
 
 (defvar *github-use-tls/ssl* nil)
 
@@ -57,25 +60,59 @@
     (setf *github-login* login
           *github-token* token)))
 
-(defun github-get (path-template &key uri-params query-params send-login-token raw nomsg)
+(defun github-get (path-template &key uri-params query-params return-type send-login-token raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
     (when send-login-token
       (setf query-params (append (github-credential-alist) query-params)))
     (process-response (do-get uri
                               :query (remove-if-not #'cdr query-params)
                               :nomsg nomsg)
-                      raw)))
+                      raw return-type)))
 
-(defun github-post (path-template &key uri-params data raw nomsg)
+(defun github-post (path-template &key uri-params data return-type raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
     (setf data (append (github-credential-alist) data))
     (process-response (do-post uri data :nomsg nomsg)
-                      raw)))
+                      raw return-type)))
 
-(defun process-response (res raw)
-  (if raw
-      res
-    (json-decode res)))
+(defun process-response (r raw return-type)
+  (let ((type (getf return-type :type))
+        (root (getf return-type :root))
+        (list (getf return-type :list))
+        (object (getf return-type :object)))
+    ;; 生テキスト
+    (when (or raw (eql *github-return-type* :raw))
+      (return-from process-response r))
+    ;; json
+    (setf r (json-decode r))
+    (when (or (eql *github-return-type* :json-with-root)
+              (not root))
+      (return-from process-response r))
+    ;; root キーの値 (たぶん alist)
+    (setf r (json-value r root))
+    (when (not object)
+      (return-from process-response r))
+    ;; root キーの値 (alist)
+    (when (eql *github-return-type* :json-keys)
+      (return-from process-response (json-object-keys (if list (car r) r))))
+    (when (eql *github-return-type* :plist)
+      (return-from process-response (apply-converter 'alist->plist r list)))
+    (when (eql *github-return-type* :alist)
+      (return-from process-response r))
+    (when (not type)
+      (return-from process-response r))
+    ;; type が関数なら関数を実行して type を決定
+    (when (functionp type)
+      (setf type (funcall type r)))
+    ;; json を構造体に変換する
+    (apply-converter #'(lambda (e) (json->struct type e)) r list)))
+
+(defun apply-converter (converter json list)
+  (if list
+      (mapcar #'(lambda (e)
+                  (funcall converter e))
+              json)
+    (funcall converter json)))
 
 (defun build-uri (path-template uri-params)
   (bind-params (format nil "~A://~A/~A"
@@ -89,6 +126,23 @@
 
 (defun to-one-or-zero (v)
   (if v "1" "0"))
+
+(defun alist->plist (alist)
+  (loop for (k . v) in alist
+    nconc (list (intern k :keyword) v)))
+
+(defun json->struct (name json)
+  (let ((struct (make-struct name))
+        (def (struct-definition name)))
+    (dolist (key (json-object-keys json))
+      (let* ((slot-name (keyword (substitute-string key "_" "-")))
+             (slot-type (struct-slot-type def slot-name))
+             (obj (json-value json key :test #'string=)))
+        (setf (struct-slot-value struct slot-name)
+              (if (struct-name-p slot-type)
+                  (json->struct slot-type obj)
+                obj))))
+    struct))
 
 
 (provide "github/api/base")

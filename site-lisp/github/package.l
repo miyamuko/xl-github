@@ -28,6 +28,8 @@
 (in-package :user)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
+  (require "cmu_loop")
+
   (require "xml-http-request")
   (require "json")
 

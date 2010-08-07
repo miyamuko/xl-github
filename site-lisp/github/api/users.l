@@ -48,7 +48,45 @@
           github-user-email-remove
           ))
 
-;; ## Users API ##
+
+;;; ## 構造体の定義 ##
+
+;; 秘密鍵の情報
+(defstruct github-public-key
+  id key title)
+(export-struct 'github-public-key)
+
+;; ユーザのプラン
+(defstruct github-plan
+  name space collaborators private-repos)
+(export-struct 'github-plan)
+
+;; 検索結果のユーザ
+;; 普通のユーザ
+(defstruct github-users
+  id name username fullname
+  location language type
+  created pushed
+  followers repos score)
+(export-struct 'github-users)
+
+;; 普通のユーザ
+(defstruct github-user
+  id login name
+  email location blog company type
+  created-at gravatar-id
+  followers-count following-count
+  public-gist-count public-repo-count)
+(export-struct 'github-user)
+
+;; 認証されたユーザ
+(defstruct (github-auth-user (:include github-user))
+  collaborators disk-usage
+  owned-private-repo-count private-gist-count total-private-repo-count
+  (plan nil :type github-plan))
+(export-struct 'github-auth-user)
+
+;;; ## Users API ##
 
 ; API for accessing and modifying user information.
 
@@ -59,11 +97,13 @@
 (defun github-users-search (query &key nomsg)
   (github-get "user/search/:query"
               :uri-params (list query)
+              :return-type '(:root "users" :list t :object t :type github-users)
               :nomsg nomsg))
 
 (defun github-user-search-by-email (query &key nomsg)
   (github-get "user/email/:query"
               :uri-params (list query)
+              :return-type '(:root "user" :list nil :object t :type github-user)
               :nomsg nomsg))
 
 ; For instance, you would search for users with 'chacon' in their name like this:
@@ -82,6 +122,9 @@
 (defun github-user-show (username &key nomsg)
   (github-get (if username "user/show/:username" "user/show")
               :uri-params (if username (list username) nil)
+              :return-type `(:root "user" :list nil :object t
+                             :type ,(lambda (json)
+                                      (if (json-key-p json "plan") 'github-auth-user 'github-user)))
               :send-login-token t
               :nomsg nomsg))
 
@@ -149,6 +192,7 @@
         (form "values[location]" location location-supplied-p))
     (github-post "user/show/:username"
                  :uri-params (list username)
+                 :return-type '(:root "user" :list nil :object t :type github-user)
                  :data data :nomsg nomsg)))
 
 ; 	      :values[key] = value
@@ -186,6 +230,7 @@
 (defun github-user-show-following (user &key nomsg)
   (github-get "user/show/:user/following"
               :uri-params (list user)
+              :return-type '(:root "users" :list nil :object nil)
               :nomsg nomsg))
 
 ; or the users following a specific user with:
@@ -194,6 +239,7 @@
 (defun github-user-show-followers (user &key nomsg)
   (github-get "user/show/:user/followers"
               :uri-params (list user)
+              :return-type '(:root "users" :list nil :object nil)
               :nomsg nomsg))
 
 ; For example, if you want to see which users are following 'defunkt', you can run this:
@@ -205,11 +251,13 @@
 (defun github-user-follow (user &key nomsg)
   (github-post "user/follow/:user"
                :uri-params (list user)
+               :return-type '(:root "users" :list nil :object nil)
                :nomsg nomsg))
 
 (defun github-user-unfollow (user &key nomsg)
   (github-post "user/unfollow/:user"
                :uri-params (list user)
+               :return-type '(:root "users" :list nil :object nil)
                :nomsg nomsg))
 
 
@@ -252,6 +300,7 @@
 (defun github-user-keys (&key nomsg)
   (github-get "user/keys"
               :send-login-token t
+              :return-type '(:root "public_keys" :list t :object t :type github-public-key)
               :nomsg nomsg))
 
 (defun github-user-key-add (title key &key nomsg)
@@ -259,30 +308,43 @@
       (progn
         (form "title" title t)
         (form "key" key t))
-    (github-post "user/key/add" :data data :nomsg nomsg)))
+    (github-post "user/key/add" :data data
+                 :return-type '(:root "public_keys" :list t :object t :type github-public-key)
+                 :nomsg nomsg)))
 ; 	      :title
 ; 	      :key
 
 (defun github-user-key-remove (key-id &key nomsg)
   (form-value-bind (data)
       (form "id" key-id t)
-    (github-post "user/key/remove" :data data :nomsg nomsg)))
+    (github-post "user/key/remove"
+                 :data data
+                 :return-type '(:root "public_keys" :list t :object t :type github-public-key)
+                 :nomsg nomsg)))
 ; 	      :id
 
 ;;;; #### Email Address Management ####
 
 (defun github-user-emails (&key nomsg)
-  (github-get "user/emails" :send-login-token t :nomsg nomsg))
+  (github-get "user/emails"
+              :return-type '(:root "emails" :list t)
+              :send-login-token t :nomsg nomsg))
 
 (defun github-user-email-add (email &key nomsg)
   (form-value-bind (data)
       (form "email" email t)
-    (github-post "user/email/add" :data data :nomsg nomsg)))
+    (github-post "user/email/add"
+                 :data data
+                 :return-type '(:root "emails" :list t)
+                 :nomsg nomsg)))
 
 (defun github-user-email-remove (email &key nomsg)
   (form-value-bind (data)
       (form "email" email t)
-    (github-post "user/email/remove" :data data :nomsg nomsg)))
+    (github-post "user/email/remove"
+                 :data data
+                 :return-type '(:root "emails" :list t)
+                 :nomsg nomsg)))
 
 
 (provide "github/api/users")
