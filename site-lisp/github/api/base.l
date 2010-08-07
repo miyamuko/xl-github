@@ -29,7 +29,6 @@
   (mc-require "github/package")
   (mc-require "github/http")
   (mc-require "github/git-config")
-  (mc-require "github/api/types")
   )
 
 (in-package :github)
@@ -84,6 +83,12 @@
                        *github-api-endpoint*
                        path-template)
                uri-params))
+
+(defun to-bool (v)
+  (if v "true" "false"))
+
+(defun to-one-or-zero (v)
+  (if v "1" "0"))
 
 
 (provide "github/api/base")
