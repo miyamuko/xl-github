@@ -68,6 +68,7 @@
               :uri-params (list q)
               :query-params `(("start_page" . ,page)
                               ("language" . ,lang))
+              :return-type '(:type repository :root "repositories" :list t)
               :nomsg nomsg))
 
 ; To search for repositories that have to do with testing ruby, you could do this:
@@ -119,6 +120,7 @@
 (defun github-repos-show (user repo &key nomsg)
   (github-get "repos/show/:user/:repo"
               :uri-params (list user repo)
+              :return-type '(:type repository :root "repository" :list nil)
               :nomsg nomsg))
 
 ; For example, to see the information for Grit
@@ -167,6 +169,7 @@
         (form "values[has_downloads]" (to-bool download) download-supplied-p))
     (github-post "repos/show/:user/:repo"
                  :uri-params (list user repo)
+                 :return-type '(:type repository :root "repository" :list nil)
                  :data data :nomsg nomsg)))
 
 ;       :values[key] = value
@@ -207,6 +210,7 @@
 (defun github-repos-list (user &key with-private nomsg)
   (github-get "repos/show/:user"
               :uri-params (list user)
+              :return-type '(:type repository :root "repositories" :list t)
               :send-login-token with-private
               :nomsg nomsg))
 
@@ -245,12 +249,14 @@
 (defun github-repos-unwatch (user repo &key nomsg)
   (github-get "repos/unwatch/:user/:repo"
               :uri-params (list user repo)
+              :return-type '(:type repository :root "repository" :list nil)
               :send-login-token t
               :nomsg nomsg))
 
 (defun github-repos-watch (user repo &key nomsg)
   (github-get "repos/watch/:user/:repo"
               :uri-params (list user repo)
+              :return-type '(:type repository :root "repository" :list nil)
               :send-login-token t
               :nomsg nomsg))
 

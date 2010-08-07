@@ -39,7 +39,21 @@
           github-blob-show-raw
           ))
 
-;; ## Git Object API ##
+;;; ## ç\ë¢ëÃÇÃíËã` ##
+
+(defstruct github-object-base
+  name size sha mode mime-type)
+
+(defstruct (github-object (:include github-object-base))
+  type)
+(export-struct 'github-object)
+
+(defstruct (github-blob (:include github-object-base))
+  data)
+(export-struct 'github-object)
+
+
+;;; ## Git Object API ##
 
 ;;; ### Trees ###
 
@@ -48,6 +62,7 @@
 (defun github-tree-show (user repo tree-sha &key nomsg)
   (github-get "tree/show/:user/:repo/:tree_sha"
               :uri-params (list user repo tree-sha)
+              :return-type '(:root "tree" :list t :object t :type github-object)
               :nomsg nomsg))
 
 ; To get a listing of the root tree for the facebox project from our commit listing, we can call this:
@@ -106,6 +121,7 @@
   (github-get "blob/show/:user/:repo/:tree_sha/:path"
               :uri-params (list user repo tree-sha path)
               :query-params (if meta `((:meta . "1")) nil)
+              :return-type '(:root "blob" :list nil :object t :type github-blob)
               :nomsg nomsg))
 
 ; For example, to get the README.txt metadata from a specific tree in Facebox:
@@ -152,6 +168,7 @@
 (defun github-blob-all (user repo tree-sha &key nomsg)
   (github-get "blob/all/:user/:repo/:tree_sha"
               :uri-params (list user repo tree-sha)
+              :return-type '(:root "blobs" :list t :object t)
               :nomsg nomsg))
 
 ; For example, to get all blobs for Facebox:
@@ -193,6 +210,7 @@
 (defun github-blob-full (user repo tree-sha &key nomsg)
   (github-get "blob/full/:user/:repo/:tree_sha"
               :uri-params (list user repo tree-sha)
+              :return-type '(:root "blobs" :list t :object t :type github-object)
               :nomsg nomsg))
 
 ; 	$ curl http://github.com/api/v2/yaml/blob/full/defunkt/facebox/365b84e0fd92c47ecdada91da47f2d67500b8e31
@@ -209,6 +227,7 @@
 (defun github-tree-full (user repo tree-sha &key nomsg)
   (github-get "tree/full/:user/:repo/:tree_sha"
               :uri-params (list user repo tree-sha)
+              :return-type '(:root "tree" :list t :object t :type github-object)
               :nomsg nomsg))
 
 ; 	$ curl http://github.com/api/v2/yaml/tree/full/defunkt/facebox/365b84e0fd92c47ecdada91da47f2d67500b8e31

@@ -1,5 +1,7 @@
 2010-08-07  MIYAMUKO Katsuyuki
 
+	* object.l: ↓と同じ
+
 	* user.l: JSON オブジェクトではなく構造体を返すようにした
 
 	* (github-user-search-by-email, github-users-search): email 指定の
