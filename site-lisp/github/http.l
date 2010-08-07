@@ -108,7 +108,7 @@
   (let ((text (xhr-response-text xhr)))
     (when text
       (ignore-errors
-       (json-values (json-decode text) "error")))))
+       (json-value (json-decode text) "error")))))
 
 
 (provide "github/http")
