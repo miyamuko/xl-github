@@ -1,3 +1,7 @@
+2010-08-11  MIYAMUKO Katsuyuki
+
+	* issues.l: JSON オブジェクトではなく構造体を返すようにした
+
 2010-08-07  MIYAMUKO Katsuyuki
 
 	* commits.l: ↓と同じ
