@@ -31,12 +31,46 @@
 
 (in-package :github)
 
-;;; ## Users API ##
+;;; ## Repositories & Users API ##
 
 ;; 秘密鍵の情報
 (defstruct github-public-key
   id key title)
 (export-struct 'github-public-key)
+
+;;; ## Repositories API ##
+
+;; 検索結果のリポジトリ
+(defstruct github-repos
+  id name description
+  username fork-p size language
+  followers forks
+  pushed-at created-at
+  score type)
+(export-struct 'github-repos)
+
+;; base.l の json->struct 内で利用
+(setf (get 'github-repos 'github-slot-mapping)
+      '(:pushed :pushed-at
+        :created :created-at
+        :fork :fork-p))
+
+;; 普通のリポジトリ
+(defstruct github-repo
+  name owner description
+  homepage url
+  has-downloads has-issues has-wiki
+  fork-p private-p
+  forks watchers open-issues pledgie
+  pushed-at created-at)
+(export-struct 'github-repo)
+
+;; base.l の json->struct 内で利用
+(setf (get 'github-repo 'github-slot-mapping)
+      '(:fork :fork-p
+        :private :private-p))
+
+;;; ## Users API ##
 
 ;; ユーザのプラン
 (defstruct github-plan
