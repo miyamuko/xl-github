@@ -84,7 +84,9 @@
     (when (or raw (eql *github-return-type* :raw))
       (return-from process-response r))
     ;; json
-    (setf r (json-decode r))
+    (setf r (if (and r (string/= "" r))
+                (json-decode r)
+              nil))
     (when (or (eql *github-return-type* :json-with-root)
               (not root))
       (return-from process-response r))
