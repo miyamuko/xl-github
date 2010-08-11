@@ -30,6 +30,7 @@
   (mc-require "github/http")
   (mc-require "github/git-config")
   (mc-require "github/utils/struct")
+  (mc-require "github/api/types")
   )
 
 (in-package :github)

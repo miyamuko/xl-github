@@ -39,20 +39,6 @@
           github-blob-show-raw
           ))
 
-;;; ## \‘¢‘Ì‚Ì’è‹` ##
-
-(defstruct github-object-base
-  name size sha mode mime-type)
-
-(defstruct (github-object (:include github-object-base))
-  type)
-(export-struct 'github-object)
-
-(defstruct (github-blob (:include github-object-base))
-  data)
-(export-struct 'github-object)
-
-
 ;;; ## Git Object API ##
 
 ;;; ### Trees ###

@@ -49,43 +49,6 @@
           ))
 
 
-;;; ## 構造体の定義 ##
-
-;; 秘密鍵の情報
-(defstruct github-public-key
-  id key title)
-(export-struct 'github-public-key)
-
-;; ユーザのプラン
-(defstruct github-plan
-  name space collaborators private-repos)
-(export-struct 'github-plan)
-
-;; 検索結果のユーザ
-;; 普通のユーザ
-(defstruct github-users
-  id name username fullname
-  location language type
-  created pushed
-  followers repos score)
-(export-struct 'github-users)
-
-;; 普通のユーザ
-(defstruct github-user
-  id login name
-  email location blog company type
-  created-at gravatar-id
-  followers-count following-count
-  public-gist-count public-repo-count)
-(export-struct 'github-user)
-
-;; 認証されたユーザ
-(defstruct (github-auth-user (:include github-user))
-  collaborators disk-usage
-  owned-private-repo-count private-gist-count total-private-repo-count
-  (plan nil :type github-plan))
-(export-struct 'github-auth-user)
-
 ;;; ## Users API ##
 
 ; API for accessing and modifying user information.

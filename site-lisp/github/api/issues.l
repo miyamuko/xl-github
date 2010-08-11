@@ -45,23 +45,6 @@
           github-issues-comment
           ))
 
-;;; ## 構造体の定義 ##
-
-;; Issue のコメント
-(defstruct github-issue-comment
-  id user gravatar-id
-  created-at updated-at
-  body)
-(export-struct 'github-issue-comment)
-
-;; Issue
-(defstruct github-issue
-  number user state labels title body
-  gravatar-id position votes comments
-  created-at updated-at closed-at)
-(export-struct 'github-issue)
-
-
 ;;; ## Issues API ##
 
 ; The API for GitHub Issues.

@@ -35,30 +35,6 @@
           github-commits-show
           ))
 
-;;; ## 構造体の定義 ##
-
-(defstruct github-modified
-  diff filename)
-(export-struct 'github-modified)
-
-(defstruct github-contributer
-  name login email)
-(export-struct 'github-contributer)
-
-(defstruct github-commit
-  id url message tree
-  parents
-  committed-date authored-date
-  (author nil :type github-contributer)
-  (committer nil :type github-contributer)
-  (modified nil :type github-modified))
-(export-struct 'github-commit)
-
-;; base.l の json->struct 内で利用
-(setf (get 'github-commit-parents 'github-json-subkey) "id")
-(setf (get 'github-commit-modified 'github-json-list) t)
-
-
 ;;; ## Commits API ##
 
 ;;; ### Listing Commits on a Branch ###
