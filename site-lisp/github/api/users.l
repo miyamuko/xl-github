@@ -231,6 +231,7 @@
 (defun github-repos-watched (user &key nomsg)
   (github-get "repos/watched/:user"
               :uri-params (list user)
+              :return-type '(:root "repositories" :list t :object t :type github-repo)
               :nomsg nomsg))
 
 ; For example,

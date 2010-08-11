@@ -136,9 +136,12 @@
 
 (defun json->struct (name json)
   (let ((struct (make-struct name))
-        (def (struct-definition name)))
+        (def (struct-definition name))
+        (mapping (get name 'github-slot-mapping)))
     (dolist (key (json-object-keys json))
       (let* ((slot-name (keyword (substitute-string key "_" "-")))
+             (slot-name (or (getf mapping slot-name)
+                            slot-name))
              (slot-type (struct-slot-type def slot-name))
              (accessor (struct-slot-accessor name slot-name))
              (subkey (get accessor 'github-json-subkey))

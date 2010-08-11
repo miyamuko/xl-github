@@ -57,8 +57,7 @@
           github-repos-show-branches
           ))
 
-
-;; ## Repositories API ##
+;;; ## Repositories API ##
 
 ;;; ### Searching Repositories ###
 
@@ -68,7 +67,7 @@
               :uri-params (list q)
               :query-params `(("start_page" . ,page)
                               ("language" . ,lang))
-              :return-type '(:type repository :root "repositories" :list t)
+              :return-type '(:root "repositories" :list t :object t :type github-repos)
               :nomsg nomsg))
 
 ; To search for repositories that have to do with testing ruby, you could do this:
@@ -120,7 +119,7 @@
 (defun github-repos-show (user repo &key nomsg)
   (github-get "repos/show/:user/:repo"
               :uri-params (list user repo)
-              :return-type '(:type repository :root "repository" :list nil)
+              :return-type '(:root "repository" :list nil :object t :type github-repo)
               :nomsg nomsg))
 
 ; For example, to see the information for Grit
@@ -169,7 +168,7 @@
         (form "values[has_downloads]" (to-bool download) download-supplied-p))
     (github-post "repos/show/:user/:repo"
                  :uri-params (list user repo)
-                 :return-type '(:type repository :root "repository" :list nil)
+                 :return-type '(:root "repository" :list nil :object t :type github-repo)
                  :data data :nomsg nomsg)))
 
 ;       :values[key] = value
@@ -210,7 +209,7 @@
 (defun github-repos-list (user &key with-private nomsg)
   (github-get "repos/show/:user"
               :uri-params (list user)
-              :return-type '(:type repository :root "repositories" :list t)
+              :return-type '(:root "repositories" :list t :object t :type github-repo)
               :send-login-token with-private
               :nomsg nomsg))
 
@@ -249,14 +248,14 @@
 (defun github-repos-unwatch (user repo &key nomsg)
   (github-get "repos/unwatch/:user/:repo"
               :uri-params (list user repo)
-              :return-type '(:type repository :root "repository" :list nil)
+              :return-type '(:root "repository" :list nil :object t :type github-repo)
               :send-login-token t
               :nomsg nomsg))
 
 (defun github-repos-watch (user repo &key nomsg)
   (github-get "repos/watch/:user/:repo"
               :uri-params (list user repo)
-              :return-type '(:type repository :root "repository" :list nil)
+              :return-type '(:root "repository" :list nil :object t :type github-repo)
               :send-login-token t
               :nomsg nomsg))
 
@@ -267,6 +266,7 @@
 (defun github-repos-fork (user repo &key nomsg)
   (github-get "repos/fork/:user/:repo"
               :uri-params (list user repo)
+              :return-type '(:root "repository" :list nil :object t :type github-repo)
               :send-login-token t
               :nomsg nomsg))
 
@@ -300,7 +300,10 @@
         (form "description" description description-supplied-p)
         (form "homepage" homepage homepage-supplied-p)
         (form "public" (to-one-or-zero public) public-supplied-p))
-    (github-post "repos/create" :data data :nomsg nomsg)))
+    (github-post "repos/create"
+                 :data data
+                 :return-type '(:root "repository" :list nil :object t :type github-repo)
+                 :nomsg nomsg)))
 
 ; with at least 'name' but it will take any of these as POST args
 
@@ -312,12 +315,17 @@
 ; You can also delete a repository with a POST to
 
 (defun github-repos-delete (repo &key nomsg)
-  (let ((delete-token (github-post "repos/delete/:repo"
-                                   :uri-params (list repo)
-                                   :nomsg nomsg)))
-    (github-post "repos/delete/:repo"
-                 :uri-params (list repo)
-                 :data delete-token :nomsg nomsg)))
+  (let ((token (github-post "repos/delete/:repo"
+                            :uri-params (list repo)
+                            :return-type `(:root "delete_token" :object nil)
+                            :nomsg nomsg)))
+    (when token
+      (let ((status (github-post "repos/delete/:repo"
+                                 :uri-params (list repo)
+                                 :return-type `(:root "status" :object nil)
+                                 :data `(("delete_token" . ,token))
+                                 :nomsg nomsg)))
+        (string= "deleted" status)))))
 
 ; which will give you back a token in the 'delete\_token' field of the response, which you then have to post back to the same url again (in the 'delete\_token' POST var) to complete the deletion.
 
@@ -328,6 +336,7 @@
 (defun github-repos-set-private (repo &key nomsg)
   (github-get "repos/set/private/:repo"
               :uri-params (list repo)
+              :return-type '(:root "repository" :list nil :object t :type github-repo)
               :send-login-token t
               :nomsg nomsg))
 
@@ -336,6 +345,7 @@
 (defun github-repos-set-public (repo &key nomsg)
   (github-get "repos/set/public/:repo"
               :uri-params (list repo)
+              :return-type '(:root "repository" :list nil :object t :type github-repo)
               :send-login-token t
               :nomsg nomsg))
 
@@ -346,6 +356,7 @@
 (defun github-repos-keys (repo &key nomsg)
   (github-get "repos/keys/:repo"
               :uri-params (list repo)
+              :return-type '(:root "public_keys" :list t :object t :type github-public-key)
               :send-login-token t
               :nomsg nomsg))
 
@@ -372,6 +383,7 @@
         (form "key" key t))
     (github-post "repos/key/:repo/add"
                  :uri-params (list repo)
+                 :return-type '(:root "public_keys" :list t :object t :type github-public-key)
                  :data data :nomsg nomsg)))
 
 ; which takes the following POST variables
@@ -386,6 +398,7 @@
       (form "id" key-id t)
     (github-post "repos/key/:repo/remove"
                  :uri-params (list repo)
+                 :return-type '(:root "public_keys" :list t :object t :type github-public-key)
                  :data data :nomsg nomsg)))
 
 ; You will need to POST an 'id' variable with the key ID returned from the public listing or key creation.
@@ -397,6 +410,7 @@
 (defun github-repos-show-collaborator-list (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/collaborators"
               :uri-params (list user repo)
+              :return-type '(:root "collaborators" :object nil :list t)
               :nomsg nomsg))
 
 ; To add or remove collaborators, POST to one of these URLs
@@ -404,17 +418,21 @@
 (defun github-repos-collaborators-add (repo user &key nomsg)
   (github-post "repos/collaborators/:repo/add/:user"
                :uri-params (list repo user)
+               :return-type '(:root "collaborators" :object nil :list t)
                :nomsg nomsg))
 
 (defun github-repos-collaborators-remove (repo user &key nomsg)
   (github-post "repos/collaborators/:repo/remove/:user"
                :uri-params (list repo user)
+               :return-type '(:root "collaborators" :object nil :list t)
                :nomsg nomsg))
 
 ; To get a list of repos you can push to that are not your own, GET
 
 (defun github-repos-pushable (&key nomsg)
-  (github-get "repos/pushable" :send-login-token t :nomsg nomsg))
+  (github-get "repos/pushable"
+              :return-type '(:root "repositories" :object t :list t :type github-repo)
+              :send-login-token t :nomsg nomsg))
 
 ;;; ### Contributors ###
 
@@ -423,6 +441,7 @@
 (defun github-repos-show-contributors (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/contributors"
               :uri-params (list user repo)
+              :return-type '(:root "contributors" :object t :list t :type github-contributor)
               :nomsg nomsg))
 
 ; The data comes back as an array of [login, count], sorted by the biggest contributors to the repository.
@@ -467,6 +486,7 @@
 (defun github-repos-show-watchers (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/watchers"
               :uri-params (list user repo)
+              :return-type '(:root "watchers" :object nil :list t)
               :nomsg nomsg))
 
 ; The data comes back as an array of watchers, sorted by the date they started watching the repository.
@@ -484,6 +504,7 @@
 (defun github-repos-show-network (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/network"
               :uri-params (list user repo)
+              :return-type '(:root "network" :object t :list t :type github-repo)
               :nomsg nomsg))
 
 ; For example, to see all the forks of the ruby-git project, we can GET
@@ -522,6 +543,7 @@
 (defun github-repos-show-languages (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/languages"
               :uri-params (list user repo)
+              :return-type '(:root "languages" :object nil :list t)
               :nomsg nomsg))
 
 ; You can get the language breakdown for mojombo/grit like this:
@@ -542,6 +564,7 @@
 (defun github-repos-show-tags (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/tags"
               :uri-params (list user repo)
+              :return-type '(:root "tags" :object nil :list t)
               :nomsg nomsg))
 
 ; For example
@@ -559,6 +582,7 @@
 (defun github-repos-show-branches (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/branches"
               :uri-params (list user repo)
+              :return-type '(:root "branches" :object nil :list t)
               :nomsg nomsg))
 
 ; For example

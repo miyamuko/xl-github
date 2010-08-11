@@ -1,5 +1,7 @@
 2010-08-11  MIYAMUKO Katsuyuki
 
+	* api/repo.l, api.user.l: JSON オブジェクトではなく構造体を返すようにした
+
 	* api/types.l: github-public-key などは repo.l と user.l から使うため、
 	構造体の定義は types.l にまとめるようにした。
 
