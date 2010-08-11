@@ -1,14 +1,14 @@
 2010-08-11  MIYAMUKO Katsuyuki
 
-	* issues.l: JSON オブジェクトではなく構造体を返すようにした
+	* api/issues.l: JSON オブジェクトではなく構造体を返すようにした
 
 2010-08-07  MIYAMUKO Katsuyuki
 
-	* commits.l: ↓と同じ
+	* api/commits.l: ↓と同じ
 
-	* object.l: ↓と同じ
+	* api/object.l: ↓と同じ
 
-	* user.l: JSON オブジェクトではなく構造体を返すようにした
+	* api/user.l: JSON オブジェクトではなく構造体を返すようにした
 
 	* (github-user-search-by-email, github-users-search): email 指定の
 	検索は単一のユーザを返し、query 指定の検索は複数のユーザを返すので
@@ -25,12 +25,12 @@
 	Gist のブラウザ向けインターフェイスは query の login/token の指定より
 	Cookie にあるセッション ID のほうを優先するので Msxml2.XMLHTTP は利用できない。
 
-	* (package.l): xml-http-request 1.3.0 以上が必要なので
+	* package.l: xml-http-request 1.3.0 以上が必要なので
 	バージョンチェックを追加
 
 2010-07-28  MIYAMUKO Katsuyuki
 
-	* (gist-unofficial.l): Gist API が足りないのでブラウザ向けのインターフェイス
+	* api/gist-unofficial.l: Gist API が足りないのでブラウザ向けのインターフェイス
 	を利用して API を実装
 	- 実装した API
 	  - gist-new
@@ -44,20 +44,20 @@
 
 2010-07-27  MIYAMUKO Katsuyuki
 
-	* (network.l): 一応一通り動くようになった
+	* api/network.l: 一応一通り動くようになった
 
-	* (gist.l): Gist API を定義。gist- だけで十分ユニークな名前なので
+	* api/gist.l: Gist API を定義。gist- だけで十分ユニークな名前なので
 	関数名に github- をつけなかった。
 
 2010-07-26  MIYAMUKO Katsuyuki
 
-	* (user.l, object.l, commit.l, issues.l): 一通り動くようになった。戻り値は要修正。
+	* api/user.l, api/object.l, api/commit.l, api/issues.l: 一通り動くようになった。戻り値は要修正。
 
 2010-07-24  MIYAMUKO Katsuyuki
 
 	* とりあえず push
 
-	* (repo.l): 一応一通り動くようになった
+	* api/repo.l: 一応一通り動くようになった
 	  - 戻り値はいまのところ JSON をそのまま返しているので修正が必要
 
 2010-07-23  MIYAMUKO Katsuyuki
@@ -66,7 +66,7 @@
 
 	* (form-value-bind): post データを生成するマクロ
 
-	* (repo.l): Repository API の半分まで実装してテスト
+	* api/repo.l: Repository API の半分まで実装してテスト
 	  - github-repos-search
 	  - github-repos-show
 	  - github-repos-set
@@ -85,7 +85,7 @@
 	  http://develop.github.com/
 	  http://github.com/develop/develop.github.com
 
-	* (scripts/genapi.rb): markdown から xyzzy lisp を生成するスクリプト
+	* scripts/genapi.rb: markdown から xyzzy lisp を生成するスクリプト
 
 2010-07-18  MIYAMUKO Katsuyuki
 
