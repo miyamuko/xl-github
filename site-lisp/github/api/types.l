@@ -33,17 +33,17 @@
 
 ;;; ## Users API ##
 
-;; ”é–§Œ®‚Ìî•ñ
+;; ç§˜å¯†éµã®æƒ…å ±
 (defstruct github-public-key
   id key title)
 (export-struct 'github-public-key)
 
-;; ƒ†[ƒU‚Ìƒvƒ‰ƒ“
+;; ãƒ¦ãƒ¼ã‚¶ã®ãƒ—ãƒ©ãƒ³
 (defstruct github-plan
   name space collaborators private-repos)
 (export-struct 'github-plan)
 
-;; ŒŸõŒ‹‰Ê‚Ìƒ†[ƒU
+;; æ¤œç´¢çµæœã®ãƒ¦ãƒ¼ã‚¶
 (defstruct github-users
   id name username fullname
   location language type
@@ -51,7 +51,7 @@
   followers repos score)
 (export-struct 'github-users)
 
-;; •’Ê‚Ìƒ†[ƒU
+;; æ™®é€šã®ãƒ¦ãƒ¼ã‚¶
 (defstruct github-user
   id login name
   email location blog company type
@@ -60,7 +60,7 @@
   public-gist-count public-repo-count)
 (export-struct 'github-user)
 
-;; ”FØ‚³‚ê‚½ƒ†[ƒU
+;; èªè¨¼ã•ã‚ŒãŸãƒ¦ãƒ¼ã‚¶
 (defstruct (github-auth-user (:include github-user))
   collaborators disk-usage
   owned-private-repo-count private-gist-count total-private-repo-count
@@ -104,14 +104,14 @@
   (modified nil :type github-modified))
 (export-struct 'github-commit)
 
-;; base.l ‚Ì json->struct “à‚Å—˜—p
+;; base.l ã® json->struct å†…ã§åˆ©ç”¨
 (setf (get 'github-commit-parents 'github-json-subkey) "id")
 (setf (get 'github-commit-modified 'github-json-list) t)
 
 
 ;;; ## Issue API ##
 
-;; Issue ‚ÌƒRƒƒ“ƒg
+;; Issue ã®ã‚³ãƒ¡ãƒ³ãƒˆ
 (defstruct github-issue-comment
   id user gravatar-id
   created-at updated-at
