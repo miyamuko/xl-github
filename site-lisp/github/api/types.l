@@ -139,7 +139,8 @@
 (export-struct 'github-commit)
 
 ;; base.l の json->struct 内で利用
-(setf (get 'github-commit-parents 'github-json-subkey) "id")
+(setf (get 'github-commit-parents 'github-filter) (lambda (json) (json-value json "id"))
+      (get 'github-commit-parents 'github-json-list) t)
 (setf (get 'github-commit-modified 'github-json-list) t)
 
 
@@ -158,6 +159,31 @@
   gravatar-id position votes comments
   created-at updated-at closed-at)
 (export-struct 'github-issue)
+
+
+;;; ## Network API ##
+
+(defstruct github-network-blocks
+  name count start)
+(export-struct 'github-network-blocks)
+
+(defstruct github-network-users
+  repo name heads)
+(export-struct 'github-network-users)
+(setf (get 'github-network-users-heads 'github-json-list) t
+      (get 'github-network-users-heads 'github-filter)
+      ;; github-repos-show-branches の結果と合わせる
+      (lambda (json)
+        (cons (json-value json "name")
+              (json-value json "id"))))
+
+(defstruct github-network
+  nethash focus spacemap dates
+  (blocks nil :type github-network-blocks)
+  (users nil :type github-network-users))
+(export-struct 'github-network)
+(setf (get 'github-network-blocks 'github-json-list) t
+      (get 'github-network-users 'github-json-list) t)
 
 
 ;;; ## Gist API ##

@@ -45,6 +45,7 @@
   (let ((*github-api-endpoint* *github-domain*))
     (github-get ":user/:repo/network_meta"
                 :uri-params (list user repo)
+                :return-type '(:root nil :object t :list nil :type github-network)
                 :nomsg nomsg)))
 
 ; 	$ curl http://github.com/schacon/simplegit/network_meta | jsonpretty

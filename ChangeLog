@@ -1,5 +1,7 @@
 2010-08-12  MIYAMUKO Katsuyuki
 
+	* api/network.l: JSON オブジェクトではなく構造体を返すようにした
+
 	* api/gist-unofficial.l (gist-mine, gist-mine1): 関数名を変更
 	- gist-id-list-all => gist-mine
 	- gist-id-list     => gist-mine1
