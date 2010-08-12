@@ -160,6 +160,15 @@
 (export-struct 'github-issue)
 
 
+;;; ## Gist API ##
+
+;; Gist
+(defstruct gist
+  id owner description public-p files created-at)
+(export-struct 'gist)
+(setf (get 'gist 'github-slot-mapping)
+      '(:repo :id
+        :public :public-p))
 
 
 (provide "github/api/types")

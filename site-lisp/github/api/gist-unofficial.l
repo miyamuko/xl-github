@@ -32,50 +32,40 @@
 
 (in-package :github)
 
-(export '(gist-id-list-all
-          gist-id-list
+(export '(gist-mine
+          gist-mine1
           gist-new
           gist-edit
           gist-delete
           gist-comment-add
+          gist-revisions
           gist-update-description
+          gist-star-p
           gist-star
           gist-unstar
           ))
 
 
-;;; ### Mine Public & Private Gist ###
+;;; ### My Public & Private Gist ###
 
-(defun gist-id-list-all (&key nomsg)
+(defun gist-mine (&key nomsg)
   (let ((page 1) r)
     (loop
       (multiple-value-bind (id-list next-page)
-          (gist-id-list :page page :nomsg nomsg)
+          (gist-mine1 :page page :nomsg nomsg)
         (push id-list r)
         (unless next-page
           (return))
         (setf page next-page)))
     (apply 'append (nreverse r))))
 
-(defun gist-id-list (&key page nomsg)
+(defun gist-mine1 (&key page nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
-    (parse-gist-list
+    (scan-id-list
      (github-get "mine"
                  :query-params `((:page ,(or page 1)))
                  :send-login-token t
                  :raw t :nomsg nomsg))))
-
-(defparameter *gist-list-id-regexp* "<span><a href=\"/\\([0-9a-f]+\\)\">gist: [0-9a-f]+</a></span>")
-(defparameter *gist-list-next-page-regexp* "<a href=\"/mine\\?.*?page=\\([0-9]+\\).*?\" hotkey=\"l\">")
-(defun parse-gist-list (html)
-  (let ((start 0) id-list next-page)
-    (while (string-matchp *gist-list-id-regexp* html start)
-      (push (match-string 1) id-list)
-      (setf start (match-end 0)))
-    (when (string-matchp *gist-list-next-page-regexp* html)
-      (setf next-page (parse-integer (match-string 1))))
-    (values (nreverse id-list) next-page)))
-
 
 ;;; ### Gist Edit ###
 
@@ -89,9 +79,10 @@
             (form "file_name[gistfile1]" name t)
             (form "file_ext[gistfile1]" ext t)
             (form "file_contents[gistfile1]" contents t))
-        (github-post "gists"
-                     :data data
-                     :raw t :nomsg nomsg)))))
+        (scan-id
+         (github-post "gists"
+                      :data data
+                      :raw t :nomsg nomsg))))))
 
 (defun gist-edit (id filename contents &key nomsg)
   (multiple-value-bind (name ext)
@@ -103,10 +94,11 @@
             (form (format nil "file_name[~A]" filename) name t)
             (form (format nil "file_ext[~A]" filename) ext t)
             (form (format nil "file_contents[~A]" filename) contents t))
-        (github-post "gists/:id"
-                     :uri-params (list id)
-                     :data data
-                     :raw t :nomsg nomsg)))))
+        (scan-revisions
+         (github-post "gists/:id"
+                      :uri-params (list id)
+                      :data data
+                      :raw t :nomsg nomsg))))))
 
 (defun gist-delete (id &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
@@ -115,7 +107,8 @@
       (github-post "delete/:id"
                    :uri-params (list id)
                    :data data
-                   :raw t :nomsg nomsg))))
+                   :raw t :nomsg nomsg)
+      nil)))
 
 (defun gist-comment-add (id comment &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
@@ -124,7 +117,11 @@
       (github-post ":id/comment"
                    :uri-params (list id)
                    :data data
-                   :raw t :nomsg nomsg))))
+                   :raw t :nomsg nomsg)
+      nil)))
+
+(defun gist-revisions (id &key nomsg)
+  (scan-revisions (gist-get-html id)))
 
 (defun gist-update-description (id description &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
@@ -134,6 +131,9 @@
                    :uri-params (list id)
                    :data data
                    :raw t :nomsg nomsg))))
+
+(defun gist-star-p (id &key nomsg)
+  (string= "unstar" (scan-star (gist-get-html id :nomsg nomsg))))
 
 (defun gist-star (id &key nomsg)
   (gist-set-star id t nomsg))
@@ -145,8 +145,58 @@
   (let ((*github-api-endpoint* *gist-domain*))
     (github-post ":method/:id"
                  :uri-params (list (if star "star" "unstar") id)
-                 :raw t :nomsg nomsg)))
+                 :raw t :nomsg nomsg)
+    nil))
 
+
+;;; ### Utilities ###
+
+(defun gist-get-html (id &key nomsg)
+  (let ((*github-api-endpoint* *gist-domain*))
+    (github-get ":id"
+                :uri-params (list id)
+                :send-login-token t
+                :raw t :nomsg nomsg)))
+
+(defparameter *gist-list-id-regexp* "<span><a href=\"/\\([0-9a-f]+\\)\">gist: [0-9a-f]+</a></span>")
+(defparameter *gist-list-next-page-regexp* "<a href=\"/mine\\?.*?page=\\([0-9]+\\).*?\" hotkey=\"l\">")
+(defun scan-id-list (html)
+  (values (scan-all html *gist-list-id-regexp* 1)
+          (let ((next (scan1 html *gist-list-next-page-regexp* 1)))
+            (when next
+              (parse-integer next)))))
+
+(defparameter *gist-title-regexp* "<title>gist: +\\([a-f0-9]+\\).*?</title>")
+(defun scan-id (html)
+  (scan1 html *gist-title-regexp* 1))
+
+(defparameter *gist-revision-regexp* "<a +href=\"http://gist.github.com/[0-9a-f]+/\\([0-9a-f]+\\)\" +class=\"id\">")
+(defun scan-revisions (html)
+  (scan-all html *gist-revision-regexp* 1))
+
+(defparameter *gist-star-regexp* "<a href=\"/\\(\\(?:un\\)?star\\)/[0-9a-f]+\">")
+(defun scan-star (html)
+  (scan1 html *gist-star-regexp* 1))
+
+
+(defun scan-all (html regexp group)
+  (let ((start 0)
+        (result nil))
+    (while (string-matchp regexp html start)
+      (push (if (atom group)
+                (match-string group)
+              (mapcar #'match-string group))
+            result)
+      (setf start (match-end 0)))
+    (nreverse result)))
+
+(defun scan1 (html regexp group &key must-match)
+  (if (string-matchp regexp html)
+      (if (atom group)
+          (match-string group)
+        (mapcar #'match-string group))
+    (when must-match
+      (plain-error "Failed to scrape html: ~S" regexp))))
 
 (defun parse-filename (filename)
   (let ((name (pathname-name filename))

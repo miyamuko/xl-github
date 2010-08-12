@@ -52,7 +52,11 @@
 
 (defun gist-meta (id &key nomsg)
   (let ((*github-api-endpoint* *gist-api-endpoint*))
-    (github-get ":id" :uri-params (list id) :nomsg nomsg)))
+    (car
+     (github-get ":id"
+                 :uri-params (list id)
+                 :return-type '(:root "gists" :list t :object t :type gist)
+                 :nomsg nomsg))))
 
 ; Example:
 
@@ -100,6 +104,7 @@
 (defun gist-list (user &key nomsg)
   (let ((*github-api-endpoint* *gist-api-endpoint*))
     (github-get "gists/:user" :uri-params (list user)
+                :return-type '(:root "gists" :list t :object t :type gist)
                 :send-login-token t
                 :nomsg nomsg)))
 

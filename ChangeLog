@@ -1,3 +1,15 @@
+2010-08-12  MIYAMUKO Katsuyuki
+
+	* api/gist-unofficial.l (gist-mine, gist-mine1): 関数名を変更
+	- gist-id-list-all => gist-mine
+	- gist-id-list     => gist-mine1
+
+	* api/gist-unofficial.l (gist-revisions, gist-star-p): 関数を追加
+	- gist-revisions: Gist のリビジョンの sha1 のリストを返す
+	- gist-star-p: Gist にスターをつけたなら t
+
+	* api/gist.l (gist-meta, gist-list): JSON オブジェクトではなく構造体を返すようにした
+
 2010-08-11  MIYAMUKO Katsuyuki
 
 	* api/repo.l, api.user.l: JSON オブジェクトではなく構造体を返すようにした
