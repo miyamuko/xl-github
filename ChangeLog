@@ -1,3 +1,10 @@
+2010-08-13  MIYAMUKO Katsuyuki
+
+	* 構造体のアクセッサと API を区別しにくいので、API は動詞で
+	始めるようにした。
+	また、シンボル名には github- という prefix を付けないようにした。
+	例) github-repos-show => show-repo
+
 2010-08-12  MIYAMUKO Katsuyuki
 
 	* api/network.l: JSON オブジェクトではなく構造体を返すようにした

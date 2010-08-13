@@ -31,9 +31,9 @@
 
 (in-package :github)
 
-(export '(gist-meta
-          gist-show
-          gist-list
+(export '(get-gist-metadata
+          show-gist
+          list-public-gists
           ))
 
 ;; ## Gist API ##
@@ -50,7 +50,7 @@
 
 ;     GET http://gist.github.com/api/v1/:format/:gist_id
 
-(defun gist-meta (id &key nomsg)
+(defun get-gist-metadata (id &key nomsg)
   (let ((*github-api-endpoint* *gist-api-endpoint*))
     (car
      (github-get ":id"
@@ -73,19 +73,19 @@
 
 ;     GET http://gist.github.com/raw/:gist_id/:filename
 
-(defun gist-show (id &key file nomsg)
+(defun show-gist (id &key file nomsg)
   (if file
-      (gist-show-file id file :nomsg nomsg)
-    (gist-show-all id :nomsg nomsg)))
+      (show-gist-file id file :nomsg nomsg)
+    (show-gist-all id :nomsg nomsg)))
 
-(defun gist-show-file (id filename &key nomsg)
+(defun show-gist-file (id filename &key nomsg)
   (let ((*github-api-endpoint* *gist-raw-endpoint*))
     (github-get ":id/:filename"
                 :uri-params (list id filename)
                 :raw t :nomsg nomsg)))
 
 ;; This is NOT official Gist API
-(defun gist-show-all (id &key nomsg)
+(defun show-gist-all (id &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (github-get ":id.txt"
                 :uri-params (list id)
@@ -101,7 +101,7 @@
 
 ;     GET http://gist.github.com/api/v1/:format/gists/:login
 
-(defun gist-list (user &key nomsg)
+(defun list-public-gists (user &key nomsg)
   (let ((*github-api-endpoint* *gist-api-endpoint*))
     (github-get "gists/:user" :uri-params (list user)
                 :return-type '(:root "gists" :list t :object t :type gist)

@@ -31,22 +31,22 @@
 
 (in-package :github)
 
-(export '(github-commits-list
-          github-commits-show
+(export '(list-commits
+          show-commit
           ))
 
 ;;; ## Commits API ##
 
 ;;; ### Listing Commits on a Branch ###
 
-(defun github-commits-list (user repo branch &key path nomsg)
+(defun list-commits (user repo branch &key path nomsg)
   (github-get (if path
                   "commits/list/:user/:repo/:branch/:path"
                 "commits/list/:user/:repo/:branch")
               :uri-params (if path
                               (list user repo branch path)
                             (list user repo branch))
-              :return-type '(:root "commits" :list t :object t :type github-commit)
+              :return-type '(:root "commits" :list t :object t :type commit)
               :nomsg nomsg))
 
 ; An example of getting a listing of commits for a branch, we will get the latest commits on the 'master' branch of the Grit project.
@@ -85,7 +85,7 @@
 
 ;;; ### Listing Commits for a File ###
 
-; (defun github-commits-list (user repo branch path &key nomsg)
+; (defun list-commits (user repo branch path &key nomsg)
 ;   (github-get "commits/list/:user/:repo/:branch/*path"
 ;               :uri-params (list user repo branch path)
 ;               :nomsg nomsg))
@@ -126,10 +126,10 @@
 
 ;;; ### Showing a Specific Commit ###
 
-(defun github-commits-show (user repo sha &key nomsg)
+(defun show-commit (user repo sha &key nomsg)
   (github-get "commits/show/:user/:repo/:sha"
               :uri-params (list user repo sha)
-              :return-type '(:root "commit" :list nil :object t :type github-commit)
+              :return-type '(:root "commit" :list nil :object t :type commit)
               :nomsg nomsg))
 
 ; An example of using this to get a the changes introduced on a specific commit in the Grit project would be

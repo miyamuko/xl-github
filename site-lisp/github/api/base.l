@@ -47,15 +47,15 @@
 (defvar *github-token* nil)
 
 
-(defun github-credential-alist ()
+(defun get-credential-alist ()
   (unless (and *github-login* *github-token*)
-    (init-github-credential))
+    (init-credential))
   (list (cons :login *github-login*)
         (cons :token *github-token*)))
 
-(defun init-github-credential ()
+(defun init-credential ()
   (multiple-value-bind (login token)
-      (github-credential)
+      (get-credential)
     (unless (and login token)
       (plain-error "github.user と github.token を git config で設定してください"))
     (setf *github-login* login
@@ -64,7 +64,7 @@
 (defun github-get (path-template &key uri-params query-params return-type send-login-token raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
     (when send-login-token
-      (setf query-params (append (github-credential-alist) query-params)))
+      (setf query-params (append (get-credential-alist) query-params)))
     (process-response (do-get uri
                               :query (remove-if-not #'cdr query-params)
                               :nomsg nomsg)
@@ -72,7 +72,7 @@
 
 (defun github-post (path-template &key uri-params data return-type raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
-    (setf data (append (github-credential-alist) data))
+    (setf data (append (get-credential-alist) data))
     (process-response (do-post uri data :nomsg nomsg)
                       raw return-type)))
 

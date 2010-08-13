@@ -42,7 +42,9 @@
 
        :xml-http-request
        :json
-       ))))
+       )
+      (:shadow :user-name) ;; conflist with ed::user-name and gh::user-name
+      )))
 
 (when (string< (xhr:xml-http-request-version) "1.3.0")
   (msgbox "xml-http-request 1.3.0 ˆÈã‚ª•K—v‚Å‚·"))

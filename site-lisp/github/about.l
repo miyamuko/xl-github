@@ -31,29 +31,29 @@
 
 (in-package :github)
 
-(export '(github-version
+(export '(xl-github-version
           ))
 
-(defconstant +github-version+ "0.0.1")
-(defconstant +github-uri+ "http://miyamuko.s56.xrea.com/xyzzy/xl-github/intro.htm")
+(defconstant +xl-github-version+ "0.0.1")
+(defconstant +xl-github-uri+ "http://miyamuko.s56.xrea.com/xyzzy/xl-github/intro.htm")
 
-(defun github-version ()
-  +github-version+)
+(defun xl-github-version ()
+  +xl-github-version+)
 
-(defun github-uri ()
-  +github-uri+)
+(defun xl-github-uri ()
+  +xl-github-uri+)
 
-(defun github-product ()
-  (format nil "~A/~A" "xl-github" +github-version+))
+(defun xl-github-product ()
+  (format nil "~A/~A" "xl-github" +xl-github-version+))
 
-(defun github-platform ()
+(defun xl-github-platform ()
   (format nil "~A ~A" (software-type) (software-version)))
 
-(defun github-user-agent ()
+(defun xl-github-useragent ()
   (format nil "~A (~A; ~A)"
-          (github-product)
-          (github-platform)
-          +github-uri+
+          (xl-github-product)
+          (xl-github-platform)
+          +xl-github-uri+
           ))
 
 

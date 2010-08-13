@@ -27,6 +27,7 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (mc-require "github/package")
+  (mc-require "github/utils/struct")
   )
 
 (in-package :github)
@@ -34,156 +35,156 @@
 ;;; ## Repositories & Users API ##
 
 ;; 秘密鍵の情報
-(defstruct github-public-key
+(defstruct public-key
   id key title)
-(export-struct 'github-public-key)
+(export-struct 'public-key)
 
 ;;; ## Repositories API ##
 
 ;; 検索結果のリポジトリ
-(defstruct github-repos
+(defstruct searched-repo
   id name description
   username fork-p size language
   followers forks
   pushed-at created-at
   score type)
-(export-struct 'github-repos)
+(export-struct 'searched-repo)
 
 ;; base.l の json->struct 内で利用
-(setf (get 'github-repos 'github-slot-mapping)
+(setf (get 'searched-repo 'github-slot-mapping)
       '(:pushed :pushed-at
         :created :created-at
         :fork :fork-p))
 
 ;; 普通のリポジトリ
-(defstruct github-repo
+(defstruct repo
   name owner description
   homepage url
   has-downloads has-issues has-wiki
   fork-p private-p
   forks watchers open-issues pledgie
   pushed-at created-at)
-(export-struct 'github-repo)
+(export-struct 'repo)
 
 ;; base.l の json->struct 内で利用
-(setf (get 'github-repo 'github-slot-mapping)
+(setf (get 'repo 'github-slot-mapping)
       '(:fork :fork-p
         :private :private-p))
 
 ;;; ## Users API ##
 
 ;; ユーザのプラン
-(defstruct github-plan
+(defstruct plan
   name space collaborators private-repos)
-(export-struct 'github-plan)
+(export-struct 'plan)
 
 ;; 検索結果のユーザ
-(defstruct github-users
+(defstruct searched-user
   id name username fullname
   location language type
   created pushed
   followers repos score)
-(export-struct 'github-users)
+(export-struct 'searched-user)
 
 ;; 普通のユーザ
-(defstruct github-user
+(defstruct user
   id login name
   email location blog company type
   created-at gravatar-id
   followers-count following-count
   public-gist-count public-repo-count)
-(export-struct 'github-user)
+(export-struct 'user)
 
 ;; 認証されたユーザ
-(defstruct (github-auth-user (:include github-user))
+(defstruct (auth-user (:include user))
   collaborators disk-usage
   owned-private-repo-count private-gist-count total-private-repo-count
-  (plan nil :type github-plan))
-(export-struct 'github-auth-user)
+  (plan nil :type plan))
+(export-struct 'auth-user)
 
 
 ;;; ## Object API ##
 
-(defstruct github-object-base
+(defstruct object-base
   name size sha mode mime-type)
 
-(defstruct (github-object (:include github-object-base))
+(defstruct (object (:include object-base))
   type)
-(export-struct 'github-object)
+(export-struct 'object)
 
-(defstruct (github-blob (:include github-object-base))
+(defstruct (blob (:include object-base))
   data)
-(export-struct 'github-object)
+(export-struct 'object)
 
 
 ;;; ## Commits API ##
 
-(defstruct github-modified
+(defstruct modified
   diff filename)
-(export-struct 'github-modified)
+(export-struct 'modified)
 
-(defstruct github-contributor
+(defstruct contributor
   login name email
   location company
   blog gravatar-id
   contributions type)
-(export-struct 'github-contributor)
+(export-struct 'contributor)
 
-(defstruct github-commit
+(defstruct commit
   id url message tree
   parents
   committed-date authored-date
-  (author nil :type github-contributor)
-  (committer nil :type github-contributor)
-  (modified nil :type github-modified))
-(export-struct 'github-commit)
+  (author nil :type contributor)
+  (committer nil :type contributor)
+  (modified nil :type modified))
+(export-struct 'commit)
 
 ;; base.l の json->struct 内で利用
-(setf (get 'github-commit-parents 'github-filter) (lambda (json) (json-value json "id"))
-      (get 'github-commit-parents 'github-json-list) t)
-(setf (get 'github-commit-modified 'github-json-list) t)
+(setf (get 'commit-parents 'github-filter) (lambda (json) (json-value json "id"))
+      (get 'commit-parents 'github-json-list) t)
+(setf (get 'commit-modified 'github-json-list) t)
 
 
 ;;; ## Issue API ##
 
 ;; Issue のコメント
-(defstruct github-issue-comment
+(defstruct issue-comment
   id user gravatar-id
   created-at updated-at
   body)
-(export-struct 'github-issue-comment)
+(export-struct 'issue-comment)
 
 ;; Issue
-(defstruct github-issue
+(defstruct issue
   number user state labels title body
   gravatar-id position votes comments
   created-at updated-at closed-at)
-(export-struct 'github-issue)
+(export-struct 'issue)
 
 
 ;;; ## Network API ##
 
-(defstruct github-network-blocks
+(defstruct network-blocks
   name count start)
-(export-struct 'github-network-blocks)
+(export-struct 'network-blocks)
 
-(defstruct github-network-users
+(defstruct network-users
   repo name heads)
-(export-struct 'github-network-users)
-(setf (get 'github-network-users-heads 'github-json-list) t
-      (get 'github-network-users-heads 'github-filter)
-      ;; github-repos-show-branches の結果と合わせる
+(export-struct 'network-users)
+(setf (get 'network-users-heads 'github-json-list) t
+      (get 'network-users-heads 'github-filter)
+      ;; list-repo-branches の結果と合わせる
       (lambda (json)
         (cons (json-value json "name")
               (json-value json "id"))))
 
-(defstruct github-network
+(defstruct network
   nethash focus spacemap dates
-  (blocks nil :type github-network-blocks)
-  (users nil :type github-network-users))
-(export-struct 'github-network)
-(setf (get 'github-network-blocks 'github-json-list) t
-      (get 'github-network-users 'github-json-list) t)
+  (blocks nil :type network-blocks)
+  (users nil :type network-users))
+(export-struct 'network)
+(setf (get 'network-blocks 'github-json-list) t
+      (get 'network-users 'github-json-list) t)
 
 
 ;;; ## Gist API ##

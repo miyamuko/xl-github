@@ -26,40 +26,39 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
   (mc-require "github/api/gist")
   )
 
 (in-package :github)
 
-(export '(gist-mine
-          gist-mine1
-          gist-new
-          gist-edit
-          gist-delete
-          gist-comment-add
-          gist-revisions
-          gist-update-description
-          gist-star-p
-          gist-star
-          gist-unstar
+(export '(list-my-gists
+          list-my-gists1
+          create-gist
+          update-gist
+          delete-gist
+          add-gist-comment
+          list-gist-revisions
+          update-gist-description
+          star-gist-p
+          star-gist
+          unstar-gist
           ))
 
 
 ;;; ### My Public & Private Gist ###
 
-(defun gist-mine (&key nomsg)
+(defun list-my-gists (&key nomsg)
   (let ((page 1) r)
     (loop
       (multiple-value-bind (id-list next-page)
-          (gist-mine1 :page page :nomsg nomsg)
+          (list-my-gists1 :page page :nomsg nomsg)
         (push id-list r)
         (unless next-page
           (return))
         (setf page next-page)))
     (apply 'append (nreverse r))))
 
-(defun gist-mine1 (&key page nomsg)
+(defun list-my-gists1 (&key page nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (scan-id-list
      (github-get "mine"
@@ -69,7 +68,7 @@
 
 ;;; ### Gist Edit ###
 
-(defun gist-new (filename contents &key private nomsg)
+(defun create-gist (filename contents &key private nomsg)
   (multiple-value-bind (name ext)
       (parse-filename filename)
     (let ((*github-api-endpoint* *gist-domain*))
@@ -84,7 +83,7 @@
                       :data data
                       :raw t :nomsg nomsg))))))
 
-(defun gist-edit (id filename contents &key nomsg)
+(defun update-gist (id filename contents &key nomsg)
   (multiple-value-bind (name ext)
       (parse-filename filename)
     (let ((*github-api-endpoint* *gist-domain*))
@@ -100,7 +99,7 @@
                       :data data
                       :raw t :nomsg nomsg))))))
 
-(defun gist-delete (id &key nomsg)
+(defun delete-gist (id &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (form-value-bind (data)
         (form "_method" "delete" t)
@@ -110,7 +109,7 @@
                    :raw t :nomsg nomsg)
       nil)))
 
-(defun gist-comment-add (id comment &key nomsg)
+(defun add-gist-comment (id comment &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (form-value-bind (data)
         (form "comment[body]" comment t)
@@ -120,10 +119,10 @@
                    :raw t :nomsg nomsg)
       nil)))
 
-(defun gist-revisions (id &key nomsg)
-  (scan-revisions (gist-get-html id)))
+(defun list-gist-revisions (id &key nomsg)
+  (scan-revisions (get-html id)))
 
-(defun gist-update-description (id description &key nomsg)
+(defun update-gist-description (id description &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (form-value-bind (data)
         (form "description" description t)
@@ -132,16 +131,16 @@
                    :data data
                    :raw t :nomsg nomsg))))
 
-(defun gist-star-p (id &key nomsg)
-  (string= "unstar" (scan-star (gist-get-html id :nomsg nomsg))))
+(defun star-gist-p (id &key nomsg)
+  (string= "unstar" (scan-star (get-html id :nomsg nomsg))))
 
-(defun gist-star (id &key nomsg)
-  (gist-set-star id t nomsg))
+(defun star-gist (id &key nomsg)
+  (set-star id t nomsg))
 
-(defun gist-unstar (id &key nomsg)
-  (gist-set-star id nil nomsg))
+(defun unstar-gist (id &key nomsg)
+  (set-star id nil nomsg))
 
-(defun gist-set-star (id star nomsg)
+(defun set-star (id star nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (github-post ":method/:id"
                  :uri-params (list (if star "star" "unstar") id)
@@ -151,7 +150,7 @@
 
 ;;; ### Utilities ###
 
-(defun gist-get-html (id &key nomsg)
+(defun get-html (id &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (github-get ":id"
                 :uri-params (list id)

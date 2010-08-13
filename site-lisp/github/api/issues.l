@@ -31,18 +31,18 @@
 
 (in-package :github)
 
-(export '(github-issues-search
-          github-issues-list
-          github-issues-show
-          github-issues-comments
-          github-issues-open
-          github-issues-close
-          github-issues-reopen
-          github-issues-edit
-          github-issues-labels
-          github-issues-label-add
-          github-issues-label-remove
-          github-issues-comment
+(export '(search-issues
+          list-issues
+          show-issue
+          list-issue-comments
+          open-issue
+          close-issue
+          reopen-issue
+          update-issue
+          list-issue-labels
+          add-issue-label
+          delete-issue-label
+          add-issue-comment
           ))
 
 ;;; ## Issues API ##
@@ -56,11 +56,11 @@
 
 ;;; ### Search Issues ###
 
-(defun github-issues-search (user repo state search-term &key nomsg)
+(defun search-issues (user repo state search-term &key nomsg)
   (validate-state state)
   (github-get "issues/search/:user/:repo/:state/:search_term"
               :uri-params (list user repo state search-term)
-              :return-type '(:root "issues" :list t :object t :type github-issue)
+              :return-type '(:root "issues" :list t :object t :type issue)
               :nomsg nomsg))
 
 ; Where 'state' is either 'open' or 'closed'.
@@ -90,25 +90,25 @@
 
 ; To see a list of issues for a project,
 
-(defun github-issues-list (user repo state-or-label &key label nomsg)
+(defun list-issues (user repo state-or-label &key label nomsg)
   (funcall (if label
-               'github-issues-list-by-label
-             'github-issues-list-by-state)
+               'list-issues-by-label
+             'list-issues-by-state)
            user repo state-or-label :nomsg nomsg))
 
-(defun github-issues-list-by-state (user repo state &key nomsg)
+(defun list-issues-by-state (user repo state &key nomsg)
   (validate-state state)
   (github-get "issues/list/:user/:repo/:state"
               :uri-params (list user repo state)
-              :return-type '(:root "issues" :list t :object t :type github-issue)
+              :return-type '(:root "issues" :list t :object t :type issue)
               :nomsg nomsg))
 
 ; where :state is either 'open' or 'closed'.  You can also search with a label:
 
-(defun github-issues-list-by-label (user repo label &key nomsg)
+(defun list-issues-by-label (user repo label &key nomsg)
   (github-get "issues/list/:user/:repo/label/:label"
               :uri-params (list user repo label)
-              :return-type '(:root "issues" :list t :object t :type github-issue)
+              :return-type '(:root "issues" :list t :object t :type issue)
               :nomsg nomsg))
 
 ; For example, to see all the open issues I have on the schacon/simplegit project, we can run
@@ -162,10 +162,10 @@
 
 ; To get data on an individual issue by number, run
 
-(defun github-issues-show (user repo number &key nomsg)
+(defun show-issue (user repo number &key nomsg)
   (github-get "issues/show/:user/:repo/:number"
               :uri-params (list user repo number)
-              :return-type '(:root "issue" :list nil :object t :type github-issue)
+              :return-type '(:root "issue" :list nil :object t :type issue)
               :nomsg nomsg))
 
 ; So to get all the data for a issue #1 in our repo, we can run something like this:
@@ -190,10 +190,10 @@
 
 ; To get a list of comments made on an issue, run
 
-(defun github-issues-comments (user repo number &key nomsg)
+(defun list-issue-comments (user repo number &key nomsg)
   (github-get "issues/comments/:user/:repo/:number"
               :uri-params (list user repo number)
-              :return-type '(:root "comments" :list t :object t :type github-issue-comment)
+              :return-type '(:root "comments" :list t :object t :type issue-comment)
               :nomsg nomsg))
 
 ; So to get all the comments for a issue #1 in our repo, we can run something like this:
@@ -219,14 +219,14 @@
 
 ; To open a new issue on a project, make a authorized POST to
 
-(defun github-issues-open (user repo title body &key nomsg)
+(defun open-issue (user repo title body &key nomsg)
   (form-value-bind (data)
       (progn
         (form "title" title t)
         (form "body" body t))
     (github-post "issues/open/:user/:repo"
                  :uri-params (list user repo)
-                 :return-type '(:root "issue" :list nil :object t :type github-issue)
+                 :return-type '(:root "issue" :list nil :object t :type issue)
                  :data data :nomsg nomsg)))
 
 ; Where you can provide POST variables:
@@ -252,17 +252,17 @@
 
 ; To close or reopen an issue, you just need to supply the issue number
 
-(defun github-issues-close (user repo number &key nomsg)
+(defun close-issue (user repo number &key nomsg)
   (github-get "issues/close/:user/:repo/:number"
               :uri-params (list user repo number)
-              :return-type '(:root "issue" :list nil :object t :type github-issue)
+              :return-type '(:root "issue" :list nil :object t :type issue)
               :send-login-token t
               :nomsg nomsg))
 
-(defun github-issues-reopen (user repo number &key nomsg)
+(defun reopen-issue (user repo number &key nomsg)
   (github-get "issues/reopen/:user/:repo/:number"
               :uri-params (list user repo number)
-              :return-type '(:root "issue" :list nil :object t :type github-issue)
+              :return-type '(:root "issue" :list nil :object t :type issue)
               :send-login-token t
               :nomsg nomsg))
 
@@ -286,14 +286,14 @@
 
 ; To edit an existing issue, you can POST to
 
-(defun github-issues-edit (user repo number title body &key nomsg)
+(defun update-issue (user repo number title body &key nomsg)
   (form-value-bind (data)
       (progn
         (form "title" title t)
         (form "body" body t))
     (github-post "issues/edit/:user/:repo/:number"
                  :uri-params (list user repo number)
-                 :return-type '(:root "issue" :list nil :object t :type github-issue)
+                 :return-type '(:root "issue" :list nil :object t :type issue)
                  :data data :nomsg nomsg)))
 
 ; Where you can provide POST variables:
@@ -307,7 +307,7 @@
 
 ; You can list available labels for a projects issues with
 
-(defun github-issues-labels (user repo &key nomsg)
+(defun list-issue-labels (user repo &key nomsg)
   (github-get "issues/labels/:user/:repo"
               :uri-params (list user repo)
               :return-type '(:root "labels" :list t :object nil)
@@ -325,7 +325,7 @@
 
 ; To add a label, run
 
-(defun github-issues-label-add (user repo label number &key nomsg)
+(defun add-issue-label (user repo label number &key nomsg)
   (github-get "issues/label/add/:user/:repo/:label/:number"
               :uri-params (list user repo label number)
               :return-type '(:root "labels" :list t :object nil)
@@ -345,7 +345,7 @@
 
 ; To remove a label, run:
 
-(defun github-issues-label-remove (user repo label number &key nomsg)
+(defun delete-issue-label (user repo label number &key nomsg)
   (github-get "issues/label/remove/:user/:repo/:label/:number"
               :uri-params (list user repo label number)
               :return-type '(:root "labels" :list t :object nil)
@@ -362,12 +362,12 @@
 
 ; You can comment on issues at
 
-(defun github-issues-comment (user repo number comment &key nomsg)
+(defun add-issue-comment (user repo number comment &key nomsg)
   (form-value-bind (data)
       (form "comment" comment t)
     (github-post "issues/comment/:user/:repo/:number"
                  :uri-params (list user repo number)
-                 :return-type '(:root "labels" :list t :object nil :type github-issue-comment)
+                 :return-type '(:root "labels" :list t :object nil :type issue-comment)
                  :data data :nomsg nomsg)))
 
 ; Simply send it a 'comment' POST variable with the comment you'd like to make.  It will attribute the comment to the user that is authenticated.  Here is an example:

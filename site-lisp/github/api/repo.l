@@ -31,30 +31,30 @@
 
 (in-package :github)
 
-(export '(github-repos-search
-          github-repos-show
-          github-repos-set
-          github-repos-list
-          github-repos-unwatch
-          github-repos-watch
-          github-repos-fork
-          github-repos-create
-          github-repos-delete
-          github-repos-set-private
-          github-repos-set-public
-          github-repos-keys
-          github-repos-key-add
-          github-repos-key-remove
-          github-repos-show-collaborators
-          github-repos-collaborators-add
-          github-repos-collaborators-remove
-          github-repos-pushable
-          github-repos-show-contributors
-          github-repos-show-watchers
-          github-repos-show-network
-          github-repos-show-languages
-          github-repos-show-tags
-          github-repos-show-branches
+(export '(search-repos
+          show-repo
+          update-repo
+          list-repos
+          unwatch-repo
+          watch-repo
+          fork-repo
+          create-repo
+          delete-repo
+          set-repo-private
+          set-repo-public
+          list-repo-keys
+          add-repo-key
+          delete-repo-key
+          show-repo-collaborators
+          add-repo-collaborator
+          delete-repo-collaborator
+          list-pushable-repos
+          list-repo-contributors
+          list-repo-watchers
+          list-repo-networks
+          get-repo-language
+          list-repo-tags
+          list-repo-branches
           ))
 
 ;;; ## Repositories API ##
@@ -62,12 +62,12 @@
 ;;; ### Searching Repositories ###
 
 ;; http://github.com/search
-(defun github-repos-search (q &key page lang nomsg)
+(defun search-repos (q &key page lang nomsg)
   (github-get "repos/search/:q"
               :uri-params (list q)
               :query-params `(("start_page" . ,page)
                               ("language" . ,lang))
-              :return-type '(:root "repositories" :list t :object t :type github-repos)
+              :return-type '(:root "repositories" :list t :object t :type searched-repo)
               :nomsg nomsg))
 
 ; To search for repositories that have to do with testing ruby, you could do this:
@@ -116,10 +116,10 @@
 
 ; To look at more in-depth information for a repository, GET this
 
-(defun github-repos-show (user repo &key nomsg)
+(defun show-repo (user repo &key nomsg)
   (github-get "repos/show/:user/:repo"
               :uri-params (list user repo)
-              :return-type '(:root "repository" :list nil :object t :type github-repo)
+              :return-type '(:root "repository" :list nil :object t :type repo)
               :nomsg nomsg))
 
 ; For example, to see the information for Grit
@@ -152,7 +152,7 @@
 ; If you are authenticated, you can update your repo's information by
 ; POSTing to it.
 
-(defun github-repos-set (user repo &key
+(defun update-repo (user repo &key
                               (description nil description-supplied-p)
                               (homepage nil homepage-supplied-p)
                               (wiki nil wiki-supplied-p)
@@ -168,7 +168,7 @@
         (form "values[has_downloads]" (to-bool download) download-supplied-p))
     (github-post "repos/show/:user/:repo"
                  :uri-params (list user repo)
-                 :return-type '(:root "repository" :list nil :object t :type github-repo)
+                 :return-type '(:root "repository" :list nil :object t :type repo)
                  :data data :nomsg nomsg)))
 
 ;       :values[key] = value
@@ -206,11 +206,11 @@
 
 ; You can list out all the repositories for a user with
 
-(defun github-repos-list (user &key with-private nomsg)
+(defun list-repos (user &key nomsg)
   (github-get "repos/show/:user"
               :uri-params (list user)
-              :return-type '(:root "repositories" :list t :object t :type github-repo)
-              :send-login-token with-private
+              :return-type '(:root "repositories" :list t :object t :type repo)
+              :send-login-token t
               :nomsg nomsg))
 
 ; For example, to see all of schacons public repos, we can GET
@@ -245,17 +245,17 @@
 
 ; You have to be authenticated for this, but you can watch and unwatch repositories with calls to
 
-(defun github-repos-unwatch (user repo &key nomsg)
+(defun unwatch-repo (user repo &key nomsg)
   (github-get "repos/unwatch/:user/:repo"
               :uri-params (list user repo)
-              :return-type '(:root "repository" :list nil :object t :type github-repo)
+              :return-type '(:root "repository" :list nil :object t :type repo)
               :send-login-token t
               :nomsg nomsg))
 
-(defun github-repos-watch (user repo &key nomsg)
+(defun watch-repo (user repo &key nomsg)
   (github-get "repos/watch/:user/:repo"
               :uri-params (list user repo)
-              :return-type '(:root "repository" :list nil :object t :type github-repo)
+              :return-type '(:root "repository" :list nil :object t :type repo)
               :send-login-token t
               :nomsg nomsg))
 
@@ -263,10 +263,10 @@
 
 ; You can also fork a repository with
 
-(defun github-repos-fork (user repo &key nomsg)
+(defun fork-repo (user repo &key nomsg)
   (github-get "repos/fork/:user/:repo"
               :uri-params (list user repo)
-              :return-type '(:root "repository" :list nil :object t :type github-repo)
+              :return-type '(:root "repository" :list nil :object t :type repo)
               :send-login-token t
               :nomsg nomsg))
 
@@ -289,7 +289,7 @@
 
 ; To create a new repository, hit this url
 
-(defun github-repos-create (name &key
+(defun create-repo (name &key
                                  (description nil description-supplied-p)
                                  (homepage nil homepage-supplied-p)
                                  (public nil public-supplied-p)
@@ -302,7 +302,7 @@
         (form "public" (to-one-or-zero public) public-supplied-p))
     (github-post "repos/create"
                  :data data
-                 :return-type '(:root "repository" :list nil :object t :type github-repo)
+                 :return-type '(:root "repository" :list nil :object t :type repo)
                  :nomsg nomsg)))
 
 ; with at least 'name' but it will take any of these as POST args
@@ -314,7 +314,7 @@
 
 ; You can also delete a repository with a POST to
 
-(defun github-repos-delete (repo &key nomsg)
+(defun delete-repo (repo &key nomsg)
   (let ((token (github-post "repos/delete/:repo"
                             :uri-params (list repo)
                             :return-type `(:root "delete_token" :object nil)
@@ -333,19 +333,19 @@
 
 ; To set a public repository private, you can POST while authenticated to
 
-(defun github-repos-set-private (repo &key nomsg)
+(defun set-repo-private (repo &key nomsg)
   (github-get "repos/set/private/:repo"
               :uri-params (list repo)
-              :return-type '(:root "repository" :list nil :object t :type github-repo)
+              :return-type '(:root "repository" :list nil :object t :type repo)
               :send-login-token t
               :nomsg nomsg))
 
 ; To make a private repo public, POST while authenticated to
 
-(defun github-repos-set-public (repo &key nomsg)
+(defun set-repo-public (repo &key nomsg)
   (github-get "repos/set/public/:repo"
               :uri-params (list repo)
-              :return-type '(:root "repository" :list nil :object t :type github-repo)
+              :return-type '(:root "repository" :list nil :object t :type repo)
               :send-login-token t
               :nomsg nomsg))
 
@@ -353,10 +353,10 @@
 
 ; You can use the API to list, add and remove your deploy keys.  To see which deploy keys you have setup for a specific repository, GET this URL
 
-(defun github-repos-keys (repo &key nomsg)
+(defun list-repo-keys (repo &key nomsg)
   (github-get "repos/keys/:repo"
               :uri-params (list repo)
-              :return-type '(:root "public_keys" :list t :object t :type github-public-key)
+              :return-type '(:root "public_keys" :list t :object t :type public-key)
               :send-login-token t
               :nomsg nomsg))
 
@@ -376,14 +376,14 @@
 
 ; You can also add new keys by POSTing to
 
-(defun github-repos-key-add (repo title key &key nomsg)
+(defun add-repo-key (repo title key &key nomsg)
   (form-value-bind (data)
       (progn
         (form "title" title t)
         (form "key" key t))
     (github-post "repos/key/:repo/add"
                  :uri-params (list repo)
-                 :return-type '(:root "public_keys" :list t :object t :type github-public-key)
+                 :return-type '(:root "public_keys" :list t :object t :type public-key)
                  :data data :nomsg nomsg)))
 
 ; which takes the following POST variables
@@ -393,12 +393,12 @@
 
 ; You can also POST to this removal URL to remove a key
 
-(defun github-repos-key-remove (repo key-id &key nomsg)
+(defun delete-repo-key (repo key-id &key nomsg)
   (form-value-bind (data)
       (form "id" key-id t)
     (github-post "repos/key/:repo/remove"
                  :uri-params (list repo)
-                 :return-type '(:root "public_keys" :list t :object t :type github-public-key)
+                 :return-type '(:root "public_keys" :list t :object t :type public-key)
                  :data data :nomsg nomsg)))
 
 ; You will need to POST an 'id' variable with the key ID returned from the public listing or key creation.
@@ -407,7 +407,7 @@
 
 ; To get a list of the collaborators on your project, GET
 
-(defun github-repos-show-collaborator-list (user repo &key nomsg)
+(defun list-repo-collaborators (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/collaborators"
               :uri-params (list user repo)
               :return-type '(:root "collaborators" :object nil :list t)
@@ -415,13 +415,13 @@
 
 ; To add or remove collaborators, POST to one of these URLs
 
-(defun github-repos-collaborators-add (repo user &key nomsg)
+(defun add-repo-collaborator (repo user &key nomsg)
   (github-post "repos/collaborators/:repo/add/:user"
                :uri-params (list repo user)
                :return-type '(:root "collaborators" :object nil :list t)
                :nomsg nomsg))
 
-(defun github-repos-collaborators-remove (repo user &key nomsg)
+(defun delete-repo-collaborator (repo user &key nomsg)
   (github-post "repos/collaborators/:repo/remove/:user"
                :uri-params (list repo user)
                :return-type '(:root "collaborators" :object nil :list t)
@@ -429,19 +429,19 @@
 
 ; To get a list of repos you can push to that are not your own, GET
 
-(defun github-repos-pushable (&key nomsg)
+(defun list-pushable-repos (&key nomsg)
   (github-get "repos/pushable"
-              :return-type '(:root "repositories" :object t :list t :type github-repo)
+              :return-type '(:root "repositories" :object t :list t :type repo)
               :send-login-token t :nomsg nomsg))
 
 ;;; ### Contributors ###
 
 ; To get a list of the contributors on your project, GET
 
-(defun github-repos-show-contributors (user repo &key nomsg)
+(defun list-repo-contributors (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/contributors"
               :uri-params (list user repo)
-              :return-type '(:root "contributors" :object t :list t :type github-contributor)
+              :return-type '(:root "contributors" :object t :list t :type contributor)
               :nomsg nomsg))
 
 ; The data comes back as an array of [login, count], sorted by the biggest contributors to the repository.
@@ -483,7 +483,7 @@
 
 ; To get a list of the watchers on your project, GET
 
-(defun github-repos-show-watchers (user repo &key nomsg)
+(defun list-repo-watchers (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/watchers"
               :uri-params (list user repo)
               :return-type '(:root "watchers" :object nil :list t)
@@ -501,10 +501,10 @@
 
 ; We can also look at the full network with
 
-(defun github-repos-show-network (user repo &key nomsg)
+(defun list-repo-networks (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/network"
               :uri-params (list user repo)
-              :return-type '(:root "network" :object t :list t :type github-repo)
+              :return-type '(:root "network" :object t :list t :type repo)
               :nomsg nomsg))
 
 ; For example, to see all the forks of the ruby-git project, we can GET
@@ -540,7 +540,7 @@
 ; To see a list of the languages used in a particular repository, you can call
 ; the language breakdown API.  Values are in bytes calculated.
 
-(defun github-repos-show-languages (user repo &key nomsg)
+(defun get-repo-language (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/languages"
               :uri-params (list user repo)
               :return-type '(:root "languages" :object nil :list t)
@@ -561,7 +561,7 @@
 
 ; To get a list of tags on your repo
 
-(defun github-repos-show-tags (user repo &key nomsg)
+(defun list-repo-tags (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/tags"
               :uri-params (list user repo)
               :return-type '(:root "tags" :object nil :list t)
@@ -579,7 +579,7 @@
 
 ; To get a list of remote branches
 
-(defun github-repos-show-branches (user repo &key nomsg)
+(defun list-repo-branches (user repo &key nomsg)
   (github-get "repos/show/:user/:repo/branches"
               :uri-params (list user repo)
               :return-type '(:root "branches" :object nil :list t)

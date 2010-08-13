@@ -31,12 +31,12 @@
 
 (in-package :github)
 
-(export '(github-tree-show
-          github-blob-show
-          github-blob-all
-          github-blob-full
-          github-tree-full
-          github-blob-show-raw
+(export '(show-tree
+          show-blob
+          list-blob-names
+          list-blobs
+          list-trees
+          show-blob-raw
           ))
 
 ;;; ## Git Object API ##
@@ -45,10 +45,10 @@
 
 ; Can get the contents of a tree by tree SHA
 
-(defun github-tree-show (user repo tree-sha &key nomsg)
+(defun show-tree (user repo tree-sha &key nomsg)
   (github-get "tree/show/:user/:repo/:tree_sha"
               :uri-params (list user repo tree-sha)
-              :return-type '(:root "tree" :list t :object t :type github-object)
+              :return-type '(:root "tree" :list t :object t :type object)
               :nomsg nomsg))
 
 ; To get a listing of the root tree for the facebox project from our commit listing, we can call this:
@@ -103,11 +103,11 @@
 
 ; Can get the data about a blob by tree SHA and path
 
-(defun github-blob-show (user repo tree-sha path &key meta nomsg)
+(defun show-blob (user repo tree-sha path &key meta nomsg)
   (github-get "blob/show/:user/:repo/:tree_sha/:path"
               :uri-params (list user repo tree-sha path)
               :query-params (if meta `((:meta . "1")) nil)
-              :return-type '(:root "blob" :list nil :object t :type github-blob)
+              :return-type '(:root "blob" :list nil :object t :type blob)
               :nomsg nomsg))
 
 ; For example, to get the README.txt metadata from a specific tree in Facebox:
@@ -151,7 +151,7 @@
 ; You can also get a list of all blobs (their names and shas) for a
 ; specific SHA:
 
-(defun github-blob-all (user repo tree-sha &key nomsg)
+(defun list-blob-names (user repo tree-sha &key nomsg)
   (github-get "blob/all/:user/:repo/:tree_sha"
               :uri-params (list user repo tree-sha)
               :return-type '(:root "blobs" :list t :object t)
@@ -193,10 +193,10 @@
 
 ; If you want to get the metadata of each blob (including sha, name, and mime type), use:
 
-(defun github-blob-full (user repo tree-sha &key nomsg)
+(defun list-blobs (user repo tree-sha &key nomsg)
   (github-get "blob/full/:user/:repo/:tree_sha"
               :uri-params (list user repo tree-sha)
-              :return-type '(:root "blobs" :list t :object t :type github-object)
+              :return-type '(:root "blobs" :list t :object t :type object)
               :nomsg nomsg))
 
 ; 	$ curl http://github.com/api/v2/yaml/blob/full/defunkt/facebox/365b84e0fd92c47ecdada91da47f2d67500b8e31
@@ -210,10 +210,10 @@
 
 ; You can also get the metadata of each tree and blob object:
 
-(defun github-tree-full (user repo tree-sha &key nomsg)
+(defun list-trees (user repo tree-sha &key nomsg)
   (github-get "tree/full/:user/:repo/:tree_sha"
               :uri-params (list user repo tree-sha)
-              :return-type '(:root "tree" :list t :object t :type github-object)
+              :return-type '(:root "tree" :list t :object t :type object)
               :nomsg nomsg))
 
 ; 	$ curl http://github.com/api/v2/yaml/tree/full/defunkt/facebox/365b84e0fd92c47ecdada91da47f2d67500b8e31
@@ -236,7 +236,7 @@
 
 ; You can get the contents of a blob with the blob's SHA via:
 
-(defun github-blob-show-raw (user repo sha &key nomsg)
+(defun show-blob-raw (user repo sha &key nomsg)
   (github-get "blob/show/:user/:repo/:sha"
               :uri-params (list user repo sha)
               :raw t :nomsg nomsg))

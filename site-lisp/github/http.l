@@ -75,7 +75,7 @@
   (funcall *http-post-driver* uri data :nomsg nomsg))
 
 (defun http-headers ()
-  `(:User-Agent ,(github-user-agent)))
+  `(:User-Agent ,(xl-github-useragent)))
 
 (defun do-get-xhr (uri &key query nomsg)
   (xhr-get uri

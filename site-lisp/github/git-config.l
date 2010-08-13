@@ -32,7 +32,7 @@
 
 (in-package :github)
 
-(defun github-credential ()
+(defun get-credential ()
   (let ((config-list (git-config-list)))
     (values
      (git-config 'github.user config-list)

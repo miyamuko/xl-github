@@ -31,8 +31,8 @@
 
 (in-package :github)
 
-(export '(github-network-meta
-          github-network-data
+(export '(get-network-meta
+          get-network-data
           ))
 
 ;; ## Secret Network API ##
@@ -41,11 +41,11 @@
 
 ;;; ### Network Meta ###
 
-(defun github-network-meta (user repo &key nomsg)
+(defun get-network-meta (user repo &key nomsg)
   (let ((*github-api-endpoint* *github-domain*))
     (github-get ":user/:repo/network_meta"
                 :uri-params (list user repo)
-                :return-type '(:root nil :object t :list nil :type github-network)
+                :return-type '(:root nil :object t :list nil :type network)
                 :nomsg nomsg)))
 
 ; 	$ curl http://github.com/schacon/simplegit/network_meta | jsonpretty
@@ -84,7 +84,7 @@
 
 ;;; ### Network Data ###
 
-(defun github-network-data (user repo nethash &key start end nomsg)
+(defun get-network-data (user repo nethash &key start end nomsg)
   (let ((*github-api-endpoint* *github-domain*))
     (github-get ":user/:repo/network_data_chunk"
                 :uri-params (list user repo)
