@@ -43,27 +43,28 @@
 
 ;; 検索結果のリポジトリ
 (defstruct searched-repo
-  id name description
-  username fork-p size language
-  followers forks
+  name owner description
   pushed-at created-at
-  score type)
+  forks fork-p
+  size language followers
+  score type id)
 (export-struct 'searched-repo)
 
 ;; base.l の json->struct 内で利用
 (setf (get 'searched-repo 'github-slot-mapping)
-      '(:pushed :pushed-at
+      '(:username :owner
+        :pushed :pushed-at
         :created :created-at
         :fork :fork-p))
 
 ;; 普通のリポジトリ
 (defstruct repo
   name owner description
+  pushed-at created-at
+  forks fork-p
   homepage url
-  has-downloads has-issues has-wiki
-  fork-p private-p
-  forks watchers open-issues pledgie
-  pushed-at created-at)
+  watchers open-issues pledgie
+  has-downloads has-issues has-wiki private-p)
 (export-struct 'repo)
 
 ;; base.l の json->struct 内で利用
@@ -80,19 +81,32 @@
 
 ;; 検索結果のユーザ
 (defstruct searched-user
-  id name username fullname
-  location language type
-  created pushed
-  followers repos score)
+  id login name location
+  followers-count public-repo-count
+  language score type username
+  created-at pushed-at)
+(setf (get 'searched-user 'github-slot-mapping)
+      '(:name :login
+        :fullname :name
+        :created :created-at
+        :pushed :pushed-at
+        :followers :followers-count
+        :repos :public-repo-count
+        ))
+(setf (get 'searched-user-id 'github-filter)
+      (lambda (id)
+        (if (string-match "user-\\([0-9]+\\)" id)
+            (parse-integer (match-string 1))
+          id)))
 (export-struct 'searched-user)
 
 ;; 普通のユーザ
 (defstruct user
-  id login name
-  email location blog company type
-  created-at gravatar-id
+  id login name location
+  email blog company
   followers-count following-count
-  public-gist-count public-repo-count)
+  public-repo-count public-gist-count
+  gravatar-id type created-at)
 (export-struct 'user)
 
 ;; 認証されたユーザ
@@ -124,9 +138,9 @@
 (export-struct 'modified)
 
 (defstruct contributor
-  login name email
-  location company
-  blog gravatar-id
+  login name location
+  email company blog
+  gravatar-id
   contributions type)
 (export-struct 'contributor)
 
