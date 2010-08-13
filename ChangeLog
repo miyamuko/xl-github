@@ -1,5 +1,9 @@
 2010-08-13  MIYAMUKO Katsuyuki
 
+	* (list-all-gists, list-starred-gists list-my-gists): Gist の一覧を
+	取得する API を追加。
+	gist 構造体のリストと次のページのページ番号を多値で返す。
+
 	* 検索結果を保持する構造体と他の構造体で似ているスロットは
 	名前などをできる限り合わせるようにした
 

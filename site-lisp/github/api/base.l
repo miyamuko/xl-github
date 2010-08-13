@@ -47,13 +47,18 @@
 (defvar *github-token* nil)
 
 
+(defun get-credential-login ()
+  (init-credential)
+  *github-login*)
+
 (defun get-credential-alist ()
-  (unless (and *github-login* *github-token*)
-    (init-credential))
+  (init-credential)
   (list (cons :login *github-login*)
         (cons :token *github-token*)))
 
 (defun init-credential ()
+  (when (and *github-login* *github-token*)
+    (return-from init-credential))
   (multiple-value-bind (login token)
       (get-credential)
     (unless (and login token)

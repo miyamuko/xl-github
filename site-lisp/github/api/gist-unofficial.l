@@ -31,8 +31,9 @@
 
 (in-package :github)
 
-(export '(list-my-gists
-          list-my-gists1
+(export '(list-all-gists
+          list-starred-gists
+          list-my-gists
           create-gist
           update-gist
           delete-gist
@@ -47,24 +48,33 @@
 
 ;;; ### My Public & Private Gist ###
 
-(defun list-my-gists (&key nomsg)
-  (let ((page 1) r)
-    (loop
-      (multiple-value-bind (id-list next-page)
-          (list-my-gists1 :page page :nomsg nomsg)
-        (push id-list r)
-        (unless next-page
-          (return))
-        (setf page next-page)))
-    (apply 'append (nreverse r))))
+(defun list-all-gists (&key page nomsg)
+  (list-gists "gists" :page page :all nil :nomsg nomsg))
 
-(defun list-my-gists1 (&key page nomsg)
-  (let ((*github-api-endpoint* *gist-domain*))
-    (scan-id-list
-     (github-get "mine"
-                 :query-params `((:page ,(or page 1)))
-                 :send-login-token t
-                 :raw t :nomsg nomsg))))
+(defun list-starred-gists (&key page all nomsg)
+  ;; owner は取得できない
+  (list-gists "starred" :page page :all all :nomsg nomsg))
+
+(defun list-my-gists (&key page all nomsg)
+  (multiple-value-bind (gists next)
+      (list-gists "mine" :page page :all all :nomsg nomsg)
+    (dolist (gist gists)
+      (setf (gist-owner gist) (copy-seq (get-credential-login))))
+    (values gists next)))
+
+(defun list-gists (path &key page all nomsg)
+  (let ((*github-api-endpoint* *gist-domain*)
+        (page (or page 1))
+        result)
+    (while page
+      (multiple-value-bind (r next)
+          (scan-gist-list (get-gist-list-page path :page page :nomsg nomsg))
+        (push r result)
+        (setf page next)
+        (unless all (return))))
+    (values (apply 'append (nreverse result))
+            page)))
+
 
 ;;; ### Gist Edit ###
 
@@ -120,7 +130,7 @@
       nil)))
 
 (defun list-gist-revisions (id &key nomsg)
-  (scan-revisions (get-html id)))
+  (scan-revisions (get-gist-page id)))
 
 (defun update-gist-description (id description &key nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
@@ -132,7 +142,7 @@
                    :raw t :nomsg nomsg))))
 
 (defun star-gist-p (id &key nomsg)
-  (string= "unstar" (scan-star (get-html id :nomsg nomsg))))
+  (string= "unstar" (scan-star (get-gist-page id :nomsg nomsg))))
 
 (defun star-gist (id &key nomsg)
   (set-star id t nomsg))
@@ -150,17 +160,39 @@
 
 ;;; ### Utilities ###
 
-(defun get-html (id &key nomsg)
+(defun get-gist-page (id &key nomsg)
+  (gist-get ":id" :uri-params (list id) :nomsg nomsg))
+
+(defun get-gist-list-page (path &key page nomsg)
+  (gist-get path :query-params `((:page ,(or page 1))) :nomsg nomsg))
+
+(defun gist-get (path-template &key query-params uri-params nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
-    (github-get ":id"
-                :uri-params (list id)
+    (github-get path-template
+                :query-params query-params
+                :uri-params uri-params
                 :send-login-token t
                 :raw t :nomsg nomsg)))
 
-(defparameter *gist-list-id-regexp* "<span><a href=\"/\\([0-9a-f]+\\)\">gist: [0-9a-f]+</a></span>")
+(defparameter *gist-list-file-regexp-pair* '("<div class=\"file " "<div class=\"data "))
+(defparameter *gist-list-span-regexp-pair* '("<span" "</span>"))
+(defparameter *gist-list-id-regexp* "<a href=\"/\\([0-9a-f]+\\)\">gist:")
+(defparameter *gist-list-desc-regexp* "<span>\\(.+?\\)</span>")
+(defparameter *gist-list-visibility-regexp* "<div class=\"file \\([a-z]+\\)\">")
+(defparameter *gist-list-owner-regexp* "by <a href=\"/\\(.+?\\)\">")
+(defparameter *gist-list-created-at-regexp* "<abbr class=\"relatize\" title=\"\\(.+?\\)\">")
 (defparameter *gist-list-next-page-regexp* "<a href=\"/mine\\?.*?page=\\([0-9]+\\).*?\" hotkey=\"l\">")
-(defun scan-id-list (html)
-  (values (scan-all html *gist-list-id-regexp* 1)
+(defun scan-gist-list (html)
+  (values (mapcar #'(lambda (file)
+                      (let* ((spans (scan-between file *gist-list-span-regexp-pair*))
+                             (id (scan1 (car spans) *gist-list-id-regexp* 1))
+                             (desc (scan1 (cadr spans) *gist-list-desc-regexp* 1))
+                             (visibility (scan1 file *gist-list-visibility-regexp* 1))
+                             (owner (scan1 file *gist-list-owner-regexp* 1))
+                             (created-at (scan1 file *gist-list-created-at-regexp* 1)))
+                        (make-gist :id id :description desc :owner owner :created-at created-at
+                                   :public-p (string= visibility "public"))))
+                  (scan-between html *gist-list-file-regexp-pair* :include-end nil))
           (let ((next (scan1 html *gist-list-next-page-regexp* 1)))
             (when next
               (parse-integer next)))))
@@ -177,6 +209,31 @@
 (defun scan-star (html)
   (scan1 html *gist-star-regexp* 1))
 
+
+(defun scan-between (html pair &key (include-end t))
+  (let ((split-start 0)
+        (search-start 0)
+        (result nil)
+        (begin (car pair))
+        (end (cadr pair)))
+    ;; begin で分割
+    (while (string-matchp begin html search-start)
+      (let ((beg (match-beginning 0))
+            (end (match-end 0)))
+        (push (substring html split-start beg) result)
+        (setf split-start beg
+              search-start end)))
+    (push (substring html split-start) result)
+    ;; 最初の要素は begin を含んでいない
+    (setf result (cdr (nreverse result)))
+    ;; end 以降を削除
+    (if end
+        (mapcar #'(lambda (fragment)
+                    (if (string-matchp end fragment)
+                        (substring fragment 0 (if include-end (match-end 0) (match-beginning 0)))
+                      fragment))
+                result)
+      result)))
 
 (defun scan-all (html regexp group)
   (let ((start 0)
