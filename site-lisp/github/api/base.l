@@ -30,6 +30,7 @@
   (mc-require "github/http")
   (mc-require "github/git-config")
   (mc-require "github/utils/struct")
+  (mc-require "github/utils/function")
   (mc-require "github/api/types")
   )
 
@@ -66,20 +67,23 @@
     (setf *github-login* login
           *github-token* token)))
 
-(defun github-get (path-template &key uri-params query-params return-type send-login-token raw nomsg)
+(defun github-get (path-template &key uri-params query-params return-type send-login-token key callback raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
     (when send-login-token
       (setf query-params (append (get-credential-alist) query-params)))
-    (process-response (do-get uri
-                              :query (remove-if-not #'cdr query-params)
-                              :nomsg nomsg)
-                      raw return-type)))
+    (do-get uri
+            :query (remove-if-not #'cdr query-params)
+            :async (not (null callback))
+            :oncomplete (compose callback key (cut process-response <> raw return-type))
+            :nomsg nomsg)))
 
-(defun github-post (path-template &key uri-params data return-type raw nomsg)
+(defun github-post (path-template &key uri-params data return-type key callback raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
     (setf data (append (get-credential-alist) data))
-    (process-response (do-post uri data :nomsg nomsg)
-                      raw return-type)))
+    (do-post uri data
+             :async (not (null callback))
+             :oncomplete (compose callback key (cut process-response <> raw return-type))
+             :nomsg nomsg)))
 
 (defun process-response (r raw return-type)
   (let ((type (getf return-type :type))

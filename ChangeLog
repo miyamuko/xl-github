@@ -1,3 +1,10 @@
+2010-08-16  MIYAMUKO Katsuyuki
+
+	* gist.l: 非同期 API を追加した
+	(list-public-gists "miyamuko"
+	                   :callback #'(lambda (gists)
+	                                 (msgbox "~D個のGistsがあります" (length gists))))
+
 2010-08-13  MIYAMUKO Katsuyuki
 
 	* (list-all-gists, list-starred-gists list-my-gists): Gist の一覧を

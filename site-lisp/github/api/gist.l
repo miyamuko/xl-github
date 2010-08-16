@@ -50,13 +50,14 @@
 
 ;     GET http://gist.github.com/api/v1/:format/:gist_id
 
-(defun get-gist-metadata (id &key nomsg)
+(defun get-gist-metadata (id &key callback nomsg)
   (let ((*github-api-endpoint* *gist-api-endpoint*))
-    (car
-     (github-get ":id"
-                 :uri-params (list id)
-                 :return-type '(:root "gists" :list t :object t :type gist)
-                 :nomsg nomsg))))
+    (github-get ":id"
+                :uri-params (list id)
+                :return-type '(:root "gists" :list t :object t :type gist)
+                :key #'car
+                :callback callback
+                :nomsg nomsg)))
 
 ; Example:
 
@@ -73,22 +74,24 @@
 
 ;     GET http://gist.github.com/raw/:gist_id/:filename
 
-(defun show-gist (id &key file nomsg)
+(defun show-gist (id &key file callback nomsg)
   (if file
-      (show-gist-file id file :nomsg nomsg)
-    (show-gist-all id :nomsg nomsg)))
+      (show-gist-file id file :callback callback :nomsg nomsg)
+    (show-gist-all id :callback callback :nomsg nomsg)))
 
-(defun show-gist-file (id filename &key nomsg)
+(defun show-gist-file (id filename &key callback nomsg)
   (let ((*github-api-endpoint* *gist-raw-endpoint*))
     (github-get ":id/:filename"
                 :uri-params (list id filename)
+                :callback callback
                 :raw t :nomsg nomsg)))
 
 ;; This is NOT official Gist API
-(defun show-gist-all (id &key nomsg)
+(defun show-gist-all (id &key callback nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (github-get ":id.txt"
                 :uri-params (list id)
+                :callback callback
                 :raw t :nomsg nomsg)))
 
 ; Example:
@@ -101,11 +104,12 @@
 
 ;     GET http://gist.github.com/api/v1/:format/gists/:login
 
-(defun list-public-gists (user &key nomsg)
+(defun list-public-gists (user &key callback nomsg)
   (let ((*github-api-endpoint* *gist-api-endpoint*))
     (github-get "gists/:user" :uri-params (list user)
                 :return-type '(:root "gists" :list t :object t :type gist)
                 :send-login-token t
+                :callback callback
                 :nomsg nomsg)))
 
 ; Example:

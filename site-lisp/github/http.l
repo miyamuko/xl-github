@@ -68,32 +68,40 @@
 (defparameter *http-get-driver* 'do-get-xhr)
 (defparameter *http-post-driver* 'do-post-xhr)
 
-(defun do-get (uri &key query nomsg)
-  (funcall *http-get-driver* uri :query query :nomsg nomsg))
+(defun do-get (uri &key query async oncomplete nomsg)
+  (funcall *http-get-driver* uri :query query :async async :oncomplete oncomplete :nomsg nomsg))
 
-(defun do-post (uri data &key nomsg)
-  (funcall *http-post-driver* uri data :nomsg nomsg))
+(defun do-post (uri data &key async oncomplete nomsg)
+  (funcall *http-post-driver* uri data :async async :oncomplete oncomplete :nomsg nomsg))
 
 (defun http-headers ()
   `(:User-Agent ,(xl-github-useragent)))
 
-(defun do-get-xhr (uri &key query nomsg)
-  (xhr-get uri
-           :key 'get-response-text/check-status
-           :encoding *encoding-utf8n*
-           :query query
-           :nomsg nomsg
-           :since :epoch
-           :progid :winhttp
-           :headers (http-headers)))
+(defun do-get-xhr (uri &key query async oncomplete nomsg)
+  (let ((args (list uri
+                    :key 'get-response-text/check-status
+                    :oncomplete oncomplete
+                    :encoding *encoding-utf8n*
+                    :query query
+                    :nomsg nomsg
+                    :since :epoch
+                    :progid :winhttp
+                    :headers (http-headers))))
+    (if async
+        (apply 'xhr-get-async args)
+      (funcall oncomplete (apply 'xhr-get args)))))
 
-(defun do-post-xhr (uri data &key nomsg)
-  (xhr-post uri data
-           :key 'get-response-text/check-status
-           :encoding *encoding-utf8n*
-           :nomsg nomsg
-           :progid :winhttp
-           :headers (http-headers)))
+(defun do-post-xhr (uri data &key async oncomplete nomsg)
+  (let ((args (list uri data
+                    :key 'get-response-text/check-status
+                    :encoding *encoding-utf8n*
+                    :oncomplete oncomplete
+                    :nomsg nomsg
+                    :progid :winhttp
+                    :headers (http-headers))))
+    (if async
+        (apply 'xhr-post-async args)
+      (funcall oncomplete (apply 'xhr-post args)))))
 
 (defun get-response-text/check-status (xhr)
   (unless (<= 200 (xhr-status xhr) 299)
