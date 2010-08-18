@@ -41,6 +41,9 @@
                 functions)
       #'values)))
 
+(defun nothing (&rest ignore)
+  nil)
+
 
 (provide "github/utils/function")
 
