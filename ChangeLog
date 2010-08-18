@@ -1,6 +1,6 @@
 2010-08-16  MIYAMUKO Katsuyuki
 
-	* gist.l: 非同期 API を追加した
+	* api/gist.l: 非同期 API を追加した
 	(list-public-gists "miyamuko"
 	                   :callback #'(lambda (gists)
 	                                 (msgbox "~D個のGistsがあります" (length gists))))
@@ -39,7 +39,7 @@
 
 2010-08-11  MIYAMUKO Katsuyuki
 
-	* api/repo.l, api.user.l: JSON オブジェクトではなく構造体を返すようにした
+	* api/repo.l, api/user.l: JSON オブジェクトではなく構造体を返すようにした
 
 	* api/types.l: github-public-key などは repo.l と user.l から使うため、
 	構造体の定義は types.l にまとめるようにした。
