@@ -48,37 +48,41 @@
 
 ;;; ### My Public & Private Gist ###
 
-(defun list-all-gists (&key page nomsg)
-  (list-gists "gists" :page page :all nil :nomsg nomsg))
+(defun list-all-gists (&key page callback nomsg)
+  (list-gists "gists" :page page :all nil :callback callback :nomsg nomsg))
 
-(defun list-starred-gists (&key page all nomsg)
+(defun list-starred-gists (&key page all callback nomsg)
   ;; owner は取得できない
-  (list-gists "starred" :page page :all all :nomsg nomsg))
+  (list-gists "starred" :page page :all all :callback callback :nomsg nomsg))
 
-(defun list-my-gists (&key page all nomsg)
-  (multiple-value-bind (gists next)
-      (list-gists "mine" :page page :all all :nomsg nomsg)
-    (dolist (gist gists)
-      (setf (gist-owner gist) (copy-seq (get-credential-login))))
-    (values gists next)))
+(defun list-my-gists (&key page all callback nomsg)
+  (list-gists "mine"
+              :page page :all all
+              :key #'(lambda (gists next)
+                       (dolist (gist gists)
+                         (setf (gist-owner gist) (copy-seq (get-credential-login))))
+                       (values gists next))
+              :callback callback
+              :nomsg nomsg))
 
-(defun list-gists (path &key page all nomsg)
-  (let ((*github-api-endpoint* *gist-domain*)
-        (page (or page 1))
-        result)
-    (while page
-      (multiple-value-bind (r next)
-          (scan-gist-list (get-gist-list-page path :page page :nomsg nomsg))
-        (push r result)
-        (setf page next)
-        (unless all (return))))
-    (values (apply 'append (nreverse result))
-            page)))
+(defun list-gists (path &key page all key callback nomsg)
+  (labels ((list-gist1 (page acc)
+             (let ((*github-api-endpoint* *gist-domain*))
+               (get-gist-list-page path :page page
+                                   :key #'scan-gist-list
+                                   :callback #'(lambda (r next)
+                                                 (let ((acc (append acc r)))
+                                                   (if (and all next)
+                                                       (list-gist1 next acc)
+                                                     (funcall (compose callback key) acc next))))
+                                   :async (not (null callback))
+                                   :nomsg nomsg))))
+    (list-gist1 (or page 1) nil)))
 
 
 ;;; ### Gist Edit ###
 
-(defun create-gist (filename contents &key private nomsg)
+(defun create-gist (filename contents &key private callback nomsg)
   (multiple-value-bind (name ext)
       (parse-filename filename)
     (let ((*github-api-endpoint* *gist-domain*))
@@ -88,12 +92,13 @@
             (form "file_name[gistfile1]" name t)
             (form "file_ext[gistfile1]" ext t)
             (form "file_contents[gistfile1]" contents t))
-        (scan-id
-         (github-post "gists"
-                      :data data
-                      :raw t :nomsg nomsg))))))
+        (github-post "gists"
+                     :data data
+                     :key #'scan-id
+                     :callback callback
+                     :raw t :nomsg nomsg)))))
 
-(defun update-gist (id filename contents &key nomsg)
+(defun update-gist (id filename contents &key callback nomsg)
   (multiple-value-bind (name ext)
       (parse-filename filename)
     (let ((*github-api-endpoint* *gist-domain*))
@@ -103,75 +108,91 @@
             (form (format nil "file_name[~A]" filename) name t)
             (form (format nil "file_ext[~A]" filename) ext t)
             (form (format nil "file_contents[~A]" filename) contents t))
-        (scan-revisions
-         (github-post "gists/:id"
-                      :uri-params (list id)
-                      :data data
-                      :raw t :nomsg nomsg))))))
+        (github-post "gists/:id"
+                     :uri-params (list id)
+                     :data data
+                     :key #'scan-revisions
+                     :callback callback
+                     :raw t :nomsg nomsg)))))
 
-(defun delete-gist (id &key nomsg)
+(defun delete-gist (id &key callback nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (form-value-bind (data)
         (form "_method" "delete" t)
       (github-post "delete/:id"
                    :uri-params (list id)
                    :data data
-                   :raw t :nomsg nomsg)
-      nil)))
+                   :key #'nothing
+                   :callback callback
+                   :raw t :nomsg nomsg))))
 
-(defun add-gist-comment (id comment &key nomsg)
+(defun add-gist-comment (id comment &key callback nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (form-value-bind (data)
         (form "comment[body]" comment t)
       (github-post ":id/comment"
                    :uri-params (list id)
                    :data data
-                   :raw t :nomsg nomsg)
-      nil)))
+                   :key #'nothing
+                   :callback callback
+                   :raw t :nomsg nomsg))))
 
-(defun list-gist-revisions (id &key nomsg)
-  (scan-revisions (get-gist-page id)))
+(defun list-gist-revisions (id &key callback nomsg)
+  (get-gist-page id :key #'scan-revisions :callback callback :nomsg nomsg))
 
-(defun update-gist-description (id description &key nomsg)
+(defun update-gist-description (id description &key callback nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (form-value-bind (data)
         (form "description" description t)
       (github-post "gists/:id/update_description"
                    :uri-params (list id)
                    :data data
+                   :callback callback
                    :raw t :nomsg nomsg))))
 
-(defun star-gist-p (id &key nomsg)
-  (string= "unstar" (scan-star (get-gist-page id :nomsg nomsg))))
+(defun star-gist-p (id &key callback nomsg)
+  (get-gist-page id
+                 :key (compose (cut string= "unstar" <>) #'scan-star)
+                 :callback callback
+                 :nomsg nomsg))
 
-(defun star-gist (id &key nomsg)
-  (set-star id t nomsg))
+(defun star-gist (id &key callback nomsg)
+  (set-star id t callback nomsg))
 
-(defun unstar-gist (id &key nomsg)
-  (set-star id nil nomsg))
+(defun unstar-gist (id &key callback nomsg)
+  (set-star id nil callback nomsg))
 
-(defun set-star (id star nomsg)
+(defun set-star (id star callback nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (github-post ":method/:id"
                  :uri-params (list (if star "star" "unstar") id)
-                 :raw t :nomsg nomsg)
-    nil))
+                 :key #'nothing
+                 :callback callback
+                 :raw t :nomsg nomsg)))
 
 
 ;;; ### Utilities ###
 
-(defun get-gist-page (id &key nomsg)
-  (gist-get ":id" :uri-params (list id) :nomsg nomsg))
+(defun get-gist-page (id &key key callback nomsg)
+  (gist-get ":id" :uri-params (list id)
+            :key key :callback callback :nomsg nomsg))
 
-(defun get-gist-list-page (path &key page nomsg)
-  (gist-get path :query-params `((:page ,(or page 1))) :nomsg nomsg))
+(defun get-gist-list-page (path &key page
+                                key callback (async (not (null callback)))
+                                nomsg)
+  (gist-get path :query-params `((:page ,(or page 1)))
+            :key key :callback callback :async async
+            :nomsg nomsg))
 
-(defun gist-get (path-template &key query-params uri-params nomsg)
+(defun gist-get (path-template &key query-params uri-params
+                               key callback (async (not (null callback)))
+                               nomsg)
   (let ((*github-api-endpoint* *gist-domain*))
     (github-get path-template
                 :query-params query-params
                 :uri-params uri-params
                 :send-login-token t
+                :key key :callback callback :async async
                 :raw t :nomsg nomsg)))
 
 (defparameter *gist-list-file-regexp-pair* '("<div class=\"file " "<div class=\"data "))

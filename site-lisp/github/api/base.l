@@ -68,21 +68,25 @@
     (setf *github-login* login
           *github-token* token)))
 
-(defun github-get (path-template &key uri-params query-params return-type send-login-token key callback raw nomsg)
+(defun github-get (path-template &key uri-params query-params return-type send-login-token
+                                 key callback (async (not (null callback)))
+                                 raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
     (when send-login-token
       (setf query-params (append (get-credential-alist) query-params)))
     (do-get uri
             :query (remove-if-not #'cdr query-params)
-            :async (not (null callback))
+            :async async
             :oncomplete (compose callback key (cut process-response <> raw return-type))
             :nomsg nomsg)))
 
-(defun github-post (path-template &key uri-params data return-type key callback raw nomsg)
+(defun github-post (path-template &key uri-params data return-type
+                                  key callback (async (not (null callback)))
+                                  raw nomsg)
   (let ((uri (build-uri path-template uri-params)))
     (setf data (append (get-credential-alist) data))
     (do-post uri data
-             :async (not (null callback))
+             :async async
              :oncomplete (compose callback key (cut process-response <> raw return-type))
              :nomsg nomsg)))
 

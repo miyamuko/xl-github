@@ -1,5 +1,7 @@
 2010-08-18  MIYAMUKO Katsuyuki
 
+	* api/gist-unofficial.l: 非同期 API を追加した
+
 	* util/function.l (nothing): すべての引数を無視して nil を返す関数
 
 2010-08-16  MIYAMUKO Katsuyuki
