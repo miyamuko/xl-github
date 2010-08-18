@@ -33,12 +33,13 @@
 
 ;; Based on http://www.cliki.net/COMPOSE
 (defun compose (&rest functions)
-  (if functions
-      (reduce #'(lambda (f1 f2)
-                  (lambda (&rest args)
-                    (multiple-value-call f1 (apply f2 args))))
-              (remove-if #'null functions))
-    #'values))
+  (let ((functions (remove-if #'null functions)))
+    (if functions
+        (reduce #'(lambda (f1 f2)
+                    (lambda (&rest args)
+                      (multiple-value-call f1 (apply f2 args))))
+                functions)
+      #'values)))
 
 
 (provide "github/utils/function")
