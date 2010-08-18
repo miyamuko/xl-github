@@ -31,6 +31,7 @@
   (mc-require "github/git-config")
   (mc-require "github/utils/struct")
   (mc-require "github/utils/function")
+  (mc-require "github/utils/srfi-26")
   (mc-require "github/api/types")
   )
 
