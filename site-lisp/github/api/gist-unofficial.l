@@ -181,7 +181,7 @@
 (defparameter *gist-list-visibility-regexp* "<div class=\"file \\([a-z]+\\)\">")
 (defparameter *gist-list-owner-regexp* "by <a href=\"/\\(.+?\\)\">")
 (defparameter *gist-list-created-at-regexp* "<abbr class=\"relatize\" title=\"\\(.+?\\)\">")
-(defparameter *gist-list-next-page-regexp* "<a href=\"/mine\\?.*?page=\\([0-9]+\\).*?\" hotkey=\"l\">")
+(defparameter *gist-list-next-page-regexp* "<a href=\"/[a-z]+\\?.*?page=\\([0-9]+\\).*?\" hotkey=\"l\">")
 (defun scan-gist-list (html)
   (values (mapcar #'(lambda (file)
                       (let* ((spans (scan-between file *gist-list-span-regexp-pair*))
