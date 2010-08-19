@@ -36,6 +36,10 @@
           repo-private-clone-url
           repo-public-clone-url-http
           repo-private-clone-url-https
+
+          gist-public-clone-url
+          gist-private-clone-url
+          gist-embed-js-url
           ))
 
 ;;; ## Repositories & Users API ##
@@ -233,6 +237,18 @@
 (setf (get 'gist 'github-slot-mapping)
       '(:repo :id
         :public :public-p))
+
+(defun gist-public-clone-url (gist)
+  (bind-plist "git://gist.github.com/:id.git"
+              `(id ,(gist-id gist))))
+
+(defun gist-private-clone-url (gist)
+  (bind-plist "git@gist.github.com::id.git"
+              `(id ,(gist-id gist))))
+
+(defun gist-embed-js-url (gist)
+  (bind-plist "http://gist.github.com/:id.js"
+              `(id ,(gist-id gist))))
 
 
 (provide "github/api/types")

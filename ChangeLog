@@ -1,5 +1,8 @@
 2010-08-19  MIYAMUKO Katsuyuki
 
+	* api/types.l (gist-public-clone-url, gist-private-clone-url gist-embed-js-url):
+	Gist リポジトリの URL を返すアクセッサを追加
+
 	* api/types.l (repo-public-clone-url, repo-private-clone-url)
 	(repo-public-clone-url-http, repo-private-clone-url-https):
 	リポジトリの URL を返すアクセッサを追加
