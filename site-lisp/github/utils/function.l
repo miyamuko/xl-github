@@ -41,6 +41,13 @@
                 functions)
       #'values)))
 
+;; デバッグ用の関数。compose の途中にはさんで値を除き見る
+;; (funcall (compose '1+ (tap "before 1+") '*  (tap "before *")) 1 2 3)
+(defun tap (&optional name)
+  #'(lambda (&rest args)
+      (msgbox "~A: ~S" name args)
+      (values-list args)))
+
 (defun nothing (&rest ignore)
   nil)
 

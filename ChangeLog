@@ -1,3 +1,8 @@
+2010-08-19  MIYAMUKO Katsuyuki
+
+	* util/function.l (tap): デバッグ用の関数。compose の途中にはさんで値を除き見る
+	(funcall (compose '1+ (tap "before 1+") '*  (tap "before *")) 1 2 3)
+
 2010-08-18  MIYAMUKO Katsuyuki
 
 	* api/gist-unofficial.l: 非同期 API を追加した
