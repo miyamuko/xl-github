@@ -155,7 +155,7 @@
         (form "values[location]" location location-supplied-p))
     (github-post "user/show/:username"
                  :uri-params (list username)
-                 :return-type '(:root "user" :list nil :object t :type user)
+                 :return-type '(:root "user" :list nil :object t :type auth-user)
                  :data data :nomsg nomsg)))
 
 ; 	      :values[key] = value
