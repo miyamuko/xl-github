@@ -41,7 +41,7 @@
                 functions)
       #'values)))
 
-;; デバッグ用の関数。compose の途中にはさんで値を除き見る
+;; 繝�繝舌ャ繧ｰ逕ｨ縺ｮ髢｢謨ｰ縲Ｄompose 縺ｮ騾比ｸｭ縺ｫ縺ｯ縺輔ｓ縺ｧ蛟､繧帝勁縺崎ｦ九ｋ
 ;; (funcall (compose '1+ (tap "before 1+") '*  (tap "before *")) 1 2 3)
 (defun tap (&optional name)
   #'(lambda (&rest args)
