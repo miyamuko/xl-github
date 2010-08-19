@@ -57,17 +57,17 @@
 
 ; The route for user searching is:
 
-(defun search-users (query &key nomsg)
+(defun search-users (query &key callback nomsg)
   (github-get "user/search/:query"
               :uri-params (list query)
               :return-type '(:root "users" :list t :object t :type searched-user)
-              :nomsg nomsg))
+              :callback callback :nomsg nomsg))
 
-(defun search-users-by-email (query &key nomsg)
+(defun search-users-by-email (query &key callback nomsg)
   (github-get "user/email/:query"
               :uri-params (list query)
               :return-type '(:root "user" :list nil :object t :type user)
-              :nomsg nomsg))
+              :callback callback :nomsg nomsg))
 
 ; For instance, you would search for users with 'chacon' in their name like this:
 
@@ -82,14 +82,14 @@
 
 ; You can then get extended information on users by their username.  The url format is:
 
-(defun show-user (username &key nomsg)
+(defun show-user (username &key callback nomsg)
   (github-get (if username "user/show/:username" "user/show")
               :uri-params (if username (list username) nil)
               :return-type `(:root "user" :list nil :object t
                              :type ,(lambda (json)
                                       (if (json-key-p json "plan") 'auth-user 'user)))
               :send-login-token t
-              :nomsg nomsg))
+              :callback callback :nomsg nomsg))
 
 ; so the following command
 
@@ -145,7 +145,7 @@
                                  (blog nil blog-supplied-p)
                                  (company nil company-supplied-p)
                                  (location nil location-supplied-p)
-                                 nomsg)
+                                 callback nomsg)
   (form-value-bind (data)
       (progn
         (form "values[name]" name name-supplied-p)
@@ -156,7 +156,8 @@
     (github-post "user/show/:username"
                  :uri-params (list username)
                  :return-type '(:root "user" :list nil :object t :type auth-user)
-                 :data data :nomsg nomsg)))
+                 :data data
+                 :callback callback :nomsg nomsg)))
 
 ; 	      :values[key] = value
 
@@ -190,20 +191,20 @@
 
 ; If you want to look at the following network on GitHub, you can request the users that a specific user is following with:
 
-(defun list-user-followings (user &key nomsg)
+(defun list-user-followings (user &key callback nomsg)
   (github-get "user/show/:user/following"
               :uri-params (list user)
               :return-type '(:root "users" :list nil :object nil)
-              :nomsg nomsg))
+              :callback callback :nomsg nomsg))
 
 ; or the users following a specific user with:
 
 
-(defun list-user-followers (user &key nomsg)
+(defun list-user-followers (user &key callback nomsg)
   (github-get "user/show/:user/followers"
               :uri-params (list user)
               :return-type '(:root "users" :list nil :object nil)
-              :nomsg nomsg))
+              :callback callback :nomsg nomsg))
 
 ; For example, if you want to see which users are following 'defunkt', you can run this:
 
@@ -211,28 +212,28 @@
 
 ; If you are authenticated as a user, you can also follow or unfollow users with:
 
-(defun follow-user (user &key nomsg)
+(defun follow-user (user &key callback nomsg)
   (github-post "user/follow/:user"
                :uri-params (list user)
                :return-type '(:root "users" :list nil :object nil)
-               :nomsg nomsg))
+               :callback callback :nomsg nomsg))
 
-(defun unfollow-user (user &key nomsg)
+(defun unfollow-user (user &key callback nomsg)
   (github-post "user/unfollow/:user"
                :uri-params (list user)
                :return-type '(:root "users" :list nil :object nil)
-               :nomsg nomsg))
+               :callback callback :nomsg nomsg))
 
 
 ;;; ### Watched Repos ###
 
 ; To see which repositories a user is watching, you can call:
 
-(defun list-watched-repos (user &key nomsg)
+(defun list-watched-repos (user &key callback nomsg)
   (github-get "repos/watched/:user"
               :uri-params (list user)
               :return-type '(:root "repositories" :list t :object t :type repo)
-              :nomsg nomsg))
+              :callback callback :nomsg nomsg))
 
 ; For example,
 
@@ -261,54 +262,55 @@
 
 ;;;; #### Public Key Management ####
 
-(defun list-user-keys (&key nomsg)
+(defun list-user-keys (&key callback nomsg)
   (github-get "user/keys"
               :send-login-token t
               :return-type '(:root "public_keys" :list t :object t :type public-key)
-              :nomsg nomsg))
+              :callback callback :nomsg nomsg))
 
-(defun add-user-key (title key &key nomsg)
+(defun add-user-key (title key &key callback nomsg)
   (form-value-bind (data)
       (progn
         (form "title" title t)
         (form "key" key t))
     (github-post "user/key/add" :data data
                  :return-type '(:root "public_keys" :list t :object t :type public-key)
-                 :nomsg nomsg)))
+                 :callback callback :nomsg nomsg)))
 ; 	      :title
 ; 	      :key
 
-(defun delete-user-key (key-id &key nomsg)
+(defun delete-user-key (key-id &key callback nomsg)
   (form-value-bind (data)
       (form "id" key-id t)
     (github-post "user/key/remove"
                  :data data
                  :return-type '(:root "public_keys" :list t :object t :type public-key)
-                 :nomsg nomsg)))
+                 :callback callback :nomsg nomsg)))
 ; 	      :id
 
 ;;;; #### Email Address Management ####
 
-(defun list-user-emails (&key nomsg)
+(defun list-user-emails (&key callback nomsg)
   (github-get "user/emails"
               :return-type '(:root "emails" :list t)
-              :send-login-token t :nomsg nomsg))
+              :send-login-token t
+              :callback callback :nomsg nomsg))
 
-(defun add-user-email (email &key nomsg)
+(defun add-user-email (email &key callback nomsg)
   (form-value-bind (data)
       (form "email" email t)
     (github-post "user/email/add"
                  :data data
                  :return-type '(:root "emails" :list t)
-                 :nomsg nomsg)))
+                 :callback callback :nomsg nomsg)))
 
-(defun delete-user-email (email &key nomsg)
+(defun delete-user-email (email &key callback nomsg)
   (form-value-bind (data)
       (form "email" email t)
     (github-post "user/email/remove"
                  :data data
                  :return-type '(:root "emails" :list t)
-                 :nomsg nomsg)))
+                 :callback callback :nomsg nomsg)))
 
 
 (provide "github/api/users")

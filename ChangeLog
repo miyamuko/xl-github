@@ -1,5 +1,8 @@
 2010-08-19  MIYAMUKO Katsuyuki
 
+	* api/commits.l, api/issues.l, api/network.l, api/object.l,
+	api/repo.l, api/users.l: 非同期 API を追加した
+
 	* http.l (get-response-text): 非同期実行時は HTTP ステータスが 200 番
 	以外の場合でも例外は投げないようにした。
 	非同期実行の場合は *Trace Output* に警告を出力し nil を返す。
