@@ -79,7 +79,9 @@
 
 (defun do-get-xhr (uri &key query async oncomplete nomsg)
   (let ((args (list uri
-                    :key 'get-response-text/check-status
+                    :key (if async
+                             'get-response-text-with-warn
+                           'get-response-text-with-error)
                     :oncomplete oncomplete
                     :encoding *encoding-utf8n*
                     :query query
@@ -93,7 +95,9 @@
 
 (defun do-post-xhr (uri data &key async oncomplete nomsg)
   (let ((args (list uri data
-                    :key 'get-response-text/check-status
+                    :key (if async
+                             'get-response-text-with-warn
+                           'get-response-text-with-error)
                     :encoding *encoding-utf8n*
                     :oncomplete oncomplete
                     :nomsg nomsg
@@ -103,14 +107,23 @@
         (apply 'xhr-post-async args)
       (funcall oncomplete (apply 'xhr-post args)))))
 
-(defun get-response-text/check-status (xhr)
-  (unless (<= 200 (xhr-status xhr) 299)
-    (error 'network-error
-           :datum (format nil "~D ~A~@[ (~A)~]"
-                          (xhr-status xhr)
-                          (xhr-status-text xhr)
-                          (try-parse-error-message xhr))))
-  (xhr-response-text xhr))
+(defun get-response-text-with-error (xhr)
+  (get-response-text xhr t))
+
+(defun get-response-text-with-warn (xhr)
+  (get-response-text xhr nil))
+
+(defun get-response-text (xhr error)
+  (if (<= 200 (xhr-status xhr) 299)
+      (xhr-response-text xhr)
+    (let ((msg (format nil "~D ~A~@[ (~A)~]"
+                       (xhr-status xhr)
+                       (xhr-status-text xhr)
+                       (try-parse-error-message xhr))))
+      (if error
+          (error 'network-error :datum msg)
+        (warn msg))
+      nil)))
 
 (defun try-parse-error-message (xhr)
   (let ((text (xhr-response-text xhr)))
