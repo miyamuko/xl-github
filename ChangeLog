@@ -1,5 +1,9 @@
 2010-08-19  MIYAMUKO Katsuyuki
 
+	* api/types.l (repo-public-clone-url, repo-private-clone-url)
+	(repo-public-clone-url-http, repo-private-clone-url-https):
+	リポジトリの URL を返すアクセッサを追加
+
 	* api/commits.l, api/issues.l, api/network.l, api/object.l,
 	api/repo.l, api/users.l: 非同期 API を追加した
 

@@ -32,6 +32,12 @@
 
 (in-package :github)
 
+(export '(repo-public-clone-url
+          repo-private-clone-url
+          repo-public-clone-url-http
+          repo-private-clone-url-https
+          ))
+
 ;;; ## Repositories & Users API ##
 
 ;; 秘密鍵の情報
@@ -71,6 +77,23 @@
 (setf (get 'repo 'github-slot-mapping)
       '(:fork :fork-p
         :private :private-p))
+
+(defun repo-public-clone-url (repo)
+  (bind-plist "git://github.com/:owner/:name.git"
+              `(owner ,(repo-owner repo) name ,(repo-name repo))))
+
+(defun repo-private-clone-url (repo)
+  (bind-plist "git@github.com::owner/:name.git"
+              `(owner ,(repo-owner repo) name ,(repo-name repo))))
+
+(defun repo-public-clone-url-http (repo)
+  (bind-plist "http://github.com/:owner/:name.git"
+              `(owner ,(repo-owner repo) name ,(repo-name repo))))
+
+(defun repo-private-clone-url-https (repo)
+  (bind-plist "https://:owner@github.com/:owner/:name.git"
+              `(owner ,(repo-owner repo) name ,(repo-name repo))))
+
 
 ;;; ## Users API ##
 

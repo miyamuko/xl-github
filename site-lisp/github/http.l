@@ -35,18 +35,36 @@
 ;; URI template
 
 (defparameter *rfc3986-literal-chars "0-9A-Za-z---._~")
-(defparameter *uri-param-pattern* "[:*]\\([a-zA-Z0-9_]+\\)")
+(defparameter *uri-param-pattern* ":\\([a-zA-Z0-9_]+\\)")
 
 (defun bind-params (uri-template params &key
+                                 (encoding *encoding-utf8n*)
+                                 (literal-chars *rfc3986-literal-chars))
+  (let ((names (param-names uri-template)))
+    (unless (= (length names) (length params))
+      (plain-error "wrong number of parameter (~S for ~S)" params names))
+    (bind-plist1 uri-template names (mapcan #'list names params)
+                 :encoding encoding :literal-chars literal-chars)))
+
+(defun bind-plist (uri-template plist &key
                                 (encoding *encoding-utf8n*)
                                 (literal-chars *rfc3986-literal-chars))
   (let ((names (param-names uri-template)))
-    (unless (= (length names) (length params))
-      (plain-error "wrong number of parameter (~D ~S for ~D ~S)"
-                   (length params) params (length names) names)))
-  (dolist (param params)
-    (let ((v (url-encode (format nil "~A" (or param "")) encoding literal-chars)))
-      (setf uri-template (substitute-string uri-template *uri-param-pattern* v :count 1))))
+    (unless (= (* 2 (length names)) (length plist))
+      (plain-error "wrong number of parameter (~S for ~S)" plist names))
+    (bind-plist1 uri-template names plist
+                 :encoding encoding :literal-chars literal-chars)))
+
+(defun bind-plist1 (uri-template names plist &key
+                                 (encoding *encoding-utf8n*)
+                                 (literal-chars *rfc3986-literal-chars))
+  (dolist (k names)
+    (let ((v (or (getf plist k)
+                 (plain-error "undefined parameter: ~S" k))))
+      (setf uri-template
+            (substitute-string uri-template
+                               (format nil ":~A" k)
+                               (url-encode (format nil "~A" v) encoding literal-chars)))))
   uri-template)
 
 (defun param-names (uri-template)
@@ -55,7 +73,7 @@
     (while (string-match *uri-param-pattern* uri-template start)
       (push (intern (match-string 1)) r)
       (setf start (match-end 0)))
-    (nreverse r)))
+    (remove-duplicates (nreverse r))))
 
 (defun url-encode (str encoding literal-chars)
   (si:www-url-encode (if encoding
