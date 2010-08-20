@@ -28,6 +28,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (mc-require "github/package")
   (mc-require "github/macros")
+  (mc-require "github/utils/file")
   )
 
 (in-package :github)
@@ -61,16 +62,6 @@
      (split-string stdout #\LFD)
      (split-string stderr #\LFD)
      exit-status)))
-
-(defun read-file-contents (filename)
-  (let ((buf (get-buffer-create (format nil " *~A:read-file-contents*" *package*))))
-    (unwind-protect
-        (with-selected-buffer buf
-          (erase-buffer buf)
-          (insert-file-contents filename)
-          (buffer-substring (point-min) (point-max)))
-      (when (and buf (bufferp buf) (not (deleted-buffer-p buf)))
-        (delete-buffer buf)))))
 
 
 (provide "github/utils/process")

@@ -1,5 +1,10 @@
 2010-08-20  MIYAMUKO Katsuyuki
 
+	* utils/file.l (normalize-filename): ファイルの存在チェック。
+	ed::find-file-internal と同じ処理
+
+	* utils/file.l (read-file-contents): utils/process.l から移動
+
 	* api/gist-unofficial.l (gist-get): gist-get を導入してリファクタリング
 
 2010-08-19  MIYAMUKO Katsuyuki
