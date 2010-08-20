@@ -58,6 +58,7 @@
                   `(when ,predicate
                      (push (cons ,key ,value) ,',var))))
        ,value-form)
+     (setf ,var (nreverse ,var))
      ,@forms))
 #+xyzzy
 (setf (get 'form-value-bind 'ed:lisp-indent-hook) 2)
