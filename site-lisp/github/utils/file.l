@@ -57,6 +57,16 @@
     (error "~A\nファイルまたはディレクトリが見つかりません" filename))
   filename)
 
+(defun add-leading-dot (ext)
+  (when ext
+    (if (char= (char ext 0) #\.)
+        ext
+      (format nil ".~A" ext))))
+
+(defun pathname-ext (pathname)
+  (when pathname
+    (add-leading-dot (pathname-type pathname))))
+
 
 (provide "github/utils/file")
 

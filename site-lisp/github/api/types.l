@@ -28,6 +28,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (mc-require "github/package")
   (mc-require "github/utils/struct")
+  (mc-require "github/utils/file")
   )
 
 (in-package :github)
@@ -40,6 +41,8 @@
           gist-public-clone-url
           gist-private-clone-url
           gist-embed-js-url
+
+          make-gist-file-from-pathname
           ))
 
 ;;; ## Repositories & Users API ##
@@ -249,6 +252,43 @@
 (defun gist-embed-js-url (gist)
   (bind-plist "http://gist.github.com/:id.js"
               `(id ,(gist-id gist))))
+
+;; Gist の内容を表す構造体
+
+(defstruct gist-file
+  name lang contents)
+
+(defun make-gist-file-from-pathname (pathname &key name lang)
+  (let ((r (make-gist-file :contents (read-file-contents pathname))))
+    (cond ((or name lang)
+           (setf (gist-file-name r) name
+                 (gist-file-lang r) lang))
+          (t
+           (setf (gist-file-name r) (file-namestring pathname))))
+    r))
+
+(defun normalize-gist-file (files)
+  (unless files
+    (error "filesがnilです"))
+  (when (atom files)
+    (setf files (list files)))
+  (mapcar #'(lambda (file)
+              (unless (typep file '(or string gist-file))
+                (error "filesはファイル名またはgist-fileのリストを指定してください"))
+              (if (stringp file)
+                  (make-gist-file-from-pathname file)
+                file))
+          files))
+
+;; Web から Gist を作成すると name が指定されていると Language 指定は無視されるので
+;; その挙動に合わせる
+(defun get-gist-ext (file)
+  (add-leading-dot
+   (or (cond ((gist-file-name file)
+              (get-gist-filetype-by-name (gist-file-name file)))
+             ((gist-file-lang file)
+              (get-gist-filetype-by-lang (gist-file-lang file))))
+       *gist-default-filetype*)))
 
 
 (provide "github/api/types")

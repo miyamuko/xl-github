@@ -1,3 +1,39 @@
+2010-08-21  MIYAMUKO Katsuyuki
+
+	* api/gist-unofficial.l (create-gist-files, update-gist-files): 複数のファイルの
+	Gist を作成・更新するための関数
+	- 引数の files には gist-file 構造体のリストを指定する
+	- 文字列を指定した場合はファイル名として扱う
+	  - 実際のファイル名とは別の名前で Gist を作成したい場合は
+	    make-gist-file-from-pathname を使う
+	- 引数が 1 つの場合はわざわざリストにする必要はない
+	---
+	(create-gist-files "~/.xyzzy")
+	(create-gist-files (list (make-gist-file-from-pathname "~/.xyzzy" :name "my-dot-xyzzy.cl")
+	                         (make-gist-file-from-pathname "~/.emacs" :lang :lisp))
+	                   :private t)
+
+	* api/gist-unofficial.l (create-gist, update-gist): 1 ファイルの Gist を
+	作成・更新するための関数
+	- 引数の name を keyword 引数に変更
+	- lang をキーワード引数に追加
+	  - 拡張子または言語名を指定する（あいまいでない限り省略可能）
+	  - 言語を一意に特定できない場合は error を通知
+	  - 言語が不明な場合は警告を出力して txt として扱う
+	---
+	(let ((id (create-gist "(format t \"Hello World\")" :lang :lisp)))
+	  (update-gist id "(format t \"Hello World 2\")" :name "hello.cl"))
+
+	* api/types.l (gist-file): create-gist-files, update-gist-files で使う
+	gist の中身をあらわす構造体
+
+	* api/gist-filetype.l: Gist の Language まわり
+
+	* utils/file.l (pathname-ext): pathname-type に dot を追加したもの
+
+	* utils/file.l (add-leading-dot): 文字列の先頭に dot がなければ
+	追加する関数
+
 2010-08-20  MIYAMUKO Katsuyuki
 
 	* utils/file.l (normalize-filename): ファイルの存在チェック。

@@ -27,6 +27,7 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (mc-require "github/api/gist")
+  (mc-require "github/api/gist-filetype")
   )
 
 (in-package :github)
@@ -35,7 +36,9 @@
           list-starred-gists
           list-my-gists
           create-gist
+          create-gist-files
           update-gist
+          update-gist-files
           delete-gist
           add-gist-comment
           list-gist-revisions
@@ -81,34 +84,41 @@
 
 ;;; ### Gist Edit ###
 
-(defun create-gist (filename contents &key private callback nomsg)
-  (multiple-value-bind (name ext)
-      (parse-filename filename)
-    (form-value-bind (data)
-        (progn
-          (form "action_button" "private" private)
-          (form "file_name[gistfile1]" name t)
-          (form "file_ext[gistfile1]" ext t)
-          (form "file_contents[gistfile1]" contents t))
-      (gist-post "gists"
-                 :data data
-                 :key #'scan-id
-                 :callback callback :nomsg nomsg))))
+(defun create-gist (contents &key name lang private callback nomsg)
+  (create-gist-files (make-gist-file :contents contents :name name :lang lang)
+                     :private private :callback callback :nomsg nomsg))
 
-(defun update-gist (id filename contents &key callback nomsg)
-  (multiple-value-bind (name ext)
-      (parse-filename filename)
-    (form-value-bind (data)
-        (progn
-          (form "_method" "put" t)
-          (form (format nil "file_name[~A]" filename) name t)
-          (form (format nil "file_ext[~A]" filename) ext t)
-          (form (format nil "file_contents[~A]" filename) contents t))
-      (gist-post "gists/:id"
-                 :uri-params (list id)
-                 :data data
-                 :key #'scan-revisions
-                 :callback callback :nomsg nomsg))))
+(defun update-gist (id contents &key name lang private callback nomsg)
+  (update-gist-files id (make-gist-file :contents contents :name name :lang lang)
+                     :private private :callback callback :nomsg nomsg))
+
+(defmacro form-files (files)
+  `(let ((i 1))
+     (dolist (file ,files)
+       (form (format nil "file_name[gistfile~D]" i) (gist-file-name file) t)
+       (form (format nil "file_ext[gistfile~D]" i) (get-gist-ext file) t)
+       (form (format nil "file_contents[gistfile~D]" i) (gist-file-contents file) t)
+       (incf i))))
+
+(defun create-gist-files (files &key private callback nomsg)
+  (setf files (normalize-gist-file files))
+  (form-value-bind (data)
+      (progn
+        (form "action_button" "private" private)
+        (form-files files))
+    (gist-post "gists"
+               :data data :key #'scan-id
+               :callback callback :nomsg nomsg)))
+
+(defun update-gist-files (id files &key callback nomsg)
+  (setf files (normalize-gist-file files))
+  (form-value-bind (data)
+      (progn
+        (form "_method" "put" t)
+        (form-files files))
+    (gist-post "gists/:id" :uri-params (list id)
+               :data data :key #'scan-revisions
+               :callback callback :nomsg nomsg)))
 
 (defun delete-gist (id &key callback nomsg)
   (form-value-bind (data)
@@ -272,11 +282,6 @@
         (mapcar #'match-string group))
     (when must-match
       (plain-error "Failed to scrape html: ~S" regexp))))
-
-(defun parse-filename (filename)
-  (let ((name (pathname-name filename))
-        (ext (pathname-type filename)))
-    (values name (if ext (format nil ".~A" ext) ""))))
 
 
 (provide "github/api/gist-unofficial")
