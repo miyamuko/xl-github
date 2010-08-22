@@ -35,19 +35,19 @@
 (defun get-credential ()
   (let ((config-list (git-config-list)))
     (values
-     (git-config 'github.user config-list)
-     (git-config 'github.token config-list))))
+     (git-config :github.user config-list)
+     (git-config :github.token config-list))))
 
 (defun git-config-list ()
   (mapcan #'(lambda (config)
               (let ((kv (split-string config #\= 2)))
-                (cons (intern (car kv))
+                (cons (intern (car kv) :keyword)
                       (cdr kv))))
           (process-output->string-list "git config --global --list")))
 
 (defun git-config (key config-list)
   (when (stringp key)
-    (setf key (intern key)))
+    (setf key (intern key :keyword)))
   (getf config-list key))
 
 (defun git-version ()
