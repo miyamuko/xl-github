@@ -46,6 +46,10 @@
           gist-star-p
           star-gist
           unstar-gist
+          fork-gist
+          gist-fork-p
+          get-gist-parent
+          list-gist-forks
           ))
 
 
@@ -167,6 +171,30 @@
              :key #'nothing
              :callback callback :nomsg nomsg))
 
+(defun fork-gist (id &key callback nomsg)
+  (gist-post "fork/:id"
+             :uri-params (list id)
+             :key #'scan-id
+             :callback callback :nomsg nomsg))
+
+(defun gist-fork-p (id &key callback nomsg)
+  (get-gist-page id
+                 :key (compose 'not 'null 'scan-parent)
+                 :callback callback
+                 :nomsg nomsg))
+
+(defun get-gist-parent (id &key callback nomsg)
+  (get-gist-page id
+                 :key #'scan-parent
+                 :callback callback
+                 :nomsg nomsg))
+
+(defun list-gist-forks (id &key callback nomsg)
+  (get-gist-page id
+                 :key #'scan-forks
+                 :callback callback
+                 :nomsg nomsg))
+
 
 ;;; ### Utilities ###
 
@@ -203,9 +231,9 @@
                  :key key :callback callback :async async
                  :raw t :nomsg nomsg)))
 
+(defparameter *gist-id-link-regexp* "<a href=\"/\\([0-9a-f]+\\)\">gist:")
 (defparameter *gist-list-file-regexp-pair* '("<div class=\"file " "<div class=\"data "))
 (defparameter *gist-list-span-regexp-pair* '("<span" "</span>"))
-(defparameter *gist-list-id-regexp* "<a href=\"/\\([0-9a-f]+\\)\">gist:")
 (defparameter *gist-list-desc-regexp* "<span>\\(.+?\\)</span>")
 (defparameter *gist-list-visibility-regexp* "<div class=\"file \\([a-z]+\\)\">")
 (defparameter *gist-list-owner-regexp* "by <a href=\"/\\(.+?\\)\">")
@@ -214,7 +242,7 @@
 (defun scan-gist-list (html)
   (values (mapcar #'(lambda (file)
                       (let* ((spans (scan-between file *gist-list-span-regexp-pair*))
-                             (id (scan1 (car spans) *gist-list-id-regexp* 1))
+                             (id (scan1 (car spans) *gist-id-link-regexp* 1))
                              (desc (scan1 (cadr spans) *gist-list-desc-regexp* 1))
                              (visibility (scan1 file *gist-list-visibility-regexp* 1))
                              (owner (scan1 file *gist-list-owner-regexp* 1))
@@ -237,6 +265,18 @@
 (defparameter *gist-star-regexp* "<a href=\"/\\(\\(?:un\\)?star\\)/[0-9a-f]+\">")
 (defun scan-star (html)
   (scan1 html *gist-star-regexp* 1))
+
+(defparameter *gist-parent-regexp-pair* '("<div id=\"gist-parent\">" "</div>"))
+(defun scan-parent (html)
+  (let ((div (scan-between html *gist-parent-regexp-pair*)))
+    (when div
+      (scan1 (car div) *gist-id-link-regexp* 1))))
+
+(defparameter *gist-forks-regexp-pair* '("<div class=\"fork-info\" id=\"forks\">" "</div>"))
+(defun scan-forks (html)
+  (let ((div (scan-between html *gist-forks-regexp-pair*)))
+    (when div
+      (scan-all (car div) *gist-id-link-regexp* 1))))
 
 
 (defun scan-between (html pair &key (include-end t))

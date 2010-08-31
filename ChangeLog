@@ -1,5 +1,11 @@
 2010-08-31  MIYAMUKO Katsuyuki
 
+	* api/gist-unofficial.l (gist-star-p): fork 関連の API を追加
+	- fork-gist
+	- gist-fork-p
+	- get-gist-parent
+	- list-gist-forks
+
 	* api/gist-unofficial.l (gist-star-p): star-gist-p を gist-star-p
 	に変えた
 
