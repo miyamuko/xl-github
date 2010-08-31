@@ -1,5 +1,8 @@
 2010-08-31  MIYAMUKO Katsuyuki
 
+	* api/user.l, api/gist.l: ユーザ名を引数に指定する関数には
+	user 構造体も指定できるようにした。
+
 	* api/types.l: user 構造体の name を fullname に変更。
 	アクセッサが ed::user-name とかぶるのを防ぐのと
 	user-login と user-name の区別を付けやすくするため。

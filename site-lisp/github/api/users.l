@@ -82,9 +82,10 @@
 
 ; You can then get extended information on users by their username.  The url format is:
 
-(defun show-user (username &key callback nomsg)
-  (github-get (if username "user/show/:username" "user/show")
-              :uri-params (if username (list username) nil)
+(defun show-user (user &key callback nomsg)
+  (setf user (coerce-user-name user))
+  (github-get (if user "user/show/:user" "user/show")
+              :uri-params (if user (list user) nil)
               :return-type `(:root "user" :list nil :object t
                              :type ,(lambda (json)
                                       (if (json-key-p json "plan") 'auth-user 'user)))
@@ -139,22 +140,26 @@
 ; If you are authenticated, you can update your users information by
 ; POSTing to it in a few different ways.
 
-(defun update-user (username &key
-                                 (fullname nil fullname-supplied-p)
-                                 (email nil email-supplied-p)
-                                 (blog nil blog-supplied-p)
-                                 (company nil company-supplied-p)
-                                 (location nil location-supplied-p)
-                                 callback nomsg)
+(defun update-user (user &key
+                         (fullname nil fullname-supplied-p)
+                         (email nil email-supplied-p)
+                         (blog nil blog-supplied-p)
+                         (company nil company-supplied-p)
+                         (location nil location-supplied-p)
+                         callback nomsg)
   (form-value-bind (data)
-      (progn
-        (form "values[name]" fullname fullname-supplied-p)
-        (form "values[email]" email email-supplied-p)
-        (form "values[blog]" blog blog-supplied-p)
-        (form "values[company]" company company-supplied-p)
-        (form "values[location]" location location-supplied-p))
-    (github-post "user/show/:username"
-                 :uri-params (list username)
+      (macrolet ((form2 (field val suppliced-p)
+                   `(if (and (user-p user) (not ,suppliced-p))
+                        (form ,field (struct-slot-value user ',val) t)
+                      (form ,field ,val ,suppliced-p))))
+        (form2 "values[name]" fullname fullname-supplied-p)
+        (form2 "values[email]" email email-supplied-p)
+        (form2 "values[blog]" blog blog-supplied-p)
+        (form2 "values[company]" company company-supplied-p)
+        (form2 "values[location]" location location-supplied-p))
+    (setf user (coerce-user-name user))
+    (github-post "user/show/:user"
+                 :uri-params (list user)
                  :return-type '(:root "user" :list nil :object t :type auth-user)
                  :data data
                  :callback callback :nomsg nomsg)))
@@ -192,6 +197,7 @@
 ; If you want to look at the following network on GitHub, you can request the users that a specific user is following with:
 
 (defun list-user-followings (user &key callback nomsg)
+  (setf user (coerce-user-name user))
   (github-get "user/show/:user/following"
               :uri-params (list user)
               :return-type '(:root "users" :list nil :object nil)
@@ -201,6 +207,7 @@
 
 
 (defun list-user-followers (user &key callback nomsg)
+  (setf user (coerce-user-name user))
   (github-get "user/show/:user/followers"
               :uri-params (list user)
               :return-type '(:root "users" :list nil :object nil)
@@ -213,12 +220,14 @@
 ; If you are authenticated as a user, you can also follow or unfollow users with:
 
 (defun follow-user (user &key callback nomsg)
+  (setf user (coerce-user-name user))
   (github-post "user/follow/:user"
                :uri-params (list user)
                :return-type '(:root "users" :list nil :object nil)
                :callback callback :nomsg nomsg))
 
 (defun unfollow-user (user &key callback nomsg)
+  (setf user (coerce-user-name user))
   (github-post "user/unfollow/:user"
                :uri-params (list user)
                :return-type '(:root "users" :list nil :object nil)
@@ -230,6 +239,7 @@
 ; To see which repositories a user is watching, you can call:
 
 (defun list-watched-repos (user &key callback nomsg)
+  (setf user (coerce-user-name user))
   (github-get "repos/watched/:user"
               :uri-params (list user)
               :return-type '(:root "repositories" :list t :object t :type repo)

@@ -108,6 +108,7 @@
 ;     GET http://gist.github.com/api/v1/:format/gists/:login
 
 (defun list-public-gists (user &key callback nomsg)
+  (setf user (coerce-user-name user))
   (let ((*github-api-endpoint* *gist-api-endpoint*))
     (github-get "gists/:user" :uri-params (list user)
                 :return-type '(:root "gists" :list t :object t :type gist)
