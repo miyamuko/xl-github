@@ -74,7 +74,7 @@
 (defstruct repo
   name owner description
   pushed-at created-at
-  forks fork-p
+  forks fork-p source parent
   homepage url
   watchers open-issues pledgie
   has-downloads has-issues has-wiki private-p)

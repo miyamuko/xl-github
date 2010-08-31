@@ -1,5 +1,8 @@
 2010-08-31  MIYAMUKO Katsuyuki
 
+	* api/type.l: fork したリポジトリを show-repo するとエラーになっていたのを修正
+	(repo 構造体に source と parent を追加)。
+
 	* api/gist-unofficial.l (gist-star-p): fork 関連の API を追加
 	- fork-gist
 	- gist-fork-p
