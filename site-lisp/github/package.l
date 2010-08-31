@@ -43,7 +43,6 @@
        :xml-http-request
        :json
        )
-      (:shadow :user-name) ;; conflist with ed::user-name and gh::user-name
       )))
 
 (when (string< (xhr:xml-http-request-version) "1.3.0")

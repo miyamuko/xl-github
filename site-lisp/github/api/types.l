@@ -111,13 +111,12 @@
 
 ;; 検索結果のユーザ
 (defstruct searched-user
-  id login name location
+  id login fullname location
   followers-count public-repo-count
   language score type username
   created-at pushed-at)
 (setf (get 'searched-user 'github-slot-mapping)
       '(:name :login
-        :fullname :name
         :created :created-at
         :pushed :pushed-at
         :followers :followers-count
@@ -132,11 +131,14 @@
 
 ;; 普通のユーザ
 (defstruct user
-  id login name location
+  id login fullname location
   email blog company
   followers-count following-count
   public-repo-count public-gist-count
   gravatar-id type created-at)
+(setf (get 'user 'github-slot-mapping)
+      '(:name :fullname
+        ))
 (export-struct 'user)
 
 ;; 認証されたユーザ
@@ -144,7 +146,17 @@
   collaborators disk-usage
   owned-private-repo-count private-gist-count total-private-repo-count
   (plan nil :type plan))
+(setf (get 'auth-user 'github-slot-mapping)
+      '(:name :fullname
+        ))
 (export-struct 'auth-user)
+
+;; Gist ID への変換
+(defun coerce-user-name (user)
+  (check-type user (or string user))
+  (if (user-p user)
+      (user-login user)
+    user))
 
 
 ;;; ## Object API ##

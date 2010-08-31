@@ -140,7 +140,7 @@
 ; POSTing to it in a few different ways.
 
 (defun update-user (username &key
-                                 (name nil name-supplied-p)
+                                 (fullname nil fullname-supplied-p)
                                  (email nil email-supplied-p)
                                  (blog nil blog-supplied-p)
                                  (company nil company-supplied-p)
@@ -148,7 +148,7 @@
                                  callback nomsg)
   (form-value-bind (data)
       (progn
-        (form "values[name]" name name-supplied-p)
+        (form "values[name]" fullname fullname-supplied-p)
         (form "values[email]" email email-supplied-p)
         (form "values[blog]" blog blog-supplied-p)
         (form "values[company]" company company-supplied-p)
