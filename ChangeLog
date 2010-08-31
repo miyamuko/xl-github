@@ -1,3 +1,8 @@
+2010-08-31  MIYAMUKO Katsuyuki
+
+	* api/gist-unofficial.l (gist-star-p): star-gist-p を gist-star-p
+	に変えた
+
 2010-08-21  MIYAMUKO Katsuyuki
 
 	* api/gist-unofficial.l (create-gist-files, update-gist-files): 複数のファイルの

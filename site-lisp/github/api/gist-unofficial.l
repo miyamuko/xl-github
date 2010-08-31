@@ -43,7 +43,7 @@
           add-gist-comment
           list-gist-revisions
           update-gist-description
-          star-gist-p
+          gist-star-p
           star-gist
           unstar-gist
           ))
@@ -149,9 +149,9 @@
                :data data
                :callback callback :nomsg nomsg)))
 
-(defun star-gist-p (id &key callback nomsg)
+(defun gist-star-p (id &key callback nomsg)
   (get-gist-page id
-                 :key (compose (cut string= "unstar" <>) #'scan-star)
+                 :key (compose (cut string= "unstar" <>) 'scan-star)
                  :callback callback
                  :nomsg nomsg))
 
