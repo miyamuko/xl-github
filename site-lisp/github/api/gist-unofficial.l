@@ -115,6 +115,7 @@
                :callback callback :nomsg nomsg)))
 
 (defun update-gist-files (id files &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (setf files (normalize-gist-file files))
   (form-value-bind (data)
       (progn
@@ -125,6 +126,7 @@
                :callback callback :nomsg nomsg)))
 
 (defun delete-gist (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (form-value-bind (data)
       (form "_method" "delete" t)
     (gist-post "delete/:id"
@@ -134,6 +136,7 @@
                :callback callback :nomsg nomsg)))
 
 (defun add-gist-comment (id comment &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (form-value-bind (data)
       (form "comment[body]" comment t)
     (gist-post ":id/comment"
@@ -143,9 +146,11 @@
                :callback callback :nomsg nomsg)))
 
 (defun list-gist-revisions (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (get-gist-page id :key #'scan-revisions :callback callback :nomsg nomsg))
 
 (defun update-gist-description (id description &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (form-value-bind (data)
       (form "description" description t)
     (gist-post "gists/:id/update_description"
@@ -154,6 +159,7 @@
                :callback callback :nomsg nomsg)))
 
 (defun gist-star-p (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (get-gist-page id
                  :key (compose (cut string= "unstar" <>) 'scan-star)
                  :callback callback
@@ -166,30 +172,35 @@
   (set-star id nil callback nomsg))
 
 (defun set-star (id star callback nomsg)
+  (setf id (coerce-gist-id id))
   (gist-post ":method/:id"
              :uri-params (list (if star "star" "unstar") id)
              :key #'nothing
              :callback callback :nomsg nomsg))
 
 (defun fork-gist (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (gist-post "fork/:id"
              :uri-params (list id)
              :key #'scan-id
              :callback callback :nomsg nomsg))
 
 (defun gist-fork-p (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (get-gist-page id
                  :key (compose 'not 'null 'scan-parent)
                  :callback callback
                  :nomsg nomsg))
 
 (defun get-gist-parent (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (get-gist-page id
                  :key #'scan-parent
                  :callback callback
                  :nomsg nomsg))
 
 (defun list-gist-forks (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (get-gist-page id
                  :key #'scan-forks
                  :callback callback

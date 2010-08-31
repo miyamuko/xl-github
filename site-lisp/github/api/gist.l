@@ -51,6 +51,7 @@
 ;     GET http://gist.github.com/api/v1/:format/:gist_id
 
 (defun get-gist-metadata (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (let ((*github-api-endpoint* *gist-api-endpoint*))
     (github-get ":id"
                 :uri-params (list id)
@@ -80,6 +81,7 @@
     (show-gist-all id :callback callback :nomsg nomsg)))
 
 (defun show-gist-file (id filename &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (let ((*github-api-endpoint* *gist-raw-endpoint*))
     (github-get ":id/:filename"
                 :uri-params (list id filename)
@@ -88,6 +90,7 @@
 
 ;; This is NOT official Gist API
 (defun show-gist-all (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
   (let ((*github-api-endpoint* *gist-domain*))
     (github-get ":id.txt"
                 :uri-params (list id)

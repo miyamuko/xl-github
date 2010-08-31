@@ -1,5 +1,8 @@
 2010-08-31  MIYAMUKO Katsuyuki
 
+	* api/gist-unofficial.l, api/gist.l: id を引数に指定する関数には
+	gist 構造体も指定できるようにした。
+
 	* api/type.l: fork したリポジトリを show-repo するとエラーになっていたのを修正
 	(repo 構造体に source と parent を追加)。
 

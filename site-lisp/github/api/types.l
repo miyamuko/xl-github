@@ -253,6 +253,14 @@
   (bind-plist "http://gist.github.com/:id.js"
               `(id ,(gist-id gist))))
 
+;; Gist ID への変換
+(defun coerce-gist-id (id)
+  (check-type id (or integer string gist))
+  (if (gist-p id)
+      (gist-id id)
+    id))
+
+
 ;; Gist の内容を表す構造体
 
 (defstruct gist-file
