@@ -52,6 +52,14 @@
   id key title)
 (export-struct 'public-key)
 
+;; Public Key ID への変換
+(defun coerce-public-key-id (key-id)
+  (check-type key-id (or integer public-key))
+  (if (public-key-p key-id)
+      (public-key-id key-id)
+    key-id))
+
+
 ;;; ## Repositories API ##
 
 ;; 検索結果のリポジトリ
@@ -151,7 +159,7 @@
         ))
 (export-struct 'auth-user)
 
-;; Gist ID への変換
+;; ユーザ名への変換
 (defun coerce-user-name (user)
   (check-type user (or string user))
   (if (user-p user)

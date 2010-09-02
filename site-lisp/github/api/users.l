@@ -290,6 +290,7 @@
 ; 	      :key
 
 (defun delete-user-key (key-id &key callback nomsg)
+  (setf key-id (coerce-public-key-id key-id))
   (form-value-bind (data)
       (form "id" key-id t)
     (github-post "user/key/remove"

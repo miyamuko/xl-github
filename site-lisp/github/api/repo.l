@@ -404,6 +404,7 @@
 ; You can also POST to this removal URL to remove a key
 
 (defun delete-repo-key (repo key-id &key callback nomsg)
+  (setf key-id (coerce-public-key-id key-id))
   (form-value-bind (data)
       (form "id" key-id t)
     (github-post "repos/key/:repo/remove"
