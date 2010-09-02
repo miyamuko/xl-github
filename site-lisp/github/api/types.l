@@ -225,6 +225,13 @@
   created-at updated-at closed-at)
 (export-struct 'issue)
 
+;; Issue number への変換
+(defun coerce-issue-number (number)
+  (check-type number (or integer issue))
+  (if (issue-p number)
+      (issue-number number)
+    number))
+
 
 ;;; ## Network API ##
 

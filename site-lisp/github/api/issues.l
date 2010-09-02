@@ -163,6 +163,7 @@
 ; To get data on an individual issue by number, run
 
 (defun show-issue (user repo number &key callback nomsg)
+  (setf number (coerce-issue-number number))
   (github-get "issues/show/:user/:repo/:number"
               :uri-params (list user repo number)
               :return-type '(:root "issue" :list nil :object t :type issue)
@@ -191,6 +192,7 @@
 ; To get a list of comments made on an issue, run
 
 (defun list-issue-comments (user repo number &key callback nomsg)
+  (setf number (coerce-issue-number number))
   (github-get "issues/comments/:user/:repo/:number"
               :uri-params (list user repo number)
               :return-type '(:root "comments" :list t :object t :type issue-comment)
@@ -254,6 +256,7 @@
 ; To close or reopen an issue, you just need to supply the issue number
 
 (defun close-issue (user repo number &key callback nomsg)
+  (setf number (coerce-issue-number number))
   (github-get "issues/close/:user/:repo/:number"
               :uri-params (list user repo number)
               :return-type '(:root "issue" :list nil :object t :type issue)
@@ -261,6 +264,7 @@
               :callback callback :nomsg nomsg))
 
 (defun reopen-issue (user repo number &key callback nomsg)
+  (setf number (coerce-issue-number number))
   (github-get "issues/reopen/:user/:repo/:number"
               :uri-params (list user repo number)
               :return-type '(:root "issue" :list nil :object t :type issue)
@@ -288,6 +292,7 @@
 ; To edit an existing issue, you can POST to
 
 (defun update-issue (user repo number title body &key callback nomsg)
+  (setf number (coerce-issue-number number))
   (form-value-bind (data)
       (progn
         (form "title" title t)
@@ -328,6 +333,7 @@
 ; To add a label, run
 
 (defun add-issue-label (user repo label number &key callback nomsg)
+  (setf number (coerce-issue-number number))
   (github-get "issues/label/add/:user/:repo/:label/:number"
               :uri-params (list user repo label number)
               :return-type '(:root "labels" :list t :object nil)
@@ -348,6 +354,7 @@
 ; To remove a label, run:
 
 (defun delete-issue-label (user repo label number &key callback nomsg)
+  (setf number (coerce-issue-number number))
   (github-get "issues/label/remove/:user/:repo/:label/:number"
               :uri-params (list user repo label number)
               :return-type '(:root "labels" :list t :object nil)
@@ -365,6 +372,7 @@
 ; You can comment on issues at
 
 (defun add-issue-comment (user repo number comment &key callback nomsg)
+  (setf number (coerce-issue-number number))
   (form-value-bind (data)
       (form "comment" comment t)
     (github-post "issues/comment/:user/:repo/:number"

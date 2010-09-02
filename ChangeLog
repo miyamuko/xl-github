@@ -1,5 +1,8 @@
 2010-09-02  MIYAMUKO Katsuyuki
 
+	* api/issues.l, api/types.l: issue number を引数にとる関数には
+	issue 構造体も指定できるようにした。
+
 	* api/user.l, api/repo.l, api/types.l: public-key id を引数にとる関数には
 	public-key 構造体も指定できるようにした。
 
