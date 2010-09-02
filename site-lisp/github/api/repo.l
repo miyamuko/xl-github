@@ -116,11 +116,13 @@
 
 ; To look at more in-depth information for a repository, GET this
 
-(defun show-repo (user repo &key callback nomsg)
-  (github-get "repos/show/:user/:repo"
-              :uri-params (list user repo)
-              :return-type '(:root "repository" :list nil :object t :type repo)
-              :callback callback :nomsg nomsg))
+(defun show-repo (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/show/:user/:repo"
+                :uri-params (list user repo)
+                :return-type '(:root "repository" :list nil :object t :type repo)
+                :callback callback :nomsg nomsg)))
 
 ; For example, to see the information for Grit
 
@@ -152,25 +154,27 @@
 ; If you are authenticated, you can update your repo's information by
 ; POSTing to it.
 
-(defun update-repo (user repo &key
-                         (description nil description-supplied-p)
-                         (homepage nil homepage-supplied-p)
-                         (wiki nil wiki-supplied-p)
-                         (issue nil issue-supplied-p)
-                         (download nil download-supplied-p)
-                         callback nomsg)
-  (form-value-bind (data)
-      (progn
-        (form "values[description]" description description-supplied-p)
-        (form "values[homepage]" homepage homepage-supplied-p)
-        (form "values[has_wiki]" (to-bool wiki) wiki-supplied-p)
-        (form "values[has_issues]" (to-bool issue) issue-supplied-p)
-        (form "values[has_downloads]" (to-bool download) download-supplied-p))
-    (github-post "repos/show/:user/:repo"
-                 :uri-params (list user repo)
-                 :return-type '(:root "repository" :list nil :object t :type repo)
-                 :data data
-                 :callback callback :nomsg nomsg)))
+(defun update-repo (user/repo &key
+                              (description nil description-supplied-p)
+                              (homepage nil homepage-supplied-p)
+                              (wiki nil wiki-supplied-p)
+                              (issue nil issue-supplied-p)
+                              (download nil download-supplied-p)
+                              callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (form-value-bind (data)
+        (progn
+          (form2 "values[description]" description description-supplied-p user/repo :description)
+          (form2 "values[homepage]" homepage homepage-supplied-p user/repo :homepage)
+          (form2 "values[has_wiki]" (to-bool wiki) wiki-supplied-p user/repo :has-wiki)
+          (form2 "values[has_issues]" (to-bool issue) issue-supplied-p user/repo :has-issues)
+          (form2 "values[has_downloads]" (to-bool download) download-supplied-p user/repo :has-downloads))
+      (github-post "repos/show/:user/:repo"
+                   :uri-params (list user repo)
+                   :return-type '(:root "repository" :list nil :object t :type repo)
+                   :data data
+                   :callback callback :nomsg nomsg))))
 
 ;       :values[key] = value
 
@@ -208,6 +212,7 @@
 ; You can list out all the repositories for a user with
 
 (defun list-repos (user &key callback nomsg)
+  (setf user (coerce-user-name user))
   (github-get "repos/show/:user"
               :uri-params (list user)
               :return-type '(:root "repositories" :list t :object t :type repo)
@@ -246,30 +251,36 @@
 
 ; You have to be authenticated for this, but you can watch and unwatch repositories with calls to
 
-(defun unwatch-repo (user repo &key callback nomsg)
-  (github-get "repos/unwatch/:user/:repo"
-              :uri-params (list user repo)
-              :return-type '(:root "repository" :list nil :object t :type repo)
-              :send-login-token t
-              :callback callback :nomsg nomsg))
+(defun unwatch-repo (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/unwatch/:user/:repo"
+                :uri-params (list user repo)
+                :return-type '(:root "repository" :list nil :object t :type repo)
+                :send-login-token t
+                :callback callback :nomsg nomsg)))
 
-(defun watch-repo (user repo &key callback nomsg)
-  (github-get "repos/watch/:user/:repo"
-              :uri-params (list user repo)
-              :return-type '(:root "repository" :list nil :object t :type repo)
-              :send-login-token t
-              :callback callback :nomsg nomsg))
+(defun watch-repo (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/watch/:user/:repo"
+                :uri-params (list user repo)
+                :return-type '(:root "repository" :list nil :object t :type repo)
+                :send-login-token t
+                :callback callback :nomsg nomsg)))
 
 ;;; ### Forking Repositories ###
 
 ; You can also fork a repository with
 
-(defun fork-repo (user repo &key callback nomsg)
-  (github-get "repos/fork/:user/:repo"
-              :uri-params (list user repo)
-              :return-type '(:root "repository" :list nil :object t :type repo)
-              :send-login-token t
-              :callback callback :nomsg nomsg))
+(defun fork-repo (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/fork/:user/:repo"
+                :uri-params (list user repo)
+                :return-type '(:root "repository" :list nil :object t :type repo)
+                :send-login-token t
+                :callback callback :nomsg nomsg)))
 
 ; Which will return data about your newly forked repository.
 
@@ -316,6 +327,7 @@
 ; You can also delete a repository with a POST to
 
 (defun delete-repo (repo &key callback nomsg)
+  (setf repo (coerce-repo-name repo))
   (labels ((delete1 ()
              (github-post "repos/delete/:repo"
                           :uri-params (list repo)
@@ -343,6 +355,7 @@
 ; To set a public repository private, you can POST while authenticated to
 
 (defun set-repo-private (repo &key callback nomsg)
+  (setf repo (coerce-repo-name repo))
   (github-get "repos/set/private/:repo"
               :uri-params (list repo)
               :return-type '(:root "repository" :list nil :object t :type repo)
@@ -352,6 +365,7 @@
 ; To make a private repo public, POST while authenticated to
 
 (defun set-repo-public (repo &key callback nomsg)
+  (setf repo (coerce-repo-name repo))
   (github-get "repos/set/public/:repo"
               :uri-params (list repo)
               :return-type '(:root "repository" :list nil :object t :type repo)
@@ -363,6 +377,7 @@
 ; You can use the API to list, add and remove your deploy keys.  To see which deploy keys you have setup for a specific repository, GET this URL
 
 (defun list-repo-keys (repo &key callback nomsg)
+  (setf repo (coerce-repo-name repo))
   (github-get "repos/keys/:repo"
               :uri-params (list repo)
               :return-type '(:root "public_keys" :list t :object t :type public-key)
@@ -386,6 +401,7 @@
 ; You can also add new keys by POSTing to
 
 (defun add-repo-key (repo title key &key callback nomsg)
+  (setf repo (coerce-repo-name repo))
   (form-value-bind (data)
       (progn
         (form "title" title t)
@@ -404,6 +420,7 @@
 ; You can also POST to this removal URL to remove a key
 
 (defun delete-repo-key (repo key-id &key callback nomsg)
+  (setf repo (coerce-repo-name repo))
   (setf key-id (coerce-public-key-id key-id))
   (form-value-bind (data)
       (form "id" key-id t)
@@ -419,21 +436,27 @@
 
 ; To get a list of the collaborators on your project, GET
 
-(defun list-repo-collaborators (user repo &key callback nomsg)
-  (github-get "repos/show/:user/:repo/collaborators"
-              :uri-params (list user repo)
-              :return-type '(:root "collaborators" :object nil :list t)
-              :callback callback :nomsg nomsg))
+(defun list-repo-collaborators (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/show/:user/:repo/collaborators"
+                :uri-params (list user repo)
+                :return-type '(:root "collaborators" :object nil :list t)
+                :callback callback :nomsg nomsg)))
 
 ; To add or remove collaborators, POST to one of these URLs
 
 (defun add-repo-collaborator (repo user &key callback nomsg)
+  (setf repo (coerce-repo-name repo))
+  (setf user (coerce-user-name user))
   (github-post "repos/collaborators/:repo/add/:user"
                :uri-params (list repo user)
                :return-type '(:root "collaborators" :object nil :list t)
                :callback callback :nomsg nomsg))
 
 (defun delete-repo-collaborator (repo user &key callback nomsg)
+  (setf repo (coerce-repo-name repo))
+  (setf user (coerce-user-name user))
   (github-post "repos/collaborators/:repo/remove/:user"
                :uri-params (list repo user)
                :return-type '(:root "collaborators" :object nil :list t)
@@ -451,11 +474,13 @@
 
 ; To get a list of the contributors on your project, GET
 
-(defun list-repo-contributors (user repo &key callback nomsg)
-  (github-get "repos/show/:user/:repo/contributors"
-              :uri-params (list user repo)
-              :return-type '(:root "contributors" :object t :list t :type contributor)
-              :callback callback :nomsg nomsg))
+(defun list-repo-contributors (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/show/:user/:repo/contributors"
+                :uri-params (list user repo)
+                :return-type '(:root "contributors" :object t :list t :type contributor)
+                :callback callback :nomsg nomsg)))
 
 ; The data comes back as an array of [login, count], sorted by the biggest contributors to the repository.
 
@@ -496,11 +521,13 @@
 
 ; To get a list of the watchers on your project, GET
 
-(defun list-repo-watchers (user repo &key callback nomsg)
-  (github-get "repos/show/:user/:repo/watchers"
-              :uri-params (list user repo)
-              :return-type '(:root "watchers" :object nil :list t)
-              :callback callback :nomsg nomsg))
+(defun list-repo-watchers (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/show/:user/:repo/watchers"
+                :uri-params (list user repo)
+                :return-type '(:root "watchers" :object nil :list t)
+                :callback callback :nomsg nomsg)))
 
 ; The data comes back as an array of watchers, sorted by the date they started watching the repository.
 
@@ -514,11 +541,13 @@
 
 ; We can also look at the full network with
 
-(defun list-repo-networks (user repo &key callback nomsg)
-  (github-get "repos/show/:user/:repo/network"
-              :uri-params (list user repo)
-              :return-type '(:root "network" :object t :list t :type repo)
-              :callback callback :nomsg nomsg))
+(defun list-repo-networks (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/show/:user/:repo/network"
+                :uri-params (list user repo)
+                :return-type '(:root "network" :object t :list t :type repo)
+                :callback callback :nomsg nomsg)))
 
 ; For example, to see all the forks of the ruby-git project, we can GET
 
@@ -553,11 +582,13 @@
 ; To see a list of the languages used in a particular repository, you can call
 ; the language breakdown API.  Values are in bytes calculated.
 
-(defun get-repo-language (user repo &key callback nomsg)
-  (github-get "repos/show/:user/:repo/languages"
-              :uri-params (list user repo)
-              :return-type '(:root "languages" :object nil :list t)
-              :callback callback :nomsg nomsg))
+(defun get-repo-language (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/show/:user/:repo/languages"
+                :uri-params (list user repo)
+                :return-type '(:root "languages" :object nil :list t)
+                :callback callback :nomsg nomsg)))
 
 ; You can get the language breakdown for mojombo/grit like this:
 
@@ -574,11 +605,13 @@
 
 ; To get a list of tags on your repo
 
-(defun list-repo-tags (user repo &key callback nomsg)
-  (github-get "repos/show/:user/:repo/tags"
-              :uri-params (list user repo)
-              :return-type '(:root "tags" :object nil :list t)
-              :callback callback :nomsg nomsg))
+(defun list-repo-tags (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/show/:user/:repo/tags"
+                :uri-params (list user repo)
+                :return-type '(:root "tags" :object nil :list t)
+                :callback callback :nomsg nomsg)))
 
 ; For example
 
@@ -592,11 +625,13 @@
 
 ; To get a list of remote branches
 
-(defun list-repo-branches (user repo &key callback nomsg)
-  (github-get "repos/show/:user/:repo/branches"
-              :uri-params (list user repo)
-              :return-type '(:root "branches" :object nil :list t)
-              :callback callback :nomsg nomsg))
+(defun list-repo-branches (user/repo &key callback nomsg)
+  (multiple-value-bind (user repo)
+      (coerce-user-and-repo user/repo)
+    (github-get "repos/show/:user/:repo/branches"
+                :uri-params (list user repo)
+                :return-type '(:root "branches" :object nil :list t)
+                :callback callback :nomsg nomsg)))
 
 ; For example
 

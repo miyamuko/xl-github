@@ -64,34 +64,60 @@
 
 ;; 検索結果のリポジトリ
 (defstruct searched-repo
-  name owner description
+  user name description
   pushed-at created-at
   forks fork-p
   size language followers
   score type id)
-(export-struct 'searched-repo)
-
-;; base.l の json->struct 内で利用
 (setf (get 'searched-repo 'github-slot-mapping)
-      '(:username :owner
+      '(:username :user
         :pushed :pushed-at
         :created :created-at
         :fork :fork-p))
+(export-struct 'searched-repo)
 
 ;; 普通のリポジトリ
 (defstruct repo
-  name owner description
+  user name description
   pushed-at created-at
   forks fork-p source parent
   homepage url
   watchers open-issues pledgie
   has-downloads has-issues has-wiki private-p)
+(setf (get 'repo 'github-slot-mapping)
+      '(:owner :user
+        :fork :fork-p
+        :private :private-p
+        ))
 (export-struct 'repo)
 
-;; base.l の json->struct 内で利用
-(setf (get 'repo 'github-slot-mapping)
-      '(:fork :fork-p
-        :private :private-p))
+
+;; ユーザ名とリポジトリ名への変換
+(defun coerce-user-and-repo (user/repo)
+  (check-type user/repo (or string list repo))
+  (multiple-value-bind (user repo)
+      (parse-user/repo user/repo)
+    (check-type user string)
+    (check-type repo string)
+    (values user repo)))
+
+;; リポジトリ名への変換
+(defun coerce-repo-name (repo)
+  (check-type repo (or string list repo))
+  (multiple-value-bind (user repo)
+      (parse-user/repo repo)
+    ;; "user/repo" の場合 user="user", repo="repo" になるので repo を返す
+    ;; "repo" の場合は user="repo", repo=nil になるので user を返す
+    (or repo user)))
+
+(defun parse-user/repo (user/repo)
+  (cond ((repo-p user/repo)
+         (values (repo-user user/repo)
+                 (repo-name user/repo)))
+        ((stringp user/repo)
+         (values-list (split-string user/repo #\/ 2)))
+        ((listp user/repo)
+         (values-list user/repo))))
 
 (defun repo-public-clone-url (repo)
   (bind-plist "git://github.com/:owner/:name.git"

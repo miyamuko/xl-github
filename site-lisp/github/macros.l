@@ -56,8 +56,12 @@
   `(let (,var)
      (macrolet ((form (key value predicate)
                   `(when ,predicate
-                     (push (cons ,key ,value) ,',var))))
-       ,value-form)
+                     (push (cons ,key ,value) ,',var)))
+                (form2 (key value predicate struct slot)
+                  `(if (and (si:*structurep ,struct) (not ,predicate))
+                       (form ,key (struct-slot-value ,struct ,slot) t)
+                     (form ,key ,value ,predicate))))
+         ,value-form)
      (setf ,var (nreverse ,var))
      ,@forms))
 #+xyzzy

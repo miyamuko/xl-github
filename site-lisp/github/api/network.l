@@ -41,12 +41,14 @@
 
 ;;; ### Network Meta ###
 
-(defun get-network-meta (user repo &key callback nomsg)
+(defun get-network-meta (user/repo &key callback nomsg)
   (let ((*github-api-endpoint* *github-domain*))
-    (github-get ":user/:repo/network_meta"
-                :uri-params (list user repo)
-                :return-type '(:root nil :object t :list nil :type network)
-                :callback callback :nomsg nomsg)))
+    (multiple-value-bind (user repo)
+        (coerce-user-and-repo user/repo)
+      (github-get ":user/:repo/network_meta"
+                  :uri-params (list user repo)
+                  :return-type '(:root nil :object t :list nil :type network)
+                  :callback callback :nomsg nomsg))))
 
 ; 	$ curl http://github.com/schacon/simplegit/network_meta | jsonpretty
 ; 	{
@@ -84,14 +86,16 @@
 
 ;;; ### Network Data ###
 
-(defun get-network-data (user repo nethash &key start end callback nomsg)
+(defun get-network-data (user/repo nethash &key start end callback nomsg)
   (let ((*github-api-endpoint* *github-domain*))
-    (github-get ":user/:repo/network_data_chunk"
-                :uri-params (list user repo)
-                :query-params `((:nethash . ,nethash)
-                                (:start . ,start)
-                                (:end . ,end))
-                :callback callback :nomsg nomsg)))
+    (multiple-value-bind (user repo)
+        (coerce-user-and-repo user/repo)
+      (github-get ":user/:repo/network_data_chunk"
+                  :uri-params (list user repo)
+                  :query-params `((:nethash . ,nethash)
+                                  (:start . ,start)
+                                  (:end . ,end))
+                  :callback callback :nomsg nomsg))))
 
 ; To get network data, you'll need to provide the 'nethash' parameter that you get from the network\_meta call so the data is always consistent.  To get network data, call the network\_data\_chunk URI with the given nethash to get the first 100 commits by branch.
 

@@ -1,5 +1,10 @@
 2010-09-02  MIYAMUKO Katsuyuki
 
+	* user と repo 引数にとる関数の引数を変更して以下を引数に取るようにした
+	- "<user>/<repo>" という文字列
+	- '("<user>" "<repo>") というリスト
+	- repo 構造体
+
 	* api/issues.l, api/types.l: issue number を引数にとる関数には
 	issue 構造体も指定できるようにした。
 
