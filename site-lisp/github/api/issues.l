@@ -56,13 +56,13 @@
 
 ;;; ### Search Issues ###
 
-(defun search-issues (user/repo state search-term &key callback nomsg)
+(defun search-issues (user/repo state query &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
     (validate-state state)
-    (check-type search-term string)
-    (github-get "issues/search/:user/:repo/:state/:search_term"
-                :uri-params (list user repo state search-term)
+    (check-type query string)
+    (github-get "issues/search/:user/:repo/:state/:query"
+                :uri-params (list user repo state query)
                 :return-type '(:root "issues" :list t :object t :type issue)
                 :callback callback :nomsg nomsg)))
 

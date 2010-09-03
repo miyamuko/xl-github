@@ -62,12 +62,12 @@
 ;;; ### Searching Repositories ###
 
 ;; http://github.com/search
-(defun search-repos (q &key page lang callback nomsg)
-  (check-type q string)
+(defun search-repos (query &key page lang callback nomsg)
+  (check-type query string)
   (check-nullable-type page integer)
   (check-nullable-type lang string)
-  (github-get "repos/search/:q"
-              :uri-params (list q)
+  (github-get "repos/search/:query"
+              :uri-params (list query)
               :query-params `(("start_page" . ,page)
                               ("language" . ,lang))
               :return-type '(:root "repositories" :list t :object t :type searched-repo)
