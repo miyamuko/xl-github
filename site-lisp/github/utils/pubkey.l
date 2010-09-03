@@ -53,6 +53,7 @@
                   (or (string-matchp "^[a-z-]+:" line)
                       continue-line))
              (push line header)
+             (setf continue-line nil)
              (when (string-matchp "\\\\$" line)
                (setf continue-line t)))
             (t
