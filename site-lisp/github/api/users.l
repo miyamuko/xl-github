@@ -42,6 +42,7 @@
           list-watched-repos
           list-user-keys
           add-user-key
+          add-user-key-file
           delete-user-key
           list-user-emails
           add-user-email
@@ -281,6 +282,10 @@
               :send-login-token t
               :return-type '(:root "public_keys" :list t :object t :type public-key)
               :callback callback :nomsg nomsg))
+
+(defun add-user-key-file (user title key-file &key callback nomsg)
+  (let ((key (read-public-key key-file)))
+    (add-user-key user title key :callback callback :nomsg nomsg)))
 
 (defun add-user-key (title key &key callback nomsg)
   (check-type title string)

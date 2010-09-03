@@ -1,5 +1,12 @@
 2010-09-03  MIYAMUKO Katsuyuki
 
+	* utils/pubkey.l, api/base.l, api/user.l, api/repo.l: ファイルから公開鍵を登録できるようにした
+	- add-repo-key-file
+	- add-user-key-file
+	以下の公開鍵のフォーマットをサポートする
+	- RFC 4716 形式のファイル (puttygen などで生成した公開鍵)
+	- OpenSSH 形式 (authorized_keys に書く形式、puttygen でも変換可能)
+
 	* api/types.l: GitHub の URL を返す API を追加
 
 	* user/repo => owner/repo

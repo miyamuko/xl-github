@@ -44,6 +44,7 @@
           set-repo-public
           list-repo-keys
           add-repo-key
+          add-repo-key-file
           delete-repo-key
           show-repo-collaborators
           add-repo-collaborator
@@ -407,6 +408,10 @@
 ; 	0Daq6H8C1CHf1RB6JriP7CCja8pl+w==
 
 ; You can also add new keys by POSTing to
+
+(defun add-repo-key-file (repo title key-file &key callback nomsg)
+  (let ((key (read-public-key key-file)))
+    (add-repo-key repo title key :callback callback :nomsg nomsg)))
 
 (defun add-repo-key (repo title key &key callback nomsg)
   (setf repo (coerce-repo-name repo))
