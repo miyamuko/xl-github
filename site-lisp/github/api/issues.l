@@ -169,9 +169,9 @@
 ; To get data on an individual issue by number, run
 
 (defun show-issue (user/repo issue &key callback nomsg)
-  (setf issue (coerce-issue-number issue))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (setf issue (coerce-issue-number issue))
     (github-get "issues/show/:user/:repo/:issue"
                 :uri-params (list user repo issue)
                 :return-type '(:root "issue" :list nil :object t :type issue)
@@ -200,9 +200,9 @@
 ; To get a list of comments made on an issue, run
 
 (defun list-issue-comments (user/repo issue &key callback nomsg)
-  (setf issue (coerce-issue-number issue))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (setf issue (coerce-issue-number issue))
     (github-get "issues/comments/:user/:repo/:issue"
                 :uri-params (list user repo issue)
                 :return-type '(:root "comments" :list t :object t :type issue-comment)
@@ -268,9 +268,9 @@
 ; To close or reopen an issue, you just need to supply the issue number
 
 (defun close-issue (user/repo issue &key callback nomsg)
-  (setf issue (coerce-issue-number issue))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (setf issue (coerce-issue-number issue))
     (github-get "issues/close/:user/:repo/:issue"
                 :uri-params (list user repo issue)
                 :return-type '(:root "issue" :list nil :object t :type issue)
@@ -278,9 +278,9 @@
                 :callback callback :nomsg nomsg)))
 
 (defun reopen-issue (user/repo issue &key callback nomsg)
-  (setf issue (coerce-issue-number issue))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (setf issue (coerce-issue-number issue))
     (github-get "issues/reopen/:user/:repo/:issue"
                 :uri-params (list user repo issue)
                 :return-type '(:root "issue" :list nil :object t :type issue)
@@ -356,9 +356,9 @@
 ; To add a label, run
 
 (defun add-issue-label (user/repo issue label &key callback nomsg)
-  (setf issue (coerce-issue-number issue))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (setf issue (coerce-issue-number issue))
     (github-get "issues/label/add/:user/:repo/:label/:issue"
                 :uri-params (list user repo label issue)
                 :return-type '(:root "labels" :list t :object nil)
@@ -379,9 +379,9 @@
 ; To remove a label, run:
 
 (defun delete-issue-label (user/repo issue label &key callback nomsg)
-  (setf issue (coerce-issue-number issue))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (setf issue (coerce-issue-number issue))
     (github-get "issues/label/remove/:user/:repo/:label/:issue"
                 :uri-params (list user repo label issue)
                 :return-type '(:root "labels" :list t :object nil)
@@ -399,9 +399,9 @@
 ; You can comment on issues at
 
 (defun add-issue-comment (user/repo issue comment &key callback nomsg)
-  (setf issue (coerce-issue-number issue))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (setf issue (coerce-issue-number issue))
     (form-value-bind (data)
         (form "comment" comment t)
       (github-post "issues/comment/:user/:repo/:issue"
