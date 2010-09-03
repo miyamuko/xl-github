@@ -82,6 +82,7 @@
 
 (defun show-gist-file (id filename &key callback nomsg)
   (setf id (coerce-gist-id id))
+  (check-type filename string)
   (let ((*github-api-endpoint* *gist-raw-endpoint*))
     (github-get ":id/:filename"
                 :uri-params (list id filename)

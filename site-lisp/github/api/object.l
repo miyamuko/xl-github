@@ -48,6 +48,7 @@
 (defun show-tree (user/repo tree-sha &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type tree-sha string)
     (github-get "tree/show/:user/:repo/:tree_sha"
                 :uri-params (list user repo tree-sha)
                 :return-type '(:root "tree" :list t :object t :type object)
@@ -108,6 +109,8 @@
 (defun show-blob (user/repo tree-sha path &key meta callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type tree-sha string)
+    (check-type path string)
     (github-get "blob/show/:user/:repo/:tree_sha/:path"
                 :uri-params (list user repo tree-sha path)
                 :query-params (if meta `((:meta . "1")) nil)
@@ -158,6 +161,7 @@
 (defun list-blob-names (user/repo tree-sha &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type tree-sha string)
     (github-get "blob/all/:user/:repo/:tree_sha"
                 :uri-params (list user repo tree-sha)
                 :return-type '(:root "blobs" :list t :object t)
@@ -202,6 +206,7 @@
 (defun list-blobs (user/repo tree-sha &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type tree-sha string)
     (github-get "blob/full/:user/:repo/:tree_sha"
                 :uri-params (list user repo tree-sha)
                 :return-type '(:root "blobs" :list t :object t :type object)
@@ -221,6 +226,7 @@
 (defun list-trees (user/repo tree-sha &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type tree-sha string)
     (github-get "tree/full/:user/:repo/:tree_sha"
                 :uri-params (list user repo tree-sha)
                 :return-type '(:root "tree" :list t :object t :type object)
@@ -249,6 +255,7 @@
 (defun show-blob-raw (user/repo sha &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type sha string)
     (github-get "blob/show/:user/:repo/:sha"
                 :uri-params (list user repo sha)
                 :raw t :callback callback :nomsg nomsg)))

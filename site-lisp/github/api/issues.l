@@ -57,9 +57,10 @@
 ;;; ### Search Issues ###
 
 (defun search-issues (user/repo state search-term &key callback nomsg)
-  (validate-state state)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (validate-state state)
+    (check-type search-term string)
     (github-get "issues/search/:user/:repo/:state/:search_term"
                 :uri-params (list user repo state search-term)
                 :return-type '(:root "issues" :list t :object t :type issue)
@@ -99,9 +100,9 @@
            user/repo state-or-label :callback callback :nomsg nomsg))
 
 (defun list-issues-by-state (user/repo state &key callback nomsg)
-  (validate-state state)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (validate-state state)
     (github-get "issues/list/:user/:repo/:state"
                 :uri-params (list user repo state)
                 :return-type '(:root "issues" :list t :object t :type issue)
@@ -112,6 +113,7 @@
 (defun list-issues-by-label (user/repo label &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type label string)
     (github-get "issues/list/:user/:repo/label/:label"
                 :uri-params (list user repo label)
                 :return-type '(:root "issues" :list t :object t :type issue)
@@ -234,6 +236,8 @@
 (defun open-issue (user/repo title body &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type title string)
+    (check-type body string)
     (form-value-bind (data)
         (progn
           (form "title" title t)
@@ -313,6 +317,8 @@
                                callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-nullable-type title string)
+    (check-nullable-type body string)
     (form-value-bind (data)
         (progn
           (form2 "title" title title-supplied-p issue :title)
@@ -359,6 +365,7 @@
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
     (setf issue (coerce-issue-number issue))
+    (check-type label string)
     (github-get "issues/label/add/:user/:repo/:label/:issue"
                 :uri-params (list user repo label issue)
                 :return-type '(:root "labels" :list t :object nil)
@@ -382,6 +389,7 @@
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
     (setf issue (coerce-issue-number issue))
+    (check-type label string)
     (github-get "issues/label/remove/:user/:repo/:label/:issue"
                 :uri-params (list user repo label issue)
                 :return-type '(:root "labels" :list t :object nil)
@@ -402,6 +410,7 @@
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
     (setf issue (coerce-issue-number issue))
+    (check-type comment string)
     (form-value-bind (data)
         (form "comment" comment t)
       (github-post "issues/comment/:user/:repo/:issue"

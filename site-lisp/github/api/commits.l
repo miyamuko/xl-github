@@ -42,6 +42,8 @@
 (defun list-commits (user/repo branch &key path callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type branch string)
+    (check-nullable-type path string)
     (github-get (if path
                     "commits/list/:user/:repo/:branch/:path"
                   "commits/list/:user/:repo/:branch")
@@ -131,6 +133,7 @@
 (defun show-commit (user/repo sha &key callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-type sha string)
     (github-get "commits/show/:user/:repo/:sha"
                 :uri-params (list user repo sha)
                 :return-type '(:root "commit" :list nil :object t :type commit)

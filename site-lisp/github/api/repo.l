@@ -63,6 +63,9 @@
 
 ;; http://github.com/search
 (defun search-repos (q &key page lang callback nomsg)
+  (check-type q string)
+  (check-nullable-type page integer)
+  (check-nullable-type lang string)
   (github-get "repos/search/:q"
               :uri-params (list q)
               :query-params `(("start_page" . ,page)
@@ -163,6 +166,8 @@
                               callback nomsg)
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
+    (check-nullable-type description string)
+    (check-nullable-type homepage string)
     (form-value-bind (data)
         (progn
           (form2 "values[description]" description description-supplied-p user/repo :description)
@@ -306,6 +311,9 @@
                          (homepage nil homepage-supplied-p)
                          (public nil public-supplied-p)
                          callback nomsg)
+  (check-type name string)
+  (check-nullable-type description string)
+  (check-nullable-type homepage string)
   (form-value-bind (data)
       (progn
         (form "name" name t)
@@ -402,6 +410,8 @@
 
 (defun add-repo-key (repo title key &key callback nomsg)
   (setf repo (coerce-repo-name repo))
+  (check-type title string)
+  (check-type key string)
   (form-value-bind (data)
       (progn
         (form "title" title t)

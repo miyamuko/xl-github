@@ -56,13 +56,16 @@
 ;;; ### My Public & Private Gist ###
 
 (defun list-all-gists (&key page callback nomsg)
+  (check-nullable-type page integer)
   (list-gists "gists" :page page :all nil :callback callback :nomsg nomsg))
 
 (defun list-starred-gists (&key page all callback nomsg)
   ;; owner は取得できない
+  (check-nullable-type page integer)
   (list-gists "starred" :page page :all all :callback callback :nomsg nomsg))
 
 (defun list-my-gists (&key page all callback nomsg)
+  (check-nullable-type page integer)
   (list-gists "mine"
               :page page :all all
               :key #'(lambda (gists next)
@@ -73,6 +76,7 @@
               :nomsg nomsg))
 
 (defun list-gists (path &key page all key callback nomsg)
+  (check-nullable-type page integer)
   (labels ((list-gist1 (page acc)
              (get-gist-list-page path :page page
                                  :key #'scan-gist-list
@@ -89,10 +93,16 @@
 ;;; ### Gist Edit ###
 
 (defun create-gist (contents &key name lang private callback nomsg)
+  (check-type contents string)
+  (check-nullable-type name string)
+  (check-nullable-type lang (or string symbol))
   (create-gist-files (make-gist-file :contents contents :name name :lang lang)
                      :private private :callback callback :nomsg nomsg))
 
 (defun update-gist (id contents &key name lang private callback nomsg)
+  (check-type contents string)
+  (check-nullable-type name string)
+  (check-nullable-type lang (or string symbol))
   (update-gist-files id (make-gist-file :contents contents :name name :lang lang)
                      :private private :callback callback :nomsg nomsg))
 
@@ -137,6 +147,7 @@
 
 (defun add-gist-comment (id comment &key callback nomsg)
   (setf id (coerce-gist-id id))
+  (check-type comment string)
   (form-value-bind (data)
       (form "comment[body]" comment t)
     (gist-post ":id/comment"
@@ -151,6 +162,7 @@
 
 (defun update-gist-description (id description &key callback nomsg)
   (setf id (coerce-gist-id id))
+  (check-type description string)
   (form-value-bind (data)
       (form "description" description t)
     (gist-post "gists/:id/update_description"

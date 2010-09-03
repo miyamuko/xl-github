@@ -67,6 +67,10 @@
 #+xyzzy
 (setf (get 'form-value-bind 'ed:lisp-indent-hook) 2)
 
+(defmacro check-nullable-type (place typespec)
+  `(when ,place
+     (check-type ,place ,typespec)))
+
 
 (provide "github/macros")
 

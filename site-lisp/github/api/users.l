@@ -58,12 +58,14 @@
 ; The route for user searching is:
 
 (defun search-users (query &key callback nomsg)
+  (check-type query string)
   (github-get "user/search/:query"
               :uri-params (list query)
               :return-type '(:root "users" :list t :object t :type searched-user)
               :callback callback :nomsg nomsg))
 
 (defun search-users-by-email (query &key callback nomsg)
+  (check-type query string)
   (github-get "user/email/:query"
               :uri-params (list query)
               :return-type '(:root "user" :list nil :object t :type user)
@@ -147,6 +149,11 @@
                          (company nil company-supplied-p)
                          (location nil location-supplied-p)
                          callback nomsg)
+  (check-nullable-type fullname string)
+  (check-nullable-type email string)
+  (check-nullable-type blog string)
+  (check-nullable-type company string)
+  (check-nullable-type location string)
   (form-value-bind (data)
       (progn
         (form2 "values[name]" fullname fullname-supplied-p user :fullname)
@@ -276,6 +283,8 @@
               :callback callback :nomsg nomsg))
 
 (defun add-user-key (title key &key callback nomsg)
+  (check-type title string)
+  (check-type key string)
   (form-value-bind (data)
       (progn
         (form "title" title t)
@@ -305,6 +314,7 @@
               :callback callback :nomsg nomsg))
 
 (defun add-user-email (email &key callback nomsg)
+  (check-type email string)
   (form-value-bind (data)
       (form "email" email t)
     (github-post "user/email/add"
@@ -313,6 +323,7 @@
                  :callback callback :nomsg nomsg)))
 
 (defun delete-user-email (email &key callback nomsg)
+  (check-type email string)
   (form-value-bind (data)
       (form "email" email t)
     (github-post "user/email/remove"

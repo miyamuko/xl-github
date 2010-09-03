@@ -338,7 +338,9 @@
                 (error "filesはファイル名またはgist-fileのリストを指定してください"))
               (if (stringp file)
                   (make-gist-file-from-pathname file)
-                file))
+                (let ((contents (gist-file-contents file)))
+                  (check-type contents string)
+                  file)))
           files))
 
 ;; Web から Gist を作成すると name が指定されていると Language 指定は無視されるので

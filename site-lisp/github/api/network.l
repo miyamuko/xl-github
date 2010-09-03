@@ -90,6 +90,7 @@
   (let ((*github-api-endpoint* *github-domain*))
     (multiple-value-bind (user repo)
         (coerce-user-and-repo user/repo)
+      (check-type nethash string)
       (github-get ":user/:repo/network_data_chunk"
                   :uri-params (list user repo)
                   :query-params `((:nethash . ,nethash)
