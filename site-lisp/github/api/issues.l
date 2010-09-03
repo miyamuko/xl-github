@@ -355,7 +355,7 @@
 
 ; To add a label, run
 
-(defun add-issue-label (user/repo label number &key callback nomsg)
+(defun add-issue-label (user/repo number label &key callback nomsg)
   (setf number (coerce-issue-number number))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)
@@ -378,7 +378,7 @@
 
 ; To remove a label, run:
 
-(defun delete-issue-label (user/repo label number &key callback nomsg)
+(defun delete-issue-label (user/repo number label &key callback nomsg)
   (setf number (coerce-issue-number number))
   (multiple-value-bind (user repo)
       (coerce-user-and-repo user/repo)

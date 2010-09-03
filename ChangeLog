@@ -1,3 +1,7 @@
+2010-09-03  MIYAMUKO Katsuyuki
+
+	* api/issues.l (add-issue-label, delete-issue-label): 引数の順番を変更
+
 2010-09-02  MIYAMUKO Katsuyuki
 
 	* user と repo 引数にとる関数の引数を変更して以下を引数に取るようにした
