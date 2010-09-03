@@ -45,9 +45,9 @@
 
 ; Can get the contents of a tree by tree SHA
 
-(defun show-tree (user/repo tree-sha &key callback nomsg)
+(defun show-tree (owner/repo tree-sha &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type tree-sha string)
     (github-get "tree/show/:user/:repo/:tree_sha"
                 :uri-params (list user repo tree-sha)
@@ -106,9 +106,9 @@
 
 ; Can get the data about a blob by tree SHA and path
 
-(defun show-blob (user/repo tree-sha path &key meta callback nomsg)
+(defun show-blob (owner/repo tree-sha path &key meta callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type tree-sha string)
     (check-type path string)
     (github-get "blob/show/:user/:repo/:tree_sha/:path"
@@ -158,9 +158,9 @@
 ; You can also get a list of all blobs (their names and shas) for a
 ; specific SHA:
 
-(defun list-blob-names (user/repo tree-sha &key callback nomsg)
+(defun list-blob-names (owner/repo tree-sha &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type tree-sha string)
     (github-get "blob/all/:user/:repo/:tree_sha"
                 :uri-params (list user repo tree-sha)
@@ -203,9 +203,9 @@
 
 ; If you want to get the metadata of each blob (including sha, name, and mime type), use:
 
-(defun list-blobs (user/repo tree-sha &key callback nomsg)
+(defun list-blobs (owner/repo tree-sha &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type tree-sha string)
     (github-get "blob/full/:user/:repo/:tree_sha"
                 :uri-params (list user repo tree-sha)
@@ -223,9 +223,9 @@
 
 ; You can also get the metadata of each tree and blob object:
 
-(defun list-trees (user/repo tree-sha &key callback nomsg)
+(defun list-trees (owner/repo tree-sha &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type tree-sha string)
     (github-get "tree/full/:user/:repo/:tree_sha"
                 :uri-params (list user repo tree-sha)
@@ -252,9 +252,9 @@
 
 ; You can get the contents of a blob with the blob's SHA via:
 
-(defun show-blob-raw (user/repo sha &key callback nomsg)
+(defun show-blob-raw (owner/repo sha &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type sha string)
     (github-get "blob/show/:user/:repo/:sha"
                 :uri-params (list user repo sha)

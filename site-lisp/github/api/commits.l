@@ -39,9 +39,9 @@
 
 ;;; ### Listing Commits on a Branch ###
 
-(defun list-commits (user/repo branch &key path callback nomsg)
+(defun list-commits (owner/repo branch &key path callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type branch string)
     (check-nullable-type path string)
     (github-get (if path
@@ -130,9 +130,9 @@
 
 ;;; ### Showing a Specific Commit ###
 
-(defun show-commit (user/repo sha &key callback nomsg)
+(defun show-commit (owner/repo sha &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type sha string)
     (github-get "commits/show/:user/:repo/:sha"
                 :uri-params (list user repo sha)

@@ -1,5 +1,7 @@
 2010-09-03  MIYAMUKO Katsuyuki
 
+	* user/repo => owner/repo
+
 	* 引数の型チェックを追加
 
 	* api/issues.l, api/types.l: 引数名を変更: number => issue

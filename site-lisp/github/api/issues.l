@@ -56,9 +56,9 @@
 
 ;;; ### Search Issues ###
 
-(defun search-issues (user/repo state query &key callback nomsg)
+(defun search-issues (owner/repo state query &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (validate-state state)
     (check-type query string)
     (github-get "issues/search/:user/:repo/:state/:query"
@@ -93,15 +93,15 @@
 
 ; To see a list of issues for a project,
 
-(defun list-issues (user/repo state-or-label &key label callback nomsg)
+(defun list-issues (owner/repo state-or-label &key label callback nomsg)
   (funcall (if label
                'list-issues-by-label
              'list-issues-by-state)
-           user/repo state-or-label :callback callback :nomsg nomsg))
+           owner/repo state-or-label :callback callback :nomsg nomsg))
 
-(defun list-issues-by-state (user/repo state &key callback nomsg)
+(defun list-issues-by-state (owner/repo state &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (validate-state state)
     (github-get "issues/list/:user/:repo/:state"
                 :uri-params (list user repo state)
@@ -110,9 +110,9 @@
 
 ; where :state is either 'open' or 'closed'.  You can also search with a label:
 
-(defun list-issues-by-label (user/repo label &key callback nomsg)
+(defun list-issues-by-label (owner/repo label &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type label string)
     (github-get "issues/list/:user/:repo/label/:label"
                 :uri-params (list user repo label)
@@ -170,9 +170,9 @@
 
 ; To get data on an individual issue by number, run
 
-(defun show-issue (user/repo issue &key callback nomsg)
+(defun show-issue (owner/repo issue &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (setf issue (coerce-issue-number issue))
     (github-get "issues/show/:user/:repo/:issue"
                 :uri-params (list user repo issue)
@@ -201,9 +201,9 @@
 
 ; To get a list of comments made on an issue, run
 
-(defun list-issue-comments (user/repo issue &key callback nomsg)
+(defun list-issue-comments (owner/repo issue &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (setf issue (coerce-issue-number issue))
     (github-get "issues/comments/:user/:repo/:issue"
                 :uri-params (list user repo issue)
@@ -233,9 +233,9 @@
 
 ; To open a new issue on a project, make a authorized POST to
 
-(defun open-issue (user/repo title body &key callback nomsg)
+(defun open-issue (owner/repo title body &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-type title string)
     (check-type body string)
     (form-value-bind (data)
@@ -271,9 +271,9 @@
 
 ; To close or reopen an issue, you just need to supply the issue number
 
-(defun close-issue (user/repo issue &key callback nomsg)
+(defun close-issue (owner/repo issue &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (setf issue (coerce-issue-number issue))
     (github-get "issues/close/:user/:repo/:issue"
                 :uri-params (list user repo issue)
@@ -281,9 +281,9 @@
                 :send-login-token t
                 :callback callback :nomsg nomsg)))
 
-(defun reopen-issue (user/repo issue &key callback nomsg)
+(defun reopen-issue (owner/repo issue &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (setf issue (coerce-issue-number issue))
     (github-get "issues/reopen/:user/:repo/:issue"
                 :uri-params (list user repo issue)
@@ -311,12 +311,12 @@
 
 ; To edit an existing issue, you can POST to
 
-(defun update-issue (user/repo issue &key
+(defun update-issue (owner/repo issue &key
                                (title nil title-supplied-p)
                                (body nil body-supplied-p)
                                callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-nullable-type title string)
     (check-nullable-type body string)
     (form-value-bind (data)
@@ -341,9 +341,9 @@
 
 ; You can list available labels for a projects issues with
 
-(defun list-issue-labels (user/repo &key callback nomsg)
+(defun list-issue-labels (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "issues/labels/:user/:repo"
                 :uri-params (list user repo)
                 :return-type '(:root "labels" :list t :object nil)
@@ -361,9 +361,9 @@
 
 ; To add a label, run
 
-(defun add-issue-label (user/repo issue label &key callback nomsg)
+(defun add-issue-label (owner/repo issue label &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (setf issue (coerce-issue-number issue))
     (check-type label string)
     (github-get "issues/label/add/:user/:repo/:label/:issue"
@@ -385,9 +385,9 @@
 
 ; To remove a label, run:
 
-(defun delete-issue-label (user/repo issue label &key callback nomsg)
+(defun delete-issue-label (owner/repo issue label &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (setf issue (coerce-issue-number issue))
     (check-type label string)
     (github-get "issues/label/remove/:user/:repo/:label/:issue"
@@ -406,9 +406,9 @@
 
 ; You can comment on issues at
 
-(defun add-issue-comment (user/repo issue comment &key callback nomsg)
+(defun add-issue-comment (owner/repo issue comment &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (setf issue (coerce-issue-number issue))
     (check-type comment string)
     (form-value-bind (data)

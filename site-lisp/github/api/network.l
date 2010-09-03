@@ -41,10 +41,10 @@
 
 ;;; ### Network Meta ###
 
-(defun get-network-meta (user/repo &key callback nomsg)
+(defun get-network-meta (owner/repo &key callback nomsg)
   (let ((*github-api-endpoint* *github-domain*))
     (multiple-value-bind (user repo)
-        (coerce-user-and-repo user/repo)
+        (coerce-owner-and-repo owner/repo)
       (github-get ":user/:repo/network_meta"
                   :uri-params (list user repo)
                   :return-type '(:root nil :object t :list nil :type network)
@@ -86,10 +86,10 @@
 
 ;;; ### Network Data ###
 
-(defun get-network-data (user/repo nethash &key start end callback nomsg)
+(defun get-network-data (owner/repo nethash &key start end callback nomsg)
   (let ((*github-api-endpoint* *github-domain*))
     (multiple-value-bind (user repo)
-        (coerce-user-and-repo user/repo)
+        (coerce-owner-and-repo owner/repo)
       (check-type nethash string)
       (github-get ":user/:repo/network_data_chunk"
                   :uri-params (list user repo)

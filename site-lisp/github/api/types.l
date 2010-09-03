@@ -64,13 +64,13 @@
 
 ;; 検索結果のリポジトリ
 (defstruct searched-repo
-  user name description
+  owner name description
   pushed-at created-at
   forks fork-p
   size language followers
   score type id)
 (setf (get 'searched-repo 'github-slot-mapping)
-      '(:username :user
+      '(:username :owner
         :pushed :pushed-at
         :created :created-at
         :fork :fork-p))
@@ -78,46 +78,45 @@
 
 ;; 普通のリポジトリ
 (defstruct repo
-  user name description
+  owner name description
   pushed-at created-at
   forks fork-p source parent
   homepage url
   watchers open-issues pledgie
   has-downloads has-issues has-wiki private-p)
 (setf (get 'repo 'github-slot-mapping)
-      '(:owner :user
-        :fork :fork-p
+      '(:fork :fork-p
         :private :private-p
         ))
 (export-struct 'repo)
 
 
 ;; ユーザ名とリポジトリ名への変換
-(defun coerce-user-and-repo (user/repo)
-  (check-type user/repo (or string list repo))
-  (multiple-value-bind (user repo)
-      (parse-user/repo user/repo)
-    (check-type user string)
+(defun coerce-owner-and-repo (owner/repo)
+  (check-type owner/repo (or string list repo))
+  (multiple-value-bind (owner repo)
+      (parse-owner/repo owner/repo)
+    (check-type owner string)
     (check-type repo string)
-    (values user repo)))
+    (values owner repo)))
 
 ;; リポジトリ名への変換
 (defun coerce-repo-name (repo)
   (check-type repo (or string list repo))
-  (multiple-value-bind (user repo)
-      (parse-user/repo repo)
-    ;; "user/repo" の場合 user="user", repo="repo" になるので repo を返す
-    ;; "repo" の場合は user="repo", repo=nil になるので user を返す
-    (or repo user)))
+  (multiple-value-bind (owner repo)
+      (parse-owner/repo repo)
+    ;; "owner/repo" の場合 owner="owner", repo="repo" になるので repo を返す
+    ;; "repo" の場合は owner="repo", repo=nil になるので owner を返す
+    (or repo owner)))
 
-(defun parse-user/repo (user/repo)
-  (cond ((repo-p user/repo)
-         (values (repo-user user/repo)
-                 (repo-name user/repo)))
-        ((stringp user/repo)
-         (values-list (split-string user/repo #\/ 2)))
-        ((listp user/repo)
-         (values-list user/repo))))
+(defun parse-owner/repo (owner/repo)
+  (cond ((repo-p owner/repo)
+         (values (repo-owner owner/repo)
+                 (repo-name owner/repo)))
+        ((stringp owner/repo)
+         (values-list (split-string owner/repo #\/ 2)))
+        ((listp owner/repo)
+         (values-list owner/repo))))
 
 (defun repo-public-clone-url (repo)
   (bind-plist "git://github.com/:owner/:name.git"

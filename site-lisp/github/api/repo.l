@@ -119,9 +119,9 @@
 
 ; To look at more in-depth information for a repository, GET this
 
-(defun show-repo (user/repo &key callback nomsg)
+(defun show-repo (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/show/:user/:repo"
                 :uri-params (list user repo)
                 :return-type '(:root "repository" :list nil :object t :type repo)
@@ -157,7 +157,7 @@
 ; If you are authenticated, you can update your repo's information by
 ; POSTing to it.
 
-(defun update-repo (user/repo &key
+(defun update-repo (owner/repo &key
                               (description nil description-supplied-p)
                               (homepage nil homepage-supplied-p)
                               (wiki nil wiki-supplied-p)
@@ -165,16 +165,16 @@
                               (download nil download-supplied-p)
                               callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (check-nullable-type description string)
     (check-nullable-type homepage string)
     (form-value-bind (data)
         (progn
-          (form2 "values[description]" description description-supplied-p user/repo :description)
-          (form2 "values[homepage]" homepage homepage-supplied-p user/repo :homepage)
-          (form2 "values[has_wiki]" (to-bool wiki) wiki-supplied-p user/repo :has-wiki)
-          (form2 "values[has_issues]" (to-bool issue) issue-supplied-p user/repo :has-issues)
-          (form2 "values[has_downloads]" (to-bool download) download-supplied-p user/repo :has-downloads))
+          (form2 "values[description]" description description-supplied-p owner/repo :description)
+          (form2 "values[homepage]" homepage homepage-supplied-p owner/repo :homepage)
+          (form2 "values[has_wiki]" (to-bool wiki) wiki-supplied-p owner/repo :has-wiki)
+          (form2 "values[has_issues]" (to-bool issue) issue-supplied-p owner/repo :has-issues)
+          (form2 "values[has_downloads]" (to-bool download) download-supplied-p owner/repo :has-downloads))
       (github-post "repos/show/:user/:repo"
                    :uri-params (list user repo)
                    :return-type '(:root "repository" :list nil :object t :type repo)
@@ -256,18 +256,18 @@
 
 ; You have to be authenticated for this, but you can watch and unwatch repositories with calls to
 
-(defun unwatch-repo (user/repo &key callback nomsg)
+(defun unwatch-repo (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/unwatch/:user/:repo"
                 :uri-params (list user repo)
                 :return-type '(:root "repository" :list nil :object t :type repo)
                 :send-login-token t
                 :callback callback :nomsg nomsg)))
 
-(defun watch-repo (user/repo &key callback nomsg)
+(defun watch-repo (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/watch/:user/:repo"
                 :uri-params (list user repo)
                 :return-type '(:root "repository" :list nil :object t :type repo)
@@ -278,9 +278,9 @@
 
 ; You can also fork a repository with
 
-(defun fork-repo (user/repo &key callback nomsg)
+(defun fork-repo (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/fork/:user/:repo"
                 :uri-params (list user repo)
                 :return-type '(:root "repository" :list nil :object t :type repo)
@@ -446,9 +446,9 @@
 
 ; To get a list of the collaborators on your project, GET
 
-(defun list-repo-collaborators (user/repo &key callback nomsg)
+(defun list-repo-collaborators (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/show/:user/:repo/collaborators"
                 :uri-params (list user repo)
                 :return-type '(:root "collaborators" :object nil :list t)
@@ -484,9 +484,9 @@
 
 ; To get a list of the contributors on your project, GET
 
-(defun list-repo-contributors (user/repo &key callback nomsg)
+(defun list-repo-contributors (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/show/:user/:repo/contributors"
                 :uri-params (list user repo)
                 :return-type '(:root "contributors" :object t :list t :type contributor)
@@ -531,9 +531,9 @@
 
 ; To get a list of the watchers on your project, GET
 
-(defun list-repo-watchers (user/repo &key callback nomsg)
+(defun list-repo-watchers (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/show/:user/:repo/watchers"
                 :uri-params (list user repo)
                 :return-type '(:root "watchers" :object nil :list t)
@@ -551,9 +551,9 @@
 
 ; We can also look at the full network with
 
-(defun list-repo-networks (user/repo &key callback nomsg)
+(defun list-repo-networks (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/show/:user/:repo/network"
                 :uri-params (list user repo)
                 :return-type '(:root "network" :object t :list t :type repo)
@@ -592,9 +592,9 @@
 ; To see a list of the languages used in a particular repository, you can call
 ; the language breakdown API.  Values are in bytes calculated.
 
-(defun get-repo-language (user/repo &key callback nomsg)
+(defun get-repo-language (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/show/:user/:repo/languages"
                 :uri-params (list user repo)
                 :return-type '(:root "languages" :object nil :list t)
@@ -615,9 +615,9 @@
 
 ; To get a list of tags on your repo
 
-(defun list-repo-tags (user/repo &key callback nomsg)
+(defun list-repo-tags (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/show/:user/:repo/tags"
                 :uri-params (list user repo)
                 :return-type '(:root "tags" :object nil :list t)
@@ -635,9 +635,9 @@
 
 ; To get a list of remote branches
 
-(defun list-repo-branches (user/repo &key callback nomsg)
+(defun list-repo-branches (owner/repo &key callback nomsg)
   (multiple-value-bind (user repo)
-      (coerce-user-and-repo user/repo)
+      (coerce-owner-and-repo owner/repo)
     (github-get "repos/show/:user/:repo/branches"
                 :uri-params (list user repo)
                 :return-type '(:root "branches" :object nil :list t)
