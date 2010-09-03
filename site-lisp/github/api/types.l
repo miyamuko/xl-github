@@ -38,6 +38,25 @@
           repo-public-clone-url-http
           repo-private-clone-url-https
 
+          repo-github-source-url
+          repo-github-source-branches-url
+          repo-github-commits-url
+          repo-github-comments-url
+          repo-github-contributors-url
+          repo-github-network-graphs-url
+          repo-github-network-members-url
+          repo-github-network-pull-requests-url
+          repo-github-forkqueue-url
+          repo-github-issues-url
+          repo-github-downloads-url
+          repo-github-wiki-url
+          repo-github-graphs-languages-url
+          repo-github-graphs-impact-url
+          repo-github-graphs-punchcard-url
+          repo-github-graphs-traffic-url
+
+          user-github-home-url
+
           gist-public-clone-url
           gist-private-clone-url
           gist-embed-js-url
@@ -118,21 +137,74 @@
         ((listp owner/repo)
          (values-list owner/repo))))
 
+(defun bind-repo (url-template repo)
+  (bind-plist url-template `(owner ,(repo-owner repo) name ,(repo-name repo))))
+
 (defun repo-public-clone-url (repo)
-  (bind-plist "git://github.com/:owner/:name.git"
-              `(owner ,(repo-owner repo) name ,(repo-name repo))))
+  (bind-repo "git://github.com/:owner/:name.git" repo))
 
 (defun repo-private-clone-url (repo)
-  (bind-plist "git@github.com::owner/:name.git"
-              `(owner ,(repo-owner repo) name ,(repo-name repo))))
+  (bind-repo "git@github.com::owner/:name.git" repo))
 
 (defun repo-public-clone-url-http (repo)
-  (bind-plist "http://github.com/:owner/:name.git"
-              `(owner ,(repo-owner repo) name ,(repo-name repo))))
+  (bind-repo "http://github.com/:owner/:name.git" repo))
 
 (defun repo-private-clone-url-https (repo)
-  (bind-plist "https://:owner@github.com/:owner/:name.git"
-              `(owner ,(repo-owner repo) name ,(repo-name repo))))
+  (bind-repo "https://:owner@github.com/:owner/:name.git" repo))
+
+
+(defun repo-github-source-url (repo &optional branch-or-tag)
+  (bind-repo (format nil "http://github.com/:owner/:name~@[/tree/~A~]"
+                     (if (string= branch-or-tag "master") nil branch-or-tag))
+             repo))
+
+(defun repo-github-source-branches-url (repo)
+  (bind-repo "http://github.com/:owner/:name/branches" repo))
+
+(defun repo-github-commits-url (repo &optional branch-or-tag)
+  (bind-repo (format nil "http://github.com/:owner/:name/commits/~A"
+                     (or branch-or-tag "master"))
+             repo))
+
+(defun repo-github-comments-url (repo)
+  (bind-repo "http://github.com/:owner/:name/comments" repo))
+
+(defun repo-github-contributors-url (repo)
+  (bind-repo "http://github.com/:owner/:name/contributors" repo))
+
+(defun repo-github-network-graphs-url (repo)
+  (bind-repo "http://github.com/:owner/:name/network" repo))
+
+(defun repo-github-network-members-url (repo)
+  (bind-repo "http://github.com/:owner/:name/network/members" repo))
+
+(defun repo-github-network-pull-requests-url (repo)
+  (bind-repo "http://github.com/:owner/:name/pulls" repo))
+
+(defun repo-github-forkqueue-url (repo &key ignored)
+  (bind-repo (format nil "http://github.com/:owner/:name/forkqueue~:[~;/ignored~]" ignored)
+             repo))
+
+(defun repo-github-issues-url (repo)
+  (bind-repo "http://github.com/:owner/:name/issues" repo))
+
+(defun repo-github-downloads-url (repo)
+  (bind-repo "http://github.com/:owner/:name/downloads" repo))
+
+(defun repo-github-wiki-url (repo)
+  (bind-repo "http://wiki.github.com/:owner/:name/" repo))
+
+(defun repo-github-graphs-languages-url (repo)
+  (bind-repo "http://github.com/:owner/:name/graphs/languages" repo))
+
+(defun repo-github-graphs-impact-url (repo)
+  (bind-repo "http://github.com/:owner/:name/graphs/impact" repo))
+
+(defun repo-github-graphs-punchcard-url (repo)
+  (bind-repo "http://github.com/:owner/:name/graphs/punch_card" repo))
+
+(defun repo-github-graphs-traffic-url (repo)
+  (bind-repo "http://github.com/:owner/:name/graphs/traffic" repo))
 
 
 ;;; ## Users API ##
@@ -190,6 +262,9 @@
   (if (user-p user)
       (user-login user)
     user))
+
+(defun user-github-home-url (user)
+  (bind-plist "http://github.com/:user" `(user ,(user-login user))))
 
 
 ;;; ## Object API ##

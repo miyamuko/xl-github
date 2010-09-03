@@ -1,5 +1,7 @@
 2010-09-03  MIYAMUKO Katsuyuki
 
+	* api/types.l: GitHub の URL を返す API を追加
+
 	* user/repo => owner/repo
 
 	* 引数の型チェックを追加
