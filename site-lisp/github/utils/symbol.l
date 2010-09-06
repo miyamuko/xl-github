@@ -1,6 +1,6 @@
 ; -*- mode: lisp; package: github -*-
 
-;;; github/git-config.l
+;;; github/utils/symbol.l
 ;;
 ;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
 ;;
@@ -27,34 +27,16 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (mc-require "github/package")
-  (mc-require "github/utils/symbol")
-  (mc-require "github/utils/process")
   )
 
 (in-package :github)
 
-(defun get-credential ()
-  (let ((config-list (git-config-list)))
-    (values
-     (git-config :github.user config-list)
-     (git-config :github.token config-list))))
-
-(defun git-config-list ()
-  (mapcan #'(lambda (config)
-              (let ((kv (split-string config #\= 2)))
-                (cons (keyword (car kv))
-                      (cdr kv))))
-          (process-output->string-list "git config --global --list")))
-
-(defun git-config (key config-list)
-  (when (stringp key)
-    (setf key (keyword key)))
-  (getf config-list key))
-
-(defun git-version ()
-  (car (process-output->string-list "git --version")))
+(defun keyword (string-designator)
+  (if (keywordp string-designator)
+      string-designator
+  (identity (intern (string string-designator) :keyword))))
 
 
-(provide "github/git-config")
+(provide "github/utils/symbol")
 
 ;;; End

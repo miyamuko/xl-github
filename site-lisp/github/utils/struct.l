@@ -30,6 +30,7 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (mc-require "github/package")
+  (mc-require "github/utils/symbol")
   )
 
 (in-package :github)
@@ -82,7 +83,7 @@
             (struct-slot-names def))))
 
 (defun struct-slot-accessor (struct-name slot-name)
-  (identity (intern (format nil "~{~A~}" (list struct-name "-" slot-name)))))
+  (keyword (format nil "~{~A~}" (list struct-name "-" slot-name))))
 
 (defun struct-slot-description (struct-definition index)
   (si:*structure-definition-slot-description struct-definition index))
@@ -125,11 +126,6 @@
      (cons :name (struct-name struct))
      (cons :constructors (struct-constructors struct))
      (cons :accessors (struct-slot-accessors def)))))
-
-(defun keyword (string-designator)
-  (if (keywordp string-designator)
-      string-designator
-    (intern (string string-designator) :keyword)))
 
 
 (provide "github/utils/struct")

@@ -29,6 +29,7 @@
   (mc-require "github/package")
   (mc-require "github/http")
   (mc-require "github/git-config")
+  (mc-require "github/utils/symbol")
   (mc-require "github/utils/struct")
   (mc-require "github/utils/function")
   (mc-require "github/utils/srfi-26")
@@ -167,7 +168,7 @@
 
 (defun alist->plist (alist)
   (loop for (k . v) in alist
-    nconc (list (intern k :keyword) v)))
+    nconc (list (keyword k) v)))
 
 (defun json->struct (name json)
   (let ((struct (make-struct name))

@@ -28,6 +28,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (mc-require "github/package")
   (mc-require "github/about")
+  (mc-require "github/utils/symbol")
   )
 
 (in-package :github)
@@ -71,7 +72,7 @@
   (let ((r nil)
         (start 0))
     (while (string-match *uri-param-pattern* uri-template start)
-      (push (intern (match-string 1)) r)
+      (push (keyword (match-string 1)) r)
       (setf start (match-end 0)))
     (remove-duplicates (nreverse r))))
 
