@@ -38,6 +38,10 @@
 
 (in-package :github)
 
+(export '(get-credential-login
+          refresh-credential
+          ))
+
 (defvar *github-domain* "github.com")
 (defvar *github-api-endpoint* "github.com/api/v2/json")
 
@@ -53,6 +57,12 @@
 (defun get-credential-login ()
   (init-credential)
   *github-login*)
+
+(defun refresh-credential ()
+  (setf *github-login* nil
+        *github-token* nil)
+  (not (null (init-credential))))
+
 
 (defun get-credential-alist ()
   (init-credential)

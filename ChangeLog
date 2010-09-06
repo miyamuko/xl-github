@@ -1,3 +1,11 @@
+2010-09-06  MIYAMUKO Katsuyuki
+
+	* api/base.l (refresh-credential): git config を変更した場合に
+	キャッシュをクリアするための関数を追加
+
+	* api/base.l (get-credential-login): git config の github.user を
+	取得する関数を export
+
 2010-09-03  MIYAMUKO Katsuyuki
 
 	* utils/pubkey.l, api/base.l, api/user.l, api/repo.l: ファイルから公開鍵を登録できるようにした
