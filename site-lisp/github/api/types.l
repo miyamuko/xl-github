@@ -115,6 +115,10 @@
   (check-type owner/repo (or string list repo))
   (multiple-value-bind (owner repo)
       (parse-owner/repo owner/repo)
+    (unless owner
+      (error (format nil "ownerが指定されていません: ~S" owner/repo)))
+    (unless repo
+      (error (format nil "repoが指定されていません: ~S" owner/repo)))
     (check-type owner string)
     (check-type repo string)
     (values owner repo)))
