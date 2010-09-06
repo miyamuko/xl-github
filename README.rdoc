@@ -1,40 +1,32 @@
-== github - blur blur blur...
+== xl-github - A xyzzy Lisp interface to GitHub API v2
 
-* Home URL: http://miyamuko.s56.xrea.com/xyzzy/github/intro.htm
+* Home URL: http://miyamuko.s56.xrea.com/xyzzy/xl-github/intro.htm
 * Version: 0.0.1
 
 
 === SYNOPSIS
 
   (require "github")
-  (github)
 
-  blur blur blur ...
+  (gh:list-repos "defunkt")
+  (gh:show-repo "defunkt/gist.el")
+
+  (let ((repo (gh:create-repo "my-test-project" :description "My 1st test project.")))
+    (gh:update-repo repo :wiki nil :download nil :issue nil))
 
 
 === DESCRIPTION
 
-github は xyzzy から...
+xl-github は {GitHub API v2}[http://develop.github.com/] の xyzzy Lisp バインディングです。
+GitHub API v2 のすべての API と Gist の作成・削除・一覧の取得 API を実装しています。
 
 
 === INSTALL
 
 1. {NetInstaller}[http://www7a.biglobe.ne.jp/~hat/xyzzy/ni.html]
-   で github, foo, bar をインストールします。
+   で xl-github をインストールします。
 
-2. ni-autoload を利用していない場合は、
-   ~/.xyzzy または site-lisp/siteinit.l に以下のコードを追加します。
-
-     (require "github")
-
-   ※ ni-autoload を利用している場合は設定は不要です。
-
-3. 設定を反映させるため xyzzy を再起動してください。
-
-   ※siteinit.l に記述した場合には再ダンプが必要です。
-
-4. 表示 → ツールバー → ブブゼラでツールバーを表示して
-   ボタンを押せばブブゼラがなります。
+2. これはライブラリなのでエンドユーザが何か設定する必要とかはありません。
 
 
 === TODO
@@ -46,6 +38,11 @@ github は xyzzy から...
 
 なし。
 
+要望やバグは
+{GitHub Issues}[http://github.com/miyamuko/xl-github/issues] か
+{@miyamuko}[http://twitter.com/home?status=%40miyamuko%20%23xyzzy%20xl-github%3a%20]
+まで。
+
 
 === AUTHOR
 
@@ -54,7 +51,7 @@ github は xyzzy から...
 
 === COPYRIGHT
 
-github は MIT/X ライセンスに従って本ソフトウェアを使用、再配布することができます。
+xl-github は MIT/X ライセンスに従って本ソフトウェアを使用、再配布することができます。
 
   Copyright (c) 2010 MIYAMUKO Katsuyuki.
 
