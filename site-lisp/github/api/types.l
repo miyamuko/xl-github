@@ -142,7 +142,7 @@
          (values-list owner/repo))))
 
 (defun bind-repo (url-template repo)
-  (bind-plist url-template `(owner ,(repo-owner repo) name ,(repo-name repo))))
+  (bind-plist url-template (list :owner (repo-owner repo) :name (repo-name repo))))
 
 (defun repo-public-clone-url (repo)
   (bind-repo "git://github.com/:owner/:name.git" repo))
