@@ -173,9 +173,9 @@
         (progn
           (form2 "values[description]" description description-supplied-p owner/repo :description)
           (form2 "values[homepage]" homepage homepage-supplied-p owner/repo :homepage)
-          (form2 "values[has_wiki]" (to-bool wiki) wiki-supplied-p owner/repo :has-wiki)
-          (form2 "values[has_issues]" (to-bool issue) issue-supplied-p owner/repo :has-issues)
-          (form2 "values[has_downloads]" (to-bool download) download-supplied-p owner/repo :has-downloads))
+          (form2 "values[has_wiki]" wiki wiki-supplied-p owner/repo :has-wiki to-bool)
+          (form2 "values[has_issues]" issue issue-supplied-p owner/repo :has-issues to-bool)
+          (form2 "values[has_downloads]" download download-supplied-p owner/repo :has-downloads to-bool))
       (github-post "repos/show/:user/:repo"
                    :uri-params (list user repo)
                    :return-type '(:root "repository" :list nil :object t :type repo)
