@@ -40,6 +40,7 @@
 
 (export '(get-credential-login
           refresh-credential
+          with-credential
           ))
 
 (defvar *github-domain* "github.com")
@@ -53,6 +54,15 @@
 
 (defvar *github-token* nil)
 
+(defmacro with-credential ((login token) &body body)
+  `(call-with-credential ,login ,token #'(lambda () ,@body)))
+#+xyzzy
+(setf (get 'with-credential 'ed:lisp-indent-hook) 'with-open-file)
+
+(defun call-with-credential (login token fn)
+  (let ((*github-login* login)
+        (*github-token* token))
+    (funcall fn)))
 
 (defun get-credential-login ()
   (init-credential)

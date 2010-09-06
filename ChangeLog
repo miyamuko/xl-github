@@ -1,5 +1,8 @@
 2010-09-06  MIYAMUKO Katsuyuki
 
+	* api/base.l (with-credential): 一時的に github の user と token
+	を切り替えるためのマクロ
+
 	* api/base.l (refresh-credential): git config を変更した場合に
 	キャッシュをクリアするための関数を追加
 
