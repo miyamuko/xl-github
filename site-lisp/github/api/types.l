@@ -68,7 +68,9 @@
 
 ;; 秘密鍵の情報
 (defstruct public-key
-  id key title)
+  id title body)
+(setf (get 'public-key 'github-slot-mapping)
+      '(:key :body))
 (export-struct 'public-key)
 
 ;; Public Key ID への変換

@@ -1,5 +1,8 @@
 2010-09-21  MIYAMUKO Katsuyuki
 
+	* api/types.l (public-key): public-key 構造体の key スロットの名前を body に変更。
+	public-key-key => public-key-body
+
 	* util/struct.l (struct-slot-accessor): export-struct でエラーになっていたのを修正
 	スロット名をキーワードじゃなくて構造体名のシンボルが
 	所属するパッケージに intern するようにした。
