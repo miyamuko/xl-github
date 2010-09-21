@@ -83,7 +83,8 @@
             (struct-slot-names def))))
 
 (defun struct-slot-accessor (struct-name slot-name)
-  (keyword (format nil "~{~A~}" (list struct-name "-" slot-name))))
+  (intern (format nil "~{~A~}" (list struct-name "-" slot-name))
+          (symbol-package struct-name)))
 
 (defun struct-slot-description (struct-definition index)
   (si:*structure-definition-slot-description struct-definition index))

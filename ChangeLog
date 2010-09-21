@@ -1,3 +1,9 @@
+2010-09-21  MIYAMUKO Katsuyuki
+
+	* util/struct.l (struct-slot-accessor): export-struct でエラーになっていたのを修正
+	スロット名をキーワードじゃなくて構造体名のシンボルが
+	所属するパッケージに intern するようにした。
+
 2010-09-06  MIYAMUKO Katsuyuki
 
 	* api/base.l (with-credential): 一時的に github の user と token
