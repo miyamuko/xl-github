@@ -1,5 +1,11 @@
 2010-09-22  MIYAMUKO Katsuyuki
 
+	* api/gist-filetype.l, api/types.l: guess-gist-filetype を追加。
+	指定したバッファの言語を推測する。
+
+	* api/gist-filetype.l (gist-filetype-names, gist-filetype-exts):
+	Gist の言語名の一覧と拡張子の一覧を取得する
+
 	* api/types.l (gist-home-url): Gist のホームページの URL を返す関数
 	を追加。
 

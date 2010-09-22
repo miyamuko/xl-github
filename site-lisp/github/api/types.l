@@ -436,9 +436,13 @@
 (defun get-gist-ext (file)
   (add-leading-dot
    (or (cond ((gist-file-name file)
-              (get-gist-filetype-by-name (gist-file-name file)))
-             ((gist-file-lang file)
-              (get-gist-filetype-by-lang (gist-file-lang file))))
+              (or (safe-car (get-gist-filetype-by-name (gist-file-name file)))
+                  (progn
+                    (warn "ファイルタイプが不明なため ~A として扱います (Gist name: ~A, lang: ~A)"
+                          *gist-default-filetype* (gist-file-name file) (gist-file-lang file))
+                    *gist-default-filetype*)))
+              ((gist-file-lang file)
+               (safe-car (get-gist-filetype-by-lang (gist-file-lang file)))))
        *gist-default-filetype*)))
 
 
