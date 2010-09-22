@@ -1,5 +1,10 @@
 2010-09-22  MIYAMUKO Katsuyuki
 
+	* api/types.l: url を返す関数には構造体以外にも id などを
+	指定できるようにした。
+	(repo-github-issues-url "miyamuko/xl-github")
+	;=> "http://github.com/miyamuko/xl-github/issues"
+
 	* api/types.l: gist-public-clone-url などが動いていなかったのを修正。
 
 2010-09-21  MIYAMUKO Katsuyuki
