@@ -144,7 +144,8 @@
          (values-list owner/repo))))
 
 (defun bind-repo (url-template repo)
-  (bind-plist url-template (list :owner (repo-owner repo) :name (repo-name repo))))
+  (bind-plist url-template `(:owner ,(repo-owner repo)
+                             :name ,(repo-name repo))))
 
 (defun repo-public-clone-url (repo)
   (bind-repo "git://github.com/:owner/:name.git" repo))
@@ -270,7 +271,7 @@
     user))
 
 (defun user-github-home-url (user)
-  (bind-plist "http://github.com/:user" `(user ,(user-login user))))
+  (bind-plist "http://github.com/:user" `(:user ,(user-login user))))
 
 
 ;;; ## Object API ##
@@ -376,15 +377,15 @@
 
 (defun gist-public-clone-url (gist)
   (bind-plist "git://gist.github.com/:id.git"
-              `(id ,(gist-id gist))))
+              `(:id ,(gist-id gist))))
 
 (defun gist-private-clone-url (gist)
   (bind-plist "git@gist.github.com::id.git"
-              `(id ,(gist-id gist))))
+              `(:id ,(gist-id gist))))
 
 (defun gist-embed-js-url (gist)
   (bind-plist "http://gist.github.com/:id.js"
-              `(id ,(gist-id gist))))
+              `(:id ,(gist-id gist))))
 
 ;; Gist ID への変換
 (defun coerce-gist-id (id)

@@ -1,3 +1,7 @@
+2010-09-22  MIYAMUKO Katsuyuki
+
+	* api/types.l: gist-public-clone-url などが動いていなかったのを修正。
+
 2010-09-21  MIYAMUKO Katsuyuki
 
 	* api/types.l (public-key): public-key 構造体の key スロットの名前を body に変更。
