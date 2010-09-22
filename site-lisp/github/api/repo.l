@@ -218,7 +218,7 @@
 ; You can list out all the repositories for a user with
 
 (defun list-repos (user &key callback nomsg)
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-get "repos/show/:user"
               :uri-params (list user)
               :return-type '(:root "repositories" :list t :object t :type repo)
@@ -463,7 +463,7 @@
 
 (defun add-repo-collaborator (repo user &key callback nomsg)
   (setf repo (coerce-repo-name repo))
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-post "repos/collaborators/:repo/add/:user"
                :uri-params (list repo user)
                :return-type '(:root "collaborators" :object nil :list t)
@@ -471,7 +471,7 @@
 
 (defun delete-repo-collaborator (repo user &key callback nomsg)
   (setf repo (coerce-repo-name repo))
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-post "repos/collaborators/:repo/remove/:user"
                :uri-params (list repo user)
                :return-type '(:root "collaborators" :object nil :list t)

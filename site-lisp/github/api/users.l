@@ -86,7 +86,7 @@
 ; You can then get extended information on users by their username.  The url format is:
 
 (defun show-user (user &key callback nomsg)
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-get (if user "user/show/:user" "user/show")
               :uri-params (if user (list user) nil)
               :return-type `(:root "user" :list nil :object t
@@ -162,7 +162,7 @@
         (form2 "values[blog]" blog blog-supplied-p user :blog)
         (form2 "values[company]" company company-supplied-p user :company)
         (form2 "values[location]" location location-supplied-p user :location))
-    (setf user (coerce-user-name user))
+    (setf user (coerce-user-login user))
     (github-post "user/show/:user"
                  :uri-params (list user)
                  :return-type '(:root "user" :list nil :object t :type auth-user)
@@ -202,7 +202,7 @@
 ; If you want to look at the following network on GitHub, you can request the users that a specific user is following with:
 
 (defun list-user-followings (user &key callback nomsg)
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-get "user/show/:user/following"
               :uri-params (list user)
               :return-type '(:root "users" :list nil :object nil)
@@ -212,7 +212,7 @@
 
 
 (defun list-user-followers (user &key callback nomsg)
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-get "user/show/:user/followers"
               :uri-params (list user)
               :return-type '(:root "users" :list nil :object nil)
@@ -225,14 +225,14 @@
 ; If you are authenticated as a user, you can also follow or unfollow users with:
 
 (defun follow-user (user &key callback nomsg)
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-post "user/follow/:user"
                :uri-params (list user)
                :return-type '(:root "users" :list nil :object nil)
                :callback callback :nomsg nomsg))
 
 (defun unfollow-user (user &key callback nomsg)
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-post "user/unfollow/:user"
                :uri-params (list user)
                :return-type '(:root "users" :list nil :object nil)
@@ -244,7 +244,7 @@
 ; To see which repositories a user is watching, you can call:
 
 (defun list-watched-repos (user &key callback nomsg)
-  (setf user (coerce-user-name user))
+  (setf user (coerce-user-login user))
   (github-get "repos/watched/:user"
               :uri-params (list user)
               :return-type '(:root "repositories" :list t :object t :type repo)

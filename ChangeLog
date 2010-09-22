@@ -1,5 +1,7 @@
 2010-09-22  MIYAMUKO Katsuyuki
 
+	* 関数名を変更。coerce-user-name => coerce-user-login
+
 	* api/types.l: url を返す関数には構造体以外にも id などを
 	指定できるようにした。
 	(repo-github-issues-url "miyamuko/xl-github")

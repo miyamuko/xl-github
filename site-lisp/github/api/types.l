@@ -266,14 +266,14 @@
 (export-struct 'auth-user)
 
 ;; ユーザ名への変換
-(defun coerce-user-name (user)
+(defun coerce-user-login (user)
   (check-type user (or string user))
   (if (user-p user)
       (user-login user)
     user))
 
 (defun user-github-home-url (user)
-  (bind-plist "http://github.com/:user" `(:user ,(coerce-user-name user))))
+  (bind-plist "http://github.com/:user" `(:user ,(coerce-user-login user))))
 
 
 ;;; ## Object API ##
