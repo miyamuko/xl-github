@@ -1,5 +1,8 @@
 2010-09-22  MIYAMUKO Katsuyuki
 
+	* api/types.l (gist-home-url): Gist のホームページの URL を返す関数
+	を追加。
+
 	* 関数名を変更。coerce-user-name => coerce-user-login
 
 	* api/types.l: url を返す関数には構造体以外にも id などを

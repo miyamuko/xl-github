@@ -57,6 +57,7 @@
 
           user-github-home-url
 
+          gist-home-url
           gist-public-clone-url
           gist-private-clone-url
           gist-embed-js-url
@@ -376,6 +377,10 @@
 (setf (get 'gist 'github-slot-mapping)
       '(:repo :id
         :public :public-p))
+
+(defun gist-home-url (gist &optional revision)
+  (bind-plist (format nil "http://gist.github.com/:id~@[/~A~]" revision)
+              `(:id ,(coerce-gist-id gist))))
 
 (defun gist-public-clone-url (gist)
   (bind-plist "git://gist.github.com/:id.git"
