@@ -1,4 +1,4 @@
-; -*- mode: lisp; package: github -*-
+; -*- mode: lisp; package: github; encoding: utf-8 -*-
 
 ;;; github/utils/srfi-26.l
 ;;

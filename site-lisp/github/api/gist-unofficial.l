@@ -1,4 +1,4 @@
-; -*- mode: lisp; package: github -*-
+; -*- mode: lisp; package: github; encoding: utf-8 -*-
 
 ;;; github/api/gist-unofficial.l
 ;;
@@ -286,7 +286,7 @@
                    (when next
                      (parse-integer next)))
                   (t
-                   ;; All Gists の場合次のページ番号が取れないので
+                   ;; All Gists の場合、次のページ番号が取れないので
                    ;; 最後の Gist (id=1) が出るまでは次のページはあるはず
                    (when (and gists
                               (string/= (gist-id (car (last gists))) "1"))
