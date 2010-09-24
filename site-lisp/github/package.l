@@ -46,7 +46,7 @@
       )))
 
 (when (string< (xhr:xml-http-request-version) "1.3.0")
-  (msgbox "xml-http-request 1.3.0 ȏオKvł"))
+  (msgbox "xml-http-request 1.3.0 が必要です。"))
 
 
 (provide "github/package")
