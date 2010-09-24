@@ -1,4 +1,4 @@
-; -*- mode: lisp; package: user; encoding: utf-8 -*-
+ï»¿; -*- mode: lisp; package: user; encoding: utf-8 -*-
 
 ;;; github/package.l
 ;;
@@ -46,7 +46,7 @@
       )))
 
 (when (string< (xhr:xml-http-request-version) "1.3.0")
-  (msgbox "xml-http-request 1.3.0 ˆÈã‚ª•K—v‚Å‚·"))
+  (msgbox "xml-http-request 1.3.0 Èã‚ªKvÅ‚"))
 
 
 (provide "github/package")

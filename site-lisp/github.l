@@ -1,4 +1,4 @@
-; -*- mode: lisp; package: user; encoding: utf-8 -*-
+﻿; -*- mode: lisp; package: user; encoding: utf-8 -*-
 
 ;;; github.l
 ;;
