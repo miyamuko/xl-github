@@ -57,16 +57,21 @@
 
 (defun list-all-gists (&key page callback nomsg)
   (check-nullable-type page integer)
-  (list-gists "gists" :page page :all nil :callback callback :nomsg nomsg))
+  (list-gists "gists"
+              :has-page-link nil :page page :all nil
+              :callback callback :nomsg nomsg))
 
 (defun list-starred-gists (&key page all callback nomsg)
   ;; owner は取得できない
   (check-nullable-type page integer)
-  (list-gists "starred" :page page :all all :callback callback :nomsg nomsg))
+  (list-gists "starred"
+              :has-page-link t :page page :all all
+              :callback callback :nomsg nomsg))
 
 (defun list-my-gists (&key page all callback nomsg)
   (check-nullable-type page integer)
   (list-gists "mine"
+              :has-page-link t
               :page page :all all
               :key #'(lambda (gists next)
                        (dolist (gist gists)
@@ -75,11 +80,12 @@
               :callback callback
               :nomsg nomsg))
 
-(defun list-gists (path &key page all key callback nomsg)
+(defun list-gists (path &key has-page-link page all key callback nomsg)
   (check-nullable-type page integer)
   (labels ((list-gist1 (page acc)
              (get-gist-list-page path :page page
-                                 :key #'scan-gist-list
+                                 :key #'(lambda (html)
+                                          (scan-gist-list html page has-page-link))
                                  :callback #'(lambda (r next)
                                                (let ((acc (append acc r)))
                                                  (if (and all next)
@@ -262,20 +268,29 @@
 (defparameter *gist-list-owner-regexp* "by <a href=\"/\\(.+?\\)\">")
 (defparameter *gist-list-created-at-regexp* "<abbr class=\"relatize\" title=\"\\(.+?\\)\">")
 (defparameter *gist-list-next-page-regexp* "<a href=\"/[a-z]+\\?.*?page=\\([0-9]+\\).*?\" hotkey=\"l\">")
-(defun scan-gist-list (html)
-  (values (mapcar #'(lambda (file)
-                      (let* ((spans (scan-between file *gist-list-span-regexp-pair*))
-                             (id (scan1 (car spans) *gist-id-link-regexp* 1))
-                             (desc (scan1 (cadr spans) *gist-list-desc-regexp* 1))
-                             (visibility (scan1 file *gist-list-visibility-regexp* 1))
-                             (owner (scan1 file *gist-list-owner-regexp* 1))
-                             (created-at (scan1 file *gist-list-created-at-regexp* 1)))
-                        (make-gist :id id :description desc :owner owner :created-at created-at
-                                   :public-p (string= visibility "public"))))
-                  (scan-between html *gist-list-file-regexp-pair* :include-end nil))
-          (let ((next (scan1 html *gist-list-next-page-regexp* 1)))
-            (when next
-              (parse-integer next)))))
+(defun scan-gist-list (html page has-page-link)
+  (let ((gists (mapcar #'(lambda (file)
+                           (let* ((spans (scan-between file *gist-list-span-regexp-pair*))
+                                  (id (scan1 (car spans) *gist-id-link-regexp* 1))
+                                  (desc (scan1 (cadr spans) *gist-list-desc-regexp* 1))
+                                  (visibility (scan1 file *gist-list-visibility-regexp* 1))
+                                  (owner (scan1 file *gist-list-owner-regexp* 1))
+                                  (created-at (scan1 file *gist-list-created-at-regexp* 1)))
+                             (make-gist :id id :description desc :owner owner :created-at created-at
+                                        :public-p (string= visibility "public"))))
+                       (scan-between html *gist-list-file-regexp-pair* :include-end nil)))
+        (next (scan1 html *gist-list-next-page-regexp* 1)))
+    (values gists
+            (cond (has-page-link
+                   ;; My Gists または Starred Gists の場合
+                   (when next
+                     (parse-integer next)))
+                  (t
+                   ;; All Gists の場合次のページ番号が取れないので
+                   ;; 最後の Gist (id=1) が出るまでは次のページはあるはず
+                   (when (and gists
+                              (string/= (gist-id (car (last gists))) "1"))
+                     (incf page)))))))
 
 (defparameter *gist-title-regexp* "<title>gist: +\\([a-f0-9]+\\).*?</title>")
 (defun scan-id (html)

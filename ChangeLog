@@ -1,3 +1,8 @@
+2010-09-24  MIYAMUKO Katsuyuki
+
+	* api/gist-unofficial.l (list-all-gists, scan-gist-list): All Gists の
+	場合でも、次のページ番号を返すようにした。
+
 2010-09-22  MIYAMUKO Katsuyuki
 
 	* api/gist-filetype.l, api/types.l: guess-gist-filetype を追加。
