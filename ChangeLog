@@ -1,5 +1,10 @@
 2010-10-08  MIYAMUKO Katsuyuki
 
+	* api/types.l (gist-private-p): gist-public-p の反対の関数を追加
+
+	* api/types.l (gist-public-p): gist 構造体だけではなく ID (文字列または数値)
+	も引数に受け付けるようにした
+
 	* api/types.l (gist-public-clone-url, gist-embed-js-url): Private な Gist の場合に
 	nil を返すようにした
 

@@ -57,6 +57,7 @@
 
           user-github-home-url
 
+          gist-private-p
           gist-home-url
           gist-edit-url
           gist-download-url
@@ -380,6 +381,22 @@
       '(:repo :id
         :public :public-p))
 
+;; 構造体のスロットを上書きして Gist ID も引数として受け付けるようにする
+;; Private な Gist の ID は 20 byte の 16 進数になるので
+;; ID にアルファベットが含まれるかどうかで判断する。
+;; 偶然、数字のみで構成された Private ID があったら、あきらめて Public を返す
+(defun gist-public-p (gist)
+  (check-type gist (or integer string gist))
+  (cond ((gist-p gist)
+         (struct-slot-value gist :public-p))
+        ((integerp gist)
+         t)
+        (t
+         (not (null (string-matchp "^[0-9]+$" gist))))))
+
+(defun gist-private-p (gist)
+  (not (gist-public-p gist)))
+
 (defun gist-home-url (gist &optional revision)
   (gist-build-url gist nil revision))
 
@@ -391,14 +408,12 @@
 
 (defun gist-build-url (gist path1 path2)
   (bind-plist (format nil "~:[https~;http~]://gist.github.com~@[/~A~]/:id~@[/~A~]"
-                      (or (not (gist-p gist))
-                          (gist-public-p gist))
+                      (gist-public-p gist)
                       path1 path2)
               `(:id ,(coerce-gist-id gist))))
 
 (defun gist-public-clone-url (gist)
-  (when (or (not (gist-p gist))
-            (gist-public-p gist))
+  (when (gist-public-p gist)
     (bind-plist "git://gist.github.com/:id.git"
                 `(:id ,(coerce-gist-id gist)))))
 
@@ -407,8 +422,7 @@
               `(:id ,(coerce-gist-id gist))))
 
 (defun gist-embed-js-url (gist)
-  (when (or (not (gist-p gist))
-            (gist-public-p gist))
+  (when (gist-public-p gist)
     (bind-plist "http://gist.github.com/:id.js"
                 `(:id ,(coerce-gist-id gist)))))
 
