@@ -58,6 +58,10 @@
   (si:*structure-definition-name
    (struct-definition struct)))
 
+(defun struct-predicate (struct)
+  ;; defstruct に指定した predicate は取得できないので決めうち
+  (intern (format nil "~A-p" (struct-name struct))))
+
 (defun struct-constructor (struct)
   (car (struct-constructors struct)))
 
@@ -109,7 +113,7 @@
 
 
 (defun export-struct (struct)
-  (export-struct0 struct '(:accessors :constructors)))
+  (export-struct0 struct '(:name :predicate :accessors :constructors)))
 
 (defun export-condition (condition)
   (export-struct0 condition '(:name :accessors)))
@@ -125,6 +129,7 @@
   (let ((def (struct-definition struct)))
     (list
      (cons :name (struct-name struct))
+     (cons :predicate (struct-predicate struct))
      (cons :constructors (struct-constructors struct))
      (cons :accessors (struct-slot-accessors def)))))
 
