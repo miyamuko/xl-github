@@ -1,3 +1,14 @@
+2010-10-08  MIYAMUKO Katsuyuki
+
+	* api/types.l (gist-public-clone-url, gist-embed-js-url): Private な Gist の場合に
+	nil を返すようにした
+
+	* api/types.l (gist-home-url): Private な Gist の場合に https の
+	URL を返すようにした
+
+	* api/types.l (gist-edit-url, gist-download-url): Web の編集ページ
+	とダウンロードリンクの URL を返す関数を追加
+
 2010-09-24  MIYAMUKO Katsuyuki
 
 	* api/gist-unofficial.l (list-all-gists, scan-gist-list): All Gists の

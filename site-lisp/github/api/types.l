@@ -58,6 +58,8 @@
           user-github-home-url
 
           gist-home-url
+          gist-edit-url
+          gist-download-url
           gist-public-clone-url
           gist-private-clone-url
           gist-embed-js-url
@@ -379,20 +381,36 @@
         :public :public-p))
 
 (defun gist-home-url (gist &optional revision)
-  (bind-plist (format nil "http://gist.github.com/:id~@[/~A~]" revision)
+  (gist-build-url gist nil revision))
+
+(defun gist-edit-url (gist)
+  (gist-build-url gist "gists" "edit"))
+
+(defun gist-download-url (gist)
+  (gist-build-url gist "gists" "download"))
+
+(defun gist-build-url (gist path1 path2)
+  (bind-plist (format nil "~:[https~;http~]://gist.github.com~@[/~A~]/:id~@[/~A~]"
+                      (or (not (gist-p gist))
+                          (gist-public-p gist))
+                      path1 path2)
               `(:id ,(coerce-gist-id gist))))
 
 (defun gist-public-clone-url (gist)
-  (bind-plist "git://gist.github.com/:id.git"
-              `(:id ,(coerce-gist-id gist))))
+  (when (or (not (gist-p gist))
+            (gist-public-p gist))
+    (bind-plist "git://gist.github.com/:id.git"
+                `(:id ,(coerce-gist-id gist)))))
 
 (defun gist-private-clone-url (gist)
   (bind-plist "git@gist.github.com::id.git"
               `(:id ,(coerce-gist-id gist))))
 
 (defun gist-embed-js-url (gist)
-  (bind-plist "http://gist.github.com/:id.js"
-              `(:id ,(coerce-gist-id gist))))
+  (when (or (not (gist-p gist))
+            (gist-public-p gist))
+    (bind-plist "http://gist.github.com/:id.js"
+                `(:id ,(coerce-gist-id gist)))))
 
 ;; Gist ID への変換
 (defun coerce-gist-id (id)
