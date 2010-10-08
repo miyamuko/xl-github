@@ -1,5 +1,8 @@
 2010-10-08  MIYAMUKO Katsuyuki
 
+	* api/gist-unofficial.l (deleted-gist-p): 削除された Gist なら t を返す。
+	実際に通信するのでちょっと時間がかかる。
+
 	* api/types.l (gist-private-p): gist-public-p の反対の関数を追加
 
 	* api/types.l (gist-public-p): gist 構造体だけではなく ID (文字列または数値)

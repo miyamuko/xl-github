@@ -50,6 +50,7 @@
           gist-fork-p
           get-gist-parent
           list-gist-forks
+          deleted-gist-p
           ))
 
 
@@ -224,6 +225,13 @@
                  :callback callback
                  :nomsg nomsg))
 
+(defun deleted-gist-p (id &key callback nomsg)
+  (setf id (coerce-gist-id id))
+  (get-gist-page id
+                 :key (compose 'not 'null 'scan-deleted-message)
+                 :callback callback
+                 :nomsg nomsg))
+
 
 ;;; ### Utilities ###
 
@@ -316,8 +324,15 @@
     (when div
       (scan-all (car div) *gist-id-link-regexp* 1))))
 
+(defparameter *gist-deleted-regexp-pair* '("<div id=\"deleted_message\">" "</div>"))
+(defun scan-deleted-message (html)
+  (let ((div (scan-between html *gist-deleted-regexp-pair*
+                           :include-begin nil :include-end nil)))
+    (when (and div (car div))
+      (string-trim " \n" (car div)))))
 
-(defun scan-between (html pair &key (include-end t))
+
+(defun scan-between (html pair &key (include-begin t) (include-end t))
   (let ((split-start 0)
         (search-start 0)
         (result nil)
@@ -328,7 +343,7 @@
       (let ((beg (match-beginning 0))
             (end (match-end 0)))
         (push (substring html split-start beg) result)
-        (setf split-start beg
+        (setf split-start (if include-begin beg end)
               search-start end)))
     (push (substring html split-start) result)
     ;; 最初の要素は begin を含んでいない
