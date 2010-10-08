@@ -1,5 +1,30 @@
 2010-10-08  MIYAMUKO Katsuyuki
 
+	* api/gist-unofficial.l (scan-gist-list), api/types.l (gist-lines): Gist の
+	一覧ページにある Gist 本文の最初の 3 行を解析するようにした。
+	gist-lines で取得可能。
+	Gist 取得関数のここまでのまとめ。
+	- list-public-gists
+	  - 指定したユーザの Public な Gist を API で取得
+	  - ページングなし。全データを一回で返す
+	  - 自分の Gist であっても Private な Gist も取得できない
+	  - gist-files を取得する唯一の方法
+	  - gist-lines は nil
+	- list-all-gists
+	  - すべてのユーザの Gist を Web スクレイピングで取得
+	  - ページングあり、2 つ目の戻り値で次のページ番号を返す
+	  - 匿名ユーザの Gist, Private な Gist は取得できない
+	  - gist-files は nil
+	- list-my-gists
+	  - 自分の Gist を Web スクレイピングで取得
+	  - ページングあり、2 つ目の戻り値で次のページ番号を返す
+	  - Private な Gist も取得可能
+	  - gist-files は nil
+	- list-starred-gists
+	  - 自分がスターをつけた Gist を Web スクレイピングで取得
+	  - ページングあり、2 つ目の戻り値で次のページ番号を返す
+	  - gist-files と gist-owner は nil
+
 	* api/gist-unofficial.l (deleted-gist-p): 削除された Gist なら t を返す。
 	実際に通信するのでちょっと時間がかかる。
 

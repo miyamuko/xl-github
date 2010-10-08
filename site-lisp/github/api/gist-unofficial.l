@@ -26,6 +26,7 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
+  (mc-require "github/utils/html")
   (mc-require "github/api/gist")
   (mc-require "github/api/gist-filetype")
   )
@@ -269,12 +270,13 @@
                  :raw t :nomsg nomsg)))
 
 (defparameter *gist-id-link-regexp* "<a href=\"/\\([0-9a-f]+\\)\">gist:")
-(defparameter *gist-list-file-regexp-pair* '("<div class=\"file " "<div class=\"data "))
+(defparameter *gist-list-file-regexp-pair* '("<div class=\"file " "</table>"))
 (defparameter *gist-list-span-regexp-pair* '("<span" "</span>"))
 (defparameter *gist-list-desc-regexp* "<span>\\(.+?\\)</span>")
 (defparameter *gist-list-visibility-regexp* "<div class=\"file \\([a-z]+\\)\">")
 (defparameter *gist-list-owner-regexp* "by <a href=\"/\\(.+?\\)\">")
 (defparameter *gist-list-created-at-regexp* "<abbr class=\"relatize\" title=\"\\(.+?\\)\">")
+(defparameter *gist-list-pre-regexp-pair* '("<pre>" "</pre>"))
 (defparameter *gist-list-next-page-regexp* "<a href=\"/[a-z]+\\?.*?page=\\([0-9]+\\).*?\" hotkey=\"l\">")
 (defun scan-gist-list (html page has-page-link)
   (let ((gists (mapcar #'(lambda (file)
@@ -283,9 +285,12 @@
                                   (desc (scan1 (cadr spans) *gist-list-desc-regexp* 1))
                                   (visibility (scan1 file *gist-list-visibility-regexp* 1))
                                   (owner (scan1 file *gist-list-owner-regexp* 1))
-                                  (created-at (scan1 file *gist-list-created-at-regexp* 1)))
+                                  (created-at (scan1 file *gist-list-created-at-regexp* 1))
+                                  (pre (scan-between file *gist-list-pre-regexp-pair*)))
                              (make-gist :id id :description desc :owner owner :created-at created-at
-                                        :public-p (string= visibility "public"))))
+                                        :public-p (string= visibility "public")
+                                        :lines (scan-gist-lines pre)
+                                        )))
                        (scan-between html *gist-list-file-regexp-pair* :include-end nil)))
         (next (scan1 html *gist-list-next-page-regexp* 1)))
     (values gists
@@ -331,6 +336,12 @@
     (when (and div (car div))
       (string-trim " \n" (car div)))))
 
+(defparameter *gist-line-regexp-pair* '("<div class='line'.*?>" "</div>"))
+(defun scan-gist-lines (pre)
+  (when pre
+    (let ((divs (scan-between (car pre) *gist-line-regexp-pair*
+                              :include-begin nil :include-end nil)))
+      (mapcar #'clean-html divs))))
 
 (defun scan-between (html pair &key (include-begin t) (include-end t))
   (let ((split-start 0)
@@ -375,6 +386,9 @@
         (mapcar #'match-string group))
     (when must-match
       (plain-error "Failed to scrape html: ~S" regexp))))
+
+(defun clean-html (html)
+  (html-unescape (html-remove-tag html)))
 
 
 (provide "github/api/gist-unofficial")

@@ -375,7 +375,7 @@
 
 ;; Gist
 (defstruct gist
-  id owner description public-p files created-at)
+  id owner description public-p created-at files lines)
 (export-struct 'gist)
 (setf (get 'gist 'github-slot-mapping)
       '(:repo :id
