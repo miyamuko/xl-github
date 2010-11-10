@@ -1,4 +1,4 @@
-﻿; -*- mode: lisp; package: user; encoding: utf-8 -*-
+; -*- mode: lisp; package: user; encoding: shift_jis -*-
 
 ;;; github/api.l
 ;;
@@ -28,16 +28,16 @@
 (in-package :user)
 
 ;; GitHub API v2 bindings
-(mc-require "github/api/commits")
-(mc-require "github/api/gist")
-(mc-require "github/api/issues")
-(mc-require "github/api/network")
-(mc-require "github/api/object")
-(mc-require "github/api/repo")
-(mc-require "github/api/users")
+(require "github/api/commits")
+(require "github/api/gist")
+(require "github/api/issues")
+(require "github/api/network")
+(require "github/api/object")
+(require "github/api/repo")
+(require "github/api/users")
 
 ;; Web scraping API
-(mc-require "github/api/gist-unofficial")
+(require "github/api/gist-unofficial")
 
 
 (provide "github/api")

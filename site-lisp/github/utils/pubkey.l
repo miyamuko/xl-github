@@ -1,4 +1,4 @@
-ï»¿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/utils/pubkey.l
 ;;
@@ -26,8 +26,8 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
-  (mc-require "github/utils/file")
+  (require "github/package")
+  (require "github/utils/file")
   )
 
 (in-package :github)
@@ -42,7 +42,7 @@
                 (string= "---- END SSH2 PUBLIC KEY ----" (car (last lines))))
            (convert-rfc4716->openssh lines))
           (t
-           (plain-error "ã‚µãƒãƒ¼ãƒˆã—ã¦ã„ãªã„å…¬é–‹éµã®ãƒ•ã‚©ãƒ¼ãƒãƒƒãƒˆã§ã™")))))
+           (plain-error "ƒTƒ|[ƒg‚µ‚Ä‚¢‚È‚¢ŒöŠJŒ®‚ÌƒtƒH[ƒ}ƒbƒg‚Å‚·")))))
 
 ;; The Secure Shell (SSH) Public Key File Format
 ;; http://www.ietf.org/rfc/rfc4716.txt

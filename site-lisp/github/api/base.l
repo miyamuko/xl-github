@@ -1,4 +1,4 @@
-ï»¿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/api/base.l
 ;;
@@ -26,15 +26,15 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
-  (mc-require "github/http")
-  (mc-require "github/git-config")
-  (mc-require "github/utils/symbol")
-  (mc-require "github/utils/struct")
-  (mc-require "github/utils/function")
-  (mc-require "github/utils/srfi-26")
-  (mc-require "github/utils/pubkey")
-  (mc-require "github/api/types")
+  (require "github/package")
+  (require "github/http")
+  (require "github/git-config")
+  (require "github/utils/symbol")
+  (require "github/utils/struct")
+  (require "github/utils/function")
+  (require "github/utils/srfi-26")
+  (require "github/utils/pubkey")
+  (require "github/api/types")
   )
 
 (in-package :github)
@@ -86,7 +86,7 @@
   (multiple-value-bind (login token)
       (get-credential)
     (unless (and login token)
-      (plain-error "github.user ã¨ github.token ã‚’ git config ã§è¨­å®šã—ã¦ãã ã•ã„"))
+      (plain-error "github.user ‚Æ github.token ‚ğ git config ‚Åİ’è‚µ‚Ä‚­‚¾‚³‚¢"))
     (setf *github-login* login
           *github-token* token)))
 
@@ -117,7 +117,7 @@
         (root (getf return-type :root))
         (list (getf return-type :list))
         (object (getf return-type :object)))
-    ;; ç”Ÿãƒ†ã‚­ã‚¹ãƒˆ
+    ;; ¶ƒeƒLƒXƒg
     (when (or raw (eql *github-return-type* :raw))
       (return-from process-response r))
     ;; json
@@ -126,12 +126,12 @@
               nil))
     (when (eql *github-return-type* :json-with-root)
       (return-from process-response r))
-    ;; root ã‚­ãƒ¼ã®å€¤ (ãŸã¶ã‚“ alist)
+    ;; root ƒL[‚Ì’l (‚½‚Ô‚ñ alist)
     (when root
       (setf r (json-value r root)))
     (when (not object)
       (return-from process-response r))
-    ;; root ã‚­ãƒ¼ã®å€¤ (alist)
+    ;; root ƒL[‚Ì’l (alist)
     (when (eql *github-return-type* :json-keys)
       (return-from process-response (json-object-keys (if list (car r) r))))
     (when (eql *github-return-type* :plist)
@@ -140,10 +140,10 @@
       (return-from process-response r))
     (when (not type)
       (return-from process-response r))
-    ;; type ãŒé–¢æ•°ãªã‚‰é–¢æ•°ã‚’å®Ÿè¡Œã—ã¦ type ã‚’æ±ºå®š
+    ;; type ‚ªŠÖ”‚È‚çŠÖ”‚ğÀs‚µ‚Ä type ‚ğŒˆ’è
     (when (functionp type)
       (setf type (funcall type r)))
-    ;; json ã‚’æ§‹é€ ä½“ã«å¤‰æ›ã™ã‚‹
+    ;; json ‚ğ\‘¢‘Ì‚É•ÏŠ·‚·‚é
     (apply-converter #'(lambda (e) (json->struct type e)) r list)))
 
 (defun apply-converter (converter json list)

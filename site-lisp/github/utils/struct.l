@@ -1,4 +1,4 @@
-ï»¿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/utils/struct.l
 ;;
@@ -29,8 +29,8 @@
 ;; This file based on site-lisp/cairo/util/struct.l
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
-  (mc-require "github/utils/symbol")
+  (require "github/package")
+  (require "github/utils/symbol")
   )
 
 (in-package :github)
@@ -59,7 +59,7 @@
    (struct-definition struct)))
 
 (defun struct-predicate (struct)
-  ;; defstruct ã«æŒ‡å®šã—ãŸ predicate ã¯å–å¾—ã§ããªã„ã®ã§æ±ºã‚ã†ã¡
+  ;; defstruct ‚Éw’è‚µ‚½ predicate ‚Íæ“¾‚Å‚«‚È‚¢‚Ì‚ÅŒˆ‚ß‚¤‚¿
   (intern (format nil "~A-p" (struct-name struct))))
 
 (defun struct-constructor (struct)

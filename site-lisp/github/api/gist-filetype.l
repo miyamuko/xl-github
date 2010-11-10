@@ -1,4 +1,4 @@
-ï»¿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/api/gist-filetype.l
 ;;
@@ -26,7 +26,7 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
+  (require "github/package")
   )
 
 (in-package :github)
@@ -40,7 +40,7 @@
 
 (defvar *gist-default-filetype* ".txt")
 
-;; ("æ‹¡å¼µå­" "è¨€èª" [xyzzyã®ãƒ¢ãƒ¼ãƒ‰...])
+;; ("Šg’£q" "Œ¾Œê" [xyzzy‚Ìƒ‚[ƒh...])
 (defvar *gist-filetype-list*
   '((".txt" "Plain Text" text-mode fundamental-mode)
     (".as" "ActionScript")
@@ -165,7 +165,7 @@
                                    (substitute-string name (car noise) (cadr noise) :case-fold t))
                                '("inferior" "interaction" "mode" "minor"
                                  "^-+\\|-+$"
-                                 ("\\([^\\+]\\)\\+$" "\\1") ;; html+-mode ã‚„ css+-mode
+                                 ("\\([^\\+]\\)\\+$" "\\1") ;; html+-mode ‚â css+-mode
                                  )
                                :initial-value name)))
       (or (get-gist-filetype-by name mode)
@@ -189,10 +189,10 @@
       (cond (filetype
              filetype)
             ((= 1 (length candidates))
-             ;; ã‚ã„ã¾ã„ãƒãƒƒãƒã®çµæœå€™è£œãŒ 1 ã¤ãªã‚‰ãã‚Œã‚’è¿”ã™
+             ;; ‚ ‚¢‚Ü‚¢ƒ}ƒbƒ`‚ÌŒ‹‰ÊŒó•â‚ª 1 ‚Â‚È‚ç‚»‚ê‚ğ•Ô‚·
              (car candidates))
             (candidates
-             (error "ãƒ•ã‚¡ã‚¤ãƒ«ã‚¿ã‚¤ãƒ—ãŒã‚ã„ã¾ã„ã§ã™: ~A~%~{~S~%~}" arg candidates))
+             (error "ƒtƒ@ƒCƒ‹ƒ^ƒCƒv‚ª‚ ‚¢‚Ü‚¢‚Å‚·: ~A~%~{~S~%~}" arg candidates))
             (t
              nil)))))
 
@@ -204,10 +204,10 @@
     (dolist (type *gist-filetype-list*)
       (cond ((or (string-equal (car type) .name)
                  (member name type :test #'string-equal :key #'string))
-             ;; æ­£ç¢ºãªãƒãƒƒãƒ
+             ;; ³Šm‚Èƒ}ƒbƒ`
              (setf exact type))
             ((member name type :test #'string-matchp :key #'string)
-             ;; ã‚ã„ã¾ã„ãƒãƒƒãƒ
+             ;; ‚ ‚¢‚Ü‚¢ƒ}ƒbƒ`
              (push type candidates))))
     (values exact candidates)))
 

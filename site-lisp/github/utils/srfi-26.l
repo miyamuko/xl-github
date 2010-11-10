@@ -1,4 +1,4 @@
-﻿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/utils/srfi-26.l
 ;;
@@ -26,7 +26,7 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
+  (require "github/package")
   )
 
 (in-package :github)

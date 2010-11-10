@@ -1,4 +1,4 @@
-ï»¿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/utils/file.l
 ;;
@@ -26,7 +26,7 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
+  (require "github/package")
   )
 
 (in-package :github)
@@ -45,16 +45,16 @@
 (defun normalize-filename (filename)
   (when (or (not filename)
             (string= filename ""))
-    (error "ãƒ•ã‚¡ã‚¤ãƒ«åãŒç©ºã§ã™: ~S" filename))
+    (error "ƒtƒ@ƒCƒ‹–¼‚ª‹ó‚Å‚·: ~S" filename))
   (setf filename (namestring filename))
   (when (file-exist-p filename)
     (setf filename (truename filename)))
   (when (special-file-p filename)
-    (error "~Aã¯ãƒ‡ãƒã‚¤ã‚¹ãƒ•ã‚¡ã‚¤ãƒ«ã§ã™" filename))
+    (error "~A‚ÍƒfƒoƒCƒXƒtƒ@ƒCƒ‹‚Å‚·" filename))
   (when (file-directory-p filename)
-    (error "~Aã¯ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã§ã™" filename))
+    (error "~A‚ÍƒfƒBƒŒƒNƒgƒŠ‚Å‚·" filename))
   (unless (valid-path-p filename)
-    (error "~A\nãƒ•ã‚¡ã‚¤ãƒ«ã¾ãŸã¯ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“" filename))
+    (error "~A\nƒtƒ@ƒCƒ‹‚Ü‚½‚ÍƒfƒBƒŒƒNƒgƒŠ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ" filename))
   filename)
 
 (defun add-leading-dot (ext)

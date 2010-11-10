@@ -1,4 +1,4 @@
-﻿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/api/gist.l
 ;;
@@ -26,7 +26,7 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/api/base")
+  (require "github/api/base")
   )
 
 (in-package :github)

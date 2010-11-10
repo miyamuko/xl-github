@@ -27,8 +27,8 @@
 
 (in-package :user)
 
-(mc-require "github/about")
-(mc-require "github/api")
+(require "github/about")
+(require "github/api")
 
 (provide "github")
 

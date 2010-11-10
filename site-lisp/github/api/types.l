@@ -1,4 +1,4 @@
-ï»¿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/api/types.l
 ;;
@@ -26,9 +26,9 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
-  (mc-require "github/utils/struct")
-  (mc-require "github/utils/file")
+  (require "github/package")
+  (require "github/utils/struct")
+  (require "github/utils/file")
   )
 
 (in-package :github)
@@ -70,14 +70,14 @@
 
 ;;; ## Repositories & Users API ##
 
-;; ç§˜å¯†éµã®æƒ…å ±
+;; ”é–§Œ®‚Ìî•ñ
 (defstruct public-key
   id title body)
 (setf (get 'public-key 'github-slot-mapping)
       '(:key :body))
 (export-struct 'public-key)
 
-;; Public Key ID ã¸ã®å¤‰æ›
+;; Public Key ID ‚Ö‚Ì•ÏŠ·
 (defun coerce-public-key-id (key-id)
   (check-type key-id (or integer public-key))
   (if (public-key-p key-id)
@@ -87,7 +87,7 @@
 
 ;;; ## Repositories API ##
 
-;; æ¤œç´¢çµæœã®ãƒªãƒã‚¸ãƒˆãƒª
+;; ŒŸõŒ‹‰Ê‚ÌƒŠƒ|ƒWƒgƒŠ
 (defstruct searched-repo
   owner name description
   pushed-at created-at
@@ -101,7 +101,7 @@
         :fork :fork-p))
 (export-struct 'searched-repo)
 
-;; æ™®é€šã®ãƒªãƒã‚¸ãƒˆãƒª
+;; •’Ê‚ÌƒŠƒ|ƒWƒgƒŠ
 (defstruct repo
   owner name description
   pushed-at created-at
@@ -116,26 +116,26 @@
 (export-struct 'repo)
 
 
-;; ãƒ¦ãƒ¼ã‚¶åã¨ãƒªãƒã‚¸ãƒˆãƒªåã¸ã®å¤‰æ›
+;; ƒ†[ƒU–¼‚ÆƒŠƒ|ƒWƒgƒŠ–¼‚Ö‚Ì•ÏŠ·
 (defun coerce-owner-and-repo (owner/repo)
   (check-type owner/repo (or string list repo))
   (multiple-value-bind (owner repo)
       (parse-owner/repo owner/repo)
     (unless owner
-      (error (format nil "ownerãŒæŒ‡å®šã•ã‚Œã¦ã„ã¾ã›ã‚“: ~S" owner/repo)))
+      (error (format nil "owner‚ªw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ: ~S" owner/repo)))
     (unless repo
-      (error (format nil "repoãŒæŒ‡å®šã•ã‚Œã¦ã„ã¾ã›ã‚“: ~S" owner/repo)))
+      (error (format nil "repo‚ªw’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñ: ~S" owner/repo)))
     (check-type owner string)
     (check-type repo string)
     (values owner repo)))
 
-;; ãƒªãƒã‚¸ãƒˆãƒªåã¸ã®å¤‰æ›
+;; ƒŠƒ|ƒWƒgƒŠ–¼‚Ö‚Ì•ÏŠ·
 (defun coerce-repo-name (repo)
   (check-type repo (or string list repo))
   (multiple-value-bind (owner repo)
       (parse-owner/repo repo)
-    ;; "owner/repo" ã®å ´åˆ owner="owner", repo="repo" ã«ãªã‚‹ã®ã§ repo ã‚’è¿”ã™
-    ;; "repo" ã®å ´åˆã¯ owner="repo", repo=nil ã«ãªã‚‹ã®ã§ owner ã‚’è¿”ã™
+    ;; "owner/repo" ‚Ìê‡ owner="owner", repo="repo" ‚É‚È‚é‚Ì‚Å repo ‚ğ•Ô‚·
+    ;; "repo" ‚Ìê‡‚Í owner="repo", repo=nil ‚É‚È‚é‚Ì‚Å owner ‚ğ•Ô‚·
     (or repo owner)))
 
 (defun parse-owner/repo (owner/repo)
@@ -222,12 +222,12 @@
 
 ;;; ## Users API ##
 
-;; ãƒ¦ãƒ¼ã‚¶ã®ãƒ—ãƒ©ãƒ³
+;; ƒ†[ƒU‚Ìƒvƒ‰ƒ“
 (defstruct plan
   name space collaborators private-repos)
 (export-struct 'plan)
 
-;; æ¤œç´¢çµæœã®ãƒ¦ãƒ¼ã‚¶
+;; ŒŸõŒ‹‰Ê‚Ìƒ†[ƒU
 (defstruct searched-user
   id login fullname location
   followers-count public-repo-count
@@ -247,7 +247,7 @@
           id)))
 (export-struct 'searched-user)
 
-;; æ™®é€šã®ãƒ¦ãƒ¼ã‚¶
+;; •’Ê‚Ìƒ†[ƒU
 (defstruct user
   id login fullname location
   email blog company
@@ -259,7 +259,7 @@
         ))
 (export-struct 'user)
 
-;; èªè¨¼ã•ã‚ŒãŸãƒ¦ãƒ¼ã‚¶
+;; ”FØ‚³‚ê‚½ƒ†[ƒU
 (defstruct (auth-user (:include user))
   collaborators disk-usage
   owned-private-repo-count private-gist-count total-private-repo-count
@@ -269,7 +269,7 @@
         ))
 (export-struct 'auth-user)
 
-;; ãƒ¦ãƒ¼ã‚¶åã¸ã®å¤‰æ›
+;; ƒ†[ƒU–¼‚Ö‚Ì•ÏŠ·
 (defun coerce-user-login (user)
   (check-type user (or string user))
   (if (user-p user)
@@ -316,7 +316,7 @@
   (modified nil :type modified))
 (export-struct 'commit)
 
-;; base.l ã® json->struct å†…ã§åˆ©ç”¨
+;; base.l ‚Ì json->struct “à‚Å—˜—p
 (setf (get 'commit-parents 'github-filter) (lambda (json) (json-value json "id"))
       (get 'commit-parents 'github-json-list) t)
 (setf (get 'commit-modified 'github-json-list) t)
@@ -324,7 +324,7 @@
 
 ;;; ## Issue API ##
 
-;; Issue ã®ã‚³ãƒ¡ãƒ³ãƒˆ
+;; Issue ‚ÌƒRƒƒ“ƒg
 (defstruct issue-comment
   id user gravatar-id
   created-at updated-at
@@ -338,7 +338,7 @@
   created-at updated-at closed-at)
 (export-struct 'issue)
 
-;; Issue number ã¸ã®å¤‰æ›
+;; Issue number ‚Ö‚Ì•ÏŠ·
 (defun coerce-issue-number (issue)
   (check-type issue (or integer issue))
   (if (issue-p issue)
@@ -357,7 +357,7 @@
 (export-struct 'network-users)
 (setf (get 'network-users-heads 'github-json-list) t
       (get 'network-users-heads 'github-filter)
-      ;; list-repo-branches ã®çµæœã¨åˆã‚ã›ã‚‹
+      ;; list-repo-branches ‚ÌŒ‹‰Ê‚Æ‡‚í‚¹‚é
       (lambda (json)
         (cons (json-value json "name")
               (json-value json "id"))))
@@ -381,10 +381,10 @@
       '(:repo :id
         :public :public-p))
 
-;; æ§‹é€ ä½“ã®ã‚¹ãƒ­ãƒƒãƒˆã‚’ä¸Šæ›¸ãã—ã¦ Gist ID ã‚‚å¼•æ•°ã¨ã—ã¦å—ã‘ä»˜ã‘ã‚‹ã‚ˆã†ã«ã™ã‚‹
-;; Private ãª Gist ã® ID ã¯ 20 byte ã® 16 é€²æ•°ã«ãªã‚‹ã®ã§
-;; ID ã«ã‚¢ãƒ«ãƒ•ã‚¡ãƒ™ãƒƒãƒˆãŒå«ã¾ã‚Œã‚‹ã‹ã©ã†ã‹ã§åˆ¤æ–­ã™ã‚‹ã€‚
-;; å¶ç„¶ã€æ•°å­—ã®ã¿ã§æ§‹æˆã•ã‚ŒãŸ Private ID ãŒã‚ã£ãŸã‚‰ã€ã‚ãã‚‰ã‚ã¦ Public ã‚’è¿”ã™
+;; \‘¢‘Ì‚ÌƒXƒƒbƒg‚ğã‘‚«‚µ‚Ä Gist ID ‚àˆø”‚Æ‚µ‚Äó‚¯•t‚¯‚é‚æ‚¤‚É‚·‚é
+;; Private ‚È Gist ‚Ì ID ‚Í 20 byte ‚Ì 16 i”‚É‚È‚é‚Ì‚Å
+;; ID ‚ÉƒAƒ‹ƒtƒ@ƒxƒbƒg‚ªŠÜ‚Ü‚ê‚é‚©‚Ç‚¤‚©‚Å”»’f‚·‚éB
+;; ‹ô‘RA”š‚Ì‚İ‚Å\¬‚³‚ê‚½ Private ID ‚ª‚ ‚Á‚½‚çA‚ ‚«‚ç‚ß‚Ä Public ‚ğ•Ô‚·
 (defun gist-public-p (gist)
   (check-type gist (or integer string gist))
   (cond ((gist-p gist)
@@ -426,7 +426,7 @@
     (bind-plist "http://gist.github.com/:id.js"
                 `(:id ,(coerce-gist-id gist)))))
 
-;; Gist ID ã¸ã®å¤‰æ›
+;; Gist ID ‚Ö‚Ì•ÏŠ·
 (defun coerce-gist-id (id)
   (check-type id (or integer string gist))
   (if (gist-p id)
@@ -434,7 +434,7 @@
     id))
 
 
-;; Gist ã®å†…å®¹ã‚’è¡¨ã™æ§‹é€ ä½“
+;; Gist ‚Ì“à—e‚ğ•\‚·\‘¢‘Ì
 
 (defstruct gist-file
   name lang contents)
@@ -450,12 +450,12 @@
 
 (defun normalize-gist-file (files)
   (unless files
-    (error "filesãŒnilã§ã™"))
+    (error "files‚ªnil‚Å‚·"))
   (when (atom files)
     (setf files (list files)))
   (mapcar #'(lambda (file)
               (unless (typep file '(or string gist-file))
-                (error "filesã¯ãƒ•ã‚¡ã‚¤ãƒ«åã¾ãŸã¯gist-fileã®ãƒªã‚¹ãƒˆã‚’æŒ‡å®šã—ã¦ãã ã•ã„"))
+                (error "files‚Íƒtƒ@ƒCƒ‹–¼‚Ü‚½‚Ígist-file‚ÌƒŠƒXƒg‚ğw’è‚µ‚Ä‚­‚¾‚³‚¢"))
               (if (stringp file)
                   (make-gist-file-from-pathname file)
                 (let ((contents (gist-file-contents file)))
@@ -463,14 +463,14 @@
                   file)))
           files))
 
-;; Web ã‹ã‚‰ Gist ã‚’ä½œæˆã™ã‚‹ã¨ name ãŒæŒ‡å®šã•ã‚Œã¦ã„ã‚‹ã¨ Language æŒ‡å®šã¯ç„¡è¦–ã•ã‚Œã‚‹ã®ã§
-;; ãã®æŒ™å‹•ã«åˆã‚ã›ã‚‹
+;; Web ‚©‚ç Gist ‚ğì¬‚·‚é‚Æ name ‚ªw’è‚³‚ê‚Ä‚¢‚é‚Æ Language w’è‚Í–³‹‚³‚ê‚é‚Ì‚Å
+;; ‚»‚Ì‹““®‚É‡‚í‚¹‚é
 (defun get-gist-ext (file)
   (add-leading-dot
    (or (cond ((gist-file-name file)
               (or (safe-car (get-gist-filetype-by-name (gist-file-name file)))
                   (progn
-                    (warn "ãƒ•ã‚¡ã‚¤ãƒ«ã‚¿ã‚¤ãƒ—ãŒä¸æ˜ãªãŸã‚ ~A ã¨ã—ã¦æ‰±ã„ã¾ã™ (Gist name: ~A, lang: ~A)"
+                    (warn "ƒtƒ@ƒCƒ‹ƒ^ƒCƒv‚ª•s–¾‚È‚½‚ß ~A ‚Æ‚µ‚Äˆµ‚¢‚Ü‚· (Gist name: ~A, lang: ~A)"
                           *gist-default-filetype* (gist-file-name file) (gist-file-lang file))
                     *gist-default-filetype*)))
               ((gist-file-lang file)

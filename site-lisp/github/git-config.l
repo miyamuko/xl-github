@@ -1,4 +1,4 @@
-﻿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/git-config.l
 ;;
@@ -26,9 +26,9 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
-  (mc-require "github/utils/symbol")
-  (mc-require "github/utils/process")
+  (require "github/package")
+  (require "github/utils/symbol")
+  (require "github/utils/process")
   )
 
 (in-package :github)

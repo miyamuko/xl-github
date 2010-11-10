@@ -1,4 +1,4 @@
-ï»¿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/utils/function.l
 ;;
@@ -26,7 +26,7 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/package")
+  (require "github/package")
   )
 
 (in-package :github)
@@ -41,7 +41,7 @@
                 functions)
       #'values)))
 
-;; ãƒ‡ãƒãƒƒã‚°ç”¨ã®é–¢æ•°ã€‚compose ã®é€”ä¸­ã«ã¯ã•ã‚“ã§å€¤ã‚’é™¤ãè¦‹ã‚‹
+;; ƒfƒoƒbƒO—p‚ÌŠÖ”Bcompose ‚Ì“r’†‚É‚Í‚³‚ñ‚Å’l‚ğœ‚«Œ©‚é
 ;; (funcall (compose '1+ (tap "before 1+") '*  (tap "before *")) 1 2 3)
 (defun tap (&optional name)
   #'(lambda (&rest args)

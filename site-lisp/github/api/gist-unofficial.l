@@ -1,4 +1,4 @@
-ï»¿; -*- mode: lisp; package: github; encoding: utf-8 -*-
+; -*- mode: lisp; package: github; encoding: shift_jis -*-
 
 ;;; github/api/gist-unofficial.l
 ;;
@@ -26,9 +26,9 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/utils/html")
-  (mc-require "github/api/gist")
-  (mc-require "github/api/gist-filetype")
+  (require "github/utils/html")
+  (require "github/api/gist")
+  (require "github/api/gist-filetype")
   )
 
 (in-package :github)
@@ -64,7 +64,7 @@
               :callback callback :nomsg nomsg))
 
 (defun list-starred-gists (&key page all callback nomsg)
-  ;; owner ã¯å–å¾—ã§ããªã„
+  ;; owner ‚Íæ“¾‚Å‚«‚È‚¢
   (check-nullable-type page integer)
   (list-gists "starred"
               :has-page-link t :page page :all all
@@ -295,12 +295,12 @@
         (next (scan1 html *gist-list-next-page-regexp* 1)))
     (values gists
             (cond (has-page-link
-                   ;; My Gists ã¾ãŸã¯ Starred Gists ã®å ´åˆ
+                   ;; My Gists ‚Ü‚½‚Í Starred Gists ‚Ìê‡
                    (when next
                      (parse-integer next)))
                   (t
-                   ;; All Gists ã®å ´åˆã€æ¬¡ã®ãƒšãƒ¼ã‚¸ç•ªå·ãŒå–ã‚Œãªã„ã®ã§
-                   ;; æœ€å¾Œã® Gist (id=1) ãŒå‡ºã‚‹ã¾ã§ã¯æ¬¡ã®ãƒšãƒ¼ã‚¸ã¯ã‚ã‚‹ã¯ãš
+                   ;; All Gists ‚Ìê‡AŸ‚Ìƒy[ƒW”Ô†‚ªæ‚ê‚È‚¢‚Ì‚Å
+                   ;; ÅŒã‚Ì Gist (id=1) ‚ªo‚é‚Ü‚Å‚ÍŸ‚Ìƒy[ƒW‚Í‚ ‚é‚Í‚¸
                    (when (and gists
                               (string/= (gist-id (car (last gists))) "1"))
                      (incf page)))))))
@@ -349,7 +349,7 @@
         (result nil)
         (begin (car pair))
         (end (cadr pair)))
-    ;; begin ã§åˆ†å‰²
+    ;; begin ‚Å•ªŠ„
     (while (string-matchp begin html search-start)
       (let ((beg (match-beginning 0))
             (end (match-end 0)))
@@ -357,9 +357,9 @@
         (setf split-start (if include-begin beg end)
               search-start end)))
     (push (substring html split-start) result)
-    ;; æœ€åˆã®è¦ç´ ã¯ begin ã‚’å«ã‚“ã§ã„ãªã„
+    ;; Å‰‚Ì—v‘f‚Í begin ‚ğŠÜ‚ñ‚Å‚¢‚È‚¢
     (setf result (cdr (nreverse result)))
-    ;; end ä»¥é™ã‚’å‰Šé™¤
+    ;; end ˆÈ~‚ğíœ
     (if end
         (mapcar #'(lambda (fragment)
                     (if (string-matchp end fragment)

@@ -1,3 +1,9 @@
+2010-11-10  MIYAMUKO Katsuyuki
+
+	* BOM 付きの UTF-8 にして誤認識を減らし、mc-byte-compile-file や
+	mc-require を使ってもエラーになる場合があったので、
+	あきらめて Shift_JIS にした。
+
 2010-10-08  MIYAMUKO Katsuyuki
 
 	* util/struct.l (export-struct): 構造体名と predicate も export
