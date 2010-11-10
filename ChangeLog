@@ -1,5 +1,9 @@
 2010-11-10  MIYAMUKO Katsuyuki
 
+	* api/base.l (json->struct): 未知の JSON キーが来た場合はエラーでは
+	なく warn にするようにした。
+	github::*error-on-unknown-slot* を t にすると error を出す。
+
 	* BOM 付きの UTF-8 にして誤認識を減らし、mc-byte-compile-file や
 	mc-require を使ってもエラーになる場合があったので、
 	あきらめて Shift_JIS にした。
