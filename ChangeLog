@@ -1,5 +1,8 @@
 2010-11-10  MIYAMUKO Katsuyuki
 
+	* api/base.l (json->struct): github-slot-ignore という属性リストで
+	指定した JSON キーを無視できるようにした。
+
 	* api/base.l (json->struct): 未知の JSON キーが来た場合はエラーでは
 	なく warn にするようにした。
 	github::*error-on-unknown-slot* を t にすると error を出す。
