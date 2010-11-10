@@ -87,18 +87,42 @@
 
 ;;; ## Repositories API ##
 
+(defstruct searched-repo-record
+  id name description
+  owner-id parent-id source-id primary-language-name-id organization-id plan-owner-id
+  homepage
+  master-branch integrate-branch
+  watcher-count public-fork-count
+  has-downloads has-issues has-wiki
+  sandbox pledgie public-push pull-request-auto-response
+  public-p deleted-p locked-p
+  created-at updated-at pushed-at
+  disk-usage cfg-wiki deploy-key
+  postreceive-urls)
+(setf (get 'searched-repo-record 'github-slot-mapping)
+      '(:public :public-p
+        :deleted :deleted-p
+        :locked :locked-p
+        ))
+
 ;; 検索結果のリポジトリ
 (defstruct searched-repo
   owner name description
   pushed-at created-at
   forks fork-p
   size language followers
-  score type id)
+  score type id
+  (record nil :type searched-repo-record))
 (setf (get 'searched-repo 'github-slot-mapping)
       '(:username :owner
         :pushed :pushed-at
         :created :created-at
-        :fork :fork-p))
+        :fork :fork-p
+        :repo-id :id   ;; repo-id  は数値。id スロットとして扱う。
+        ))
+(setf (get 'searched-repo 'github-slot-ignore)
+      '(:id            ;; id は "repo-(数値)" という形式。repo-id を id とするので無視する。
+        ))
 (export-struct 'searched-repo)
 
 ;; 普通のリポジトリ
@@ -106,7 +130,7 @@
   owner name description
   pushed-at created-at
   forks fork-p source parent
-  homepage url
+  homepage url organization
   watchers open-issues pledgie
   has-downloads has-issues has-wiki private-p)
 (setf (get 'repo 'github-slot-mapping)
@@ -232,7 +256,8 @@
   id login fullname location
   followers-count public-repo-count
   language score type username
-  created-at pushed-at)
+  created-at pushed-at
+  record) ;; record の中身がよく分からないのでとりあえずそのまま
 (setf (get 'searched-user 'github-slot-mapping)
       '(:name :login
         :created :created-at

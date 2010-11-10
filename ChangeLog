@@ -1,5 +1,18 @@
 2010-11-10  MIYAMUKO Katsuyuki
 
+	* api/types.l (repo, searched-repo-record, searched-repo, searched-user):
+	追加されたスロットに対応。
+	- repo
+	  - organization
+	- searched-repo
+	  - repo-id, record
+	- searched-repo-record
+	  - searched-repo の record のデータ型
+	- searched-user
+	  - record
+	  - searched-user の record は中身がどういうデータか分からなかったので
+	    構造体へのマッピングは未実装
+
 	* api/base.l (json->struct): github-slot-ignore という属性リストで
 	指定した JSON キーを無視できるようにした。
 
