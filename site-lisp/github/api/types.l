@@ -2,7 +2,7 @@
 
 ;;; github/api/types.l
 ;;
-;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
+;; Copyright (c) 2010-2011 MIYAMUKO Katsuyuki.
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining
 ;; a copy of this software and associated documentation files (the
@@ -130,7 +130,7 @@
   owner name description
   pushed-at created-at
   forks fork-p source parent
-  homepage url organization
+  homepage url organization size language
   watchers open-issues pledgie
   has-downloads has-issues has-wiki private-p)
 (setf (get 'repo 'github-slot-mapping)
@@ -278,7 +278,7 @@
   email blog company
   followers-count following-count
   public-repo-count public-gist-count
-  gravatar-id type created-at)
+  gravatar-id type created-at permission)
 (setf (get 'user 'github-slot-mapping)
       '(:name :fullname
         ))
@@ -334,7 +334,7 @@
 
 (defstruct commit
   id url message tree
-  parents
+  parents added removed
   committed-date authored-date
   (author nil :type contributor)
   (committer nil :type contributor)
