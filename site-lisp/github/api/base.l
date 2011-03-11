@@ -2,7 +2,7 @@
 
 ;;; github/api/base.l
 ;;
-;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
+;; Copyright (c) 2010-2011 MIYAMUKO Katsuyuki.
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining
 ;; a copy of this software and associated documentation files (the
@@ -180,13 +180,13 @@
     (dolist (key (json-object-keys json))
       (let* ((slot-name (keyword (substitute-string key "_" "-")))
              (slot-name (or (getf mapping slot-name)
-                            slot-name)))
+                            slot-name))
+             (obj (json-value json key :test #'string=)))
         (unless (member slot-name ignore :test #'string=)
           (if (member slot-name slots :test #'string=)
               (let* ((slot-type (struct-slot-type def slot-name))
                      (accessor (struct-slot-accessor name slot-name))
                      (list (get accessor 'github-json-list))
-                     (obj (json-value json key :test #'string=))
                      (converter (or (get accessor 'github-filter)
                                     (if (struct-name-p slot-type)
                                         #'(lambda (e) (json->struct slot-type e)))
@@ -196,7 +196,7 @@
                                            (funcall converter e))
                                        obj list)))
             (funcall (if *error-on-unknown-slot* 'error 'warn)
-                     (format nil "未知のキーです: ~A (構造体: ~A)" key name))))))
+                     (format nil "未知のスロットです: ~A.~A (値: ~A)" name key obj))))))
     struct))
 
 
