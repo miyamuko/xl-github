@@ -1,8 +1,8 @@
-; -*- mode: lisp; package: user; encoding: shift_jis -*-
+; -*- mode: lisp; package: github.v3 -*-
 
-;;; github/package.l
+;;; github/api/v3/git/import.l
 ;;
-;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
+;; Copyright (c) 2011 MIYAMUKO Katsuyuki.
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining
 ;; a copy of this software and associated documentation files (the
@@ -25,58 +25,38 @@
 
 ;;; Code:
 
-(in-package :user)
-
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (require "cmu_loop")
-
-  (require "xml-http-request")
-  (require "json")
-
-  (unless (find-package :github.base)
-    (defpackage :github.base
-      (:use
-       :lisp
-       :editor
-
-       :xml-http-request
-       :json
-       )
-      ))
-
-  (unless (find-package :github.core.v3)
-    (defpackage :github.core.v3
-      (:use
-       :lisp
-       :editor
-
-       :xml-http-request
-       :json
-
-       :github.base
-       )
-      ))
-
-  (unless (find-package :github)
-    (defpackage :github
-      (:nicknames :gh)
-      (:use
-       :lisp
-       :editor
-
-       :xml-http-request
-       :json
-
-       :github.base
-       :github.v3
-       )
-      ))
+  (require "github/api/v3/base")
   )
 
-(when (string< (xhr:xml-http-request-version) "1.3.0")
-  (msgbox "xml-http-request 1.3.0 ‚ª•K—v‚Å‚·B"))
+(in-package :github.v3)
 
+; ---
+; title: Git DB Import API v3 | developer.github.com
+; ---
 
-(provide "github/package")
+; # Import API
+
+; `git fast-import` input parser
+
+; Would this be cool?
+
+; See the [Pro Git book](http://progit.org/book/ch8-2.html#a_custom_importer) or the
+; [fast-import man page](http://www.kernel.org/pub/software/scm/git/docs/git-fast-import.html)
+; for more information about the fast-import syntax.
+
+; It would be awesome if there was some way to open up a streaming
+; listener and just stream this data to it in order to:
+
+; * import directly into github from the fast-export scripts that exist
+;   for multiple VCS systems
+
+; * be able to easily import multiple objects - for instance a series of
+;   commits without having to make multiple git calls
+
+; even without streaming capability, this might be pretty interesting
+; functionality.
+
+(provide "github/api/v3/git/import")
 
 ;;; End

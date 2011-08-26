@@ -1,8 +1,8 @@
-; -*- mode: lisp; package: github -*-
+; -*- mode: lisp; package: github.v3 -*-
 
-;;; github/api/<%= basename %>.l
+;;; github/api/v3/repos/forks.l
 ;;
-;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
+;; Copyright (c) 2011 MIYAMUKO Katsuyuki.
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining
 ;; a copy of this software and associated documentation files (the
@@ -26,8 +26,48 @@
 ;;; Code:
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (mc-require "github/api/base")
+  (require "github/api/v3/base")
   )
 
-(in-package :github)
+(in-package :github.v3)
 
+; ---
+; title: Repo Forks API v3 | developer.github.com
+; ---
+
+; # Repo Forks API
+(define-github-core :GET "/repos/:user/:repo/forks" "
+## List forks
+
+    GET /repos/:user/:repo/forks
+
+### Response
+
+<%= headers 200 %>
+<%= json(:repo) { |h| [h] } %>
+
+")
+
+(define-github-core :POST "/repos/:user/:repo/forks" "
+## Create a fork
+
+Create a fork for the authenicated user.
+
+    POST /repos/:user/:repo/forks
+
+### Parameters
+
+org
+: _Optional_ **String** - Organization login. The repository will be
+forked into this organization.
+
+### Response
+
+<%= headers 201 %>
+<%= json :repo %>
+")
+
+
+(provide "github/api/v3/repos/forks")
+
+;;; End

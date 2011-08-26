@@ -1,8 +1,8 @@
-; -*- mode: lisp; package: user; encoding: shift_jis -*-
+; -*- mode: lisp; package: github.v3 -*-
 
-;;; github/package.l
+;;; github/api/<%= basename %>.l
 ;;
-;; Copyright (c) 2010 MIYAMUKO Katsuyuki.
+;; Copyright (c) 2011 MIYAMUKO Katsuyuki.
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining
 ;; a copy of this software and associated documentation files (the
@@ -25,58 +25,14 @@
 
 ;;; Code:
 
-(in-package :user)
-
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (require "cmu_loop")
-
-  (require "xml-http-request")
-  (require "json")
-
-  (unless (find-package :github.base)
-    (defpackage :github.base
-      (:use
-       :lisp
-       :editor
-
-       :xml-http-request
-       :json
-       )
-      ))
-
-  (unless (find-package :github.core.v3)
-    (defpackage :github.core.v3
-      (:use
-       :lisp
-       :editor
-
-       :xml-http-request
-       :json
-
-       :github.base
-       )
-      ))
-
-  (unless (find-package :github)
-    (defpackage :github
-      (:nicknames :gh)
-      (:use
-       :lisp
-       :editor
-
-       :xml-http-request
-       :json
-
-       :github.base
-       :github.v3
-       )
-      ))
+  (require "github/api/v3/base")
   )
 
-(when (string< (xhr:xml-http-request-version) "1.3.0")
-  (msgbox "xml-http-request 1.3.0 ‚ª•K—v‚Å‚·B"))
+(in-package :github.v3)
 
+<%= contents %>
 
-(provide "github/package")
+(provide "github/api/<%= basename %>")
 
 ;;; End
